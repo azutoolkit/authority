@@ -1,0 +1,28 @@
+version: "3.7"
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: authority_db
+      POSTGRES_USER: auth_user
+      POSTGRES_PASSWORD: auth_pass
+    ports:
+      - 5432:5432
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ./start
+    container_name: web
+    working_dir: /root/
+    environment:
+      CRYSTAL_ENV: development
+      HOST: 0.0.0.0
+      PORT: 4000
+      DATABASE_URL: postgres://auth_user:auth_pass@db:5432/authority_db
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db

@@ -1,0 +1,30 @@
+---
+name: authority
+version: 0.1.0
+authors:
+- Elias Perez <eliasjpr@gmail.com>
+targets:
+  authority:
+    main: ./src/authority.cr
+  azu:
+    main: ./tasks/taskfile.cr
+crystal: 1.1.1
+license: MIT
+
+dependencies:
+  azu:
+    github: azutoolkit/azu
+  clear:
+    github: anykeyh/clear
+    version: ~> 0.9.0
+  authly:
+    github: azutoolkit/authly
+
+development_dependencies:
+  azu_cli:
+    github: azutoolkit/azu_cli
+    branch: master
+  faker:
+    github: askn/faker
+  flux:
+    github: azutoolkit/flux
