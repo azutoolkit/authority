@@ -1,25 +1,25 @@
 ---
 name: authority
 version: 0.1.0
+crystal: 1.2.1
+license: MIT
+
 authors:
 - Elias Perez <eliasjpr@gmail.com>
 targets:
-  authority:
-    main: ./src/authority.cr
+  server:
+    main: ./src/server.cr
   azu:
-    main: ./tasks/taskfile.cr
-crystal: 1.1.1
-license: MIT
+    main: ./taskfile.cr
 
 dependencies:
   azu:
     github: azutoolkit/azu
   clear:
     github: anykeyh/clear
-    version: ~> 0.9.0
   authly:
     github: azutoolkit/authly
-
+  
 development_dependencies:
   azu_cli:
     github: azutoolkit/azu_cli

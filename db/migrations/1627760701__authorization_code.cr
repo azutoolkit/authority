@@ -11,6 +11,8 @@ class CreateAuthorizationCode
         t.column :expires, "timestamp", null: false
         t.column :scope, "varchar(4000)", null: false
         t.column :id_token, "varchar(1000)", null: false
+        t.column :code_challenge, "varchar(128)", null: false
+        t.column :code_challenge_method, "varchar(10)", null: false
 
         t.timestamps
       end

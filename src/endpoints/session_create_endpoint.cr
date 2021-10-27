@@ -23,7 +23,8 @@ module Authority
         value: session_create_request.username,
         expires: 1.minute.from_now,
         samesite: HTTP::Cookie::SameSite::Strict,
-        secure: true
+        secure: true,
+        http_only: true,
       )
     end
 

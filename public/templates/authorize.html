@@ -41,7 +41,7 @@
   <main class="container">
     <div class="row justify-content-md-center">
       <div class="col col-lg-6 mt-5">
-        <form method="post" action="/oauth2/authorize">
+        <form method="post" action="{{authorize_endpoint}}">
           <input type="hidden" name="code" value="{{code}}" />
           <input type="hidden" name="state" value="{{state}}" />
           <input type="hidden" name="client_id" value="{{client.client_id}}" />

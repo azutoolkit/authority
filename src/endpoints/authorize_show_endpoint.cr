@@ -3,7 +3,7 @@ module Authority
   class AuthorizeShowEndpoint
     include Endpoint(AuthorizeShowRequest, EmptyResponse | AuthorizeShowResponse)
 
-    get "/oauth2/authorize"
+    get "/authorize"
 
     def call : EmptyResponse | AuthorizeShowResponse
       return signin unless user_login?
@@ -12,7 +12,7 @@ module Authority
       client = authorize_show_request.client
       scope = authorize_show_request.scope
 
-      AuthorizeShowResponse.new auth_code.code, auth_code.state, scope, client
+      AuthorizeShowResponse.new(auth_code, scope, client, "/authorize")
     end
 
     def signin

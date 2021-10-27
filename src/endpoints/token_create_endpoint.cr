@@ -4,7 +4,7 @@ module Authority
     include EndpointHelpers
     include Endpoint(TokenCreateRequest, TokenCreateResponse)
 
-    post "/oauth2/token"
+    post "/token"
 
     def call : TokenCreateResponse
       access_token = token_create_request.grant(*credentials)

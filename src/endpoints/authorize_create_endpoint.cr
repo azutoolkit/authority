@@ -2,7 +2,7 @@
 module Authority
   class AuthorizeCreateEndpoint
     include Endpoint(AuthorizeCreateRequest, EmptyResponse)
-    post "/oauth2/authorize"
+    post "/authorize"
 
     def call : EmptyResponse
       save_auth_code!

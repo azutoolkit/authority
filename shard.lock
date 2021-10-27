@@ -1,3 +1,4 @@
+# NOTICE: This lockfile contains some overrides from shard.override.yml
 version: 2.0
 shards:
   admiral:
@@ -50,7 +51,7 @@ shards:
 
   flux:
     git: https://github.com/azutoolkit/flux.git
-    version: 0.1.3
+    version: 0.1.4
 
   generate:
     git: https://github.com/anykeyh/generate.cr.git
@@ -62,7 +63,7 @@ shards:
 
   jwt:
     git: https://github.com/crystal-community/jwt.git
-    version: 1.5.1
+    version: 1.6.0
 
   marionette:
     git: https://github.com/watzon/marionette.git
@@ -76,9 +77,9 @@ shards:
     git: https://github.com/maiha/opts.cr.git
     version: 0.6.0
 
-  pg:
+  pg: # Overridden
     git: https://github.com/will/crystal-pg.git
-    version: 0.24.0+git.commit.cafe572e12966f7449477891fa65558954dbca5c
+    version: 0.23.2
 
   pretty:
     git: https://github.com/maiha/pretty.cr.git
