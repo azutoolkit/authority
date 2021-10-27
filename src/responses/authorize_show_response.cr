@@ -6,16 +6,18 @@ module Authority
 
     TEMPLATE = "authorize.html"
 
-    def initialize(@auth : Authly::Response::Code, @scope : String, @client : Client, @path : String)
+    def initialize(@authorize_show_request : AuthorizeShowRequest, @client : Client, @path : String)
     end
 
     def render
       render TEMPLATE, {
-        code:               @auth.code,
-        state:              @auth.state,
-        scope:              @scope,
-        authorize_endpoint: @path,
-        client:             {
+        code:                  @authorize_show_request.code.as(Authly::Response::Code).code,
+        state:                 @authorize_show_request.state,
+        scope:                 @authorize_show_request.scope,
+        authorize_endpoint:    @path,
+        code_challenge:        @authorize_show_request.code_challenge,
+        code_challenge_method: @authorize_show_request.code_challenge_method,
+        client:                {
           client_id:    @client.client_id,
           redirect_uri: @client.redirect_uri,
           name:         "Acme App",

@@ -18,6 +18,7 @@ module Authority
   end
 end
 
+require "./config/**"
 require "./services/**"
 require "./requests/**"
 require "./responses/**"

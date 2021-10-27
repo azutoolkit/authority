@@ -11,18 +11,21 @@ class AuthorizationCode < Flux
   end
 
   def call
-    redirect = step do |page|
-      page.visit @url
-      page.implicit_wait 5.seconds
-      page.fill "#username", @username
-      page.fill "#password", @password
-      page.submit "#signin"
+    redirect = step do
+      visit @url
 
-      page.implicit_wait 2.seconds
-      page.submit "#approve"
-      page.implicit_wait 2.seconds
+      implicit_wait 5.seconds
 
-      URI.parse(page.current_url).query_params
+      fill "#username", @username, by: :id
+      fill "#password", @password, by: :id
+      submit "#signin"
+
+      implicit_wait 5.seconds
+      submit "#approve"
+
+      implicit_wait 5.seconds
+
+      URI.parse(current_url).query_params
     end
 
     {redirect["code"].to_s, redirect["state"].to_s}

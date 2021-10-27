@@ -7,18 +7,21 @@ module Authority
 
     def call : EmptyResponse | AuthorizeShowResponse
       return signin unless user_login?
+      authorize_response
+    end
 
-      auth_code = authorize_show_request.code.as(Authly::Response::Code)
+    def authorize_response
       client = authorize_show_request.client
-      scope = authorize_show_request.scope
-
-      AuthorizeShowResponse.new(auth_code, scope, client, "/authorize")
+      AuthorizeShowResponse.new(authorize_show_request, client, "/authorize")
     end
 
     def signin
-      location = context.request.path + "?" + context.request.query.not_nil!
-      redirect to: "/signin?forward_url=#{Base64.urlsafe_encode(location)}", status: 302
+      redirect to: "/signin?forward_url=#{location}", status: 302
       EmptyResponse.new
+    end
+
+    def location
+      Base64.urlsafe_encode(context.request.path + "?" + context.request.query.not_nil!)
     end
 
     def user_login?

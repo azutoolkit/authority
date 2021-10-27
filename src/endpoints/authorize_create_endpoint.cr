@@ -15,7 +15,7 @@ module Authority
     end
 
     private def save_auth_code!
-      ClientService.save_auth_code authorize_create_request, user_id
+      AuthorizeService.save! approve_request, user_id
     end
 
     private def user_id

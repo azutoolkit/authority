@@ -7,7 +7,7 @@ module Authority
 
     def call : SessionShowResponse | EmptyResponse
       return session_error unless session_create_request.valid?
-      return session_error(["Invalid credentials"]) unless authorized?
+      return session_error ["Invalid credentials"] unless authorized?
       create_session
       approve
     end

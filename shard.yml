@@ -17,14 +17,14 @@ dependencies:
     github: azutoolkit/azu
   clear:
     github: anykeyh/clear
+    branch: master
   authly:
     github: azutoolkit/authly
   
 development_dependencies:
-  azu_cli:
-    github: azutoolkit/azu_cli
-    branch: master
   faker:
     github: askn/faker
   flux:
     github: azutoolkit/flux
+    version: 0.1.4
+    

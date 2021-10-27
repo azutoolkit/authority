@@ -2,3 +2,6 @@ dependencies:
   pg:
     github: will/crystal-pg
     version: 0.23.2
+  clear:
+    github: anykeyh/clear
+    branch: master

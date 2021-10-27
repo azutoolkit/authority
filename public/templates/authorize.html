@@ -46,7 +46,9 @@
           <input type="hidden" name="state" value="{{state}}" />
           <input type="hidden" name="client_id" value="{{client.client_id}}" />
           <input type="hidden" name="redirect_uri" value="{{client.redirect_uri}}" />
-          <input type="hidden" name="scope" value="{{client.scope}}" />
+          <input type="hidden" name="scope" value="{{scope}}" />
+          <input type="hidden" name="code_challenge" value="{{code_challenge}}" />
+          <input type="hidden" name="code_challenge_method" value="{{code_challenge_method}}" />
           <div class="card">
             <div class="card-header text-center mt-2">
               <h3>Authorize {{client.name}}</h3>
@@ -57,7 +59,7 @@
             </div>
             <div class="card-footer">
               <div class="d-grid gap-2 mt-2">
-                <button type="submit" id="approve" class="authorize-btn btn btn-success btn-lg">Authorize
+                <button type="submit" id="approve" name="approve" class="authorize-btn btn btn-success btn-lg">Authorize
                   {{client.name}}</button>
                 <p class="text-center mt-1">
                   Authorizing will redirect to <strong>{{client.redirect_uri}}</strong>
