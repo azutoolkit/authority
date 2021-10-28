@@ -3,7 +3,6 @@ module Authority
   struct SessionShowRequest
     include Request
 
-    getter forward_url : String = "/user-info"
-    validate forward_url, message: "Param forward_url must be present.", presence: false
+    getter forward_url : String = Base64.urlsafe_encode("/user-info")
   end
 end

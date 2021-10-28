@@ -26,5 +26,5 @@ development_dependencies:
     github: askn/faker
   flux:
     github: azutoolkit/flux
-    version: 0.1.4
+    version: 0.1.6
     
