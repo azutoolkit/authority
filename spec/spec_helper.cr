@@ -23,20 +23,3 @@ Spec.before_each do
 
   create_client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI)
 end
-
-def prepare_code_challenge_url(username, password)
-  state = Random::Secure.hex
-  code_verifier = Faker::Internet.password(43, 128)
-
-  code_challenge_method = "S256"
-  code_challenge = Digest::SHA256.base64digest(code_verifier)
-
-  auth_url = OAUTH_CLIENT.get_authorize_uri(scope: "read", state: state) do |param|
-    param.add "code_challenge", code_challenge
-    param.add "code_challenge_method", code_challenge_method
-  end
-
-  code, expected_state = AuthorizationCodeFlux.flow(auth_url, username, password)
-
-  {code, code_verifier, expected_state}
-end

@@ -13,6 +13,5 @@ Authly.configure do |c|
   c.access_ttl = 1.hour
 
   # Using your own classes
-  c.owners = Authority::OwnerService.new
-  c.clients = Authority::ClientService.new
+  c.authorize_service = Authority::AuthorizeService.new
 end

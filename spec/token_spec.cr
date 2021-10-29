@@ -1,6 +1,14 @@
 require "./spec_helper"
 
-describe Authority do
+describe "TokenSpec" do
+  describe "OpenID" do
+    user = create_owner
+    code, code_verifier, expected_state = prepare_code_challenge_url(user.username, user.password, "S256", scope = "openid read")
+
+    response = create_token_request(code, code_verifier)
+    token = OAuth2::AccessToken::Bearer.from_json(response.body)
+  end
+
   describe "Refresh Token Flow" do
     it "gets access token" do
       refresh = OAUTH_CLIENT.get_access_token_using_client_credentials scope: "read"
@@ -10,29 +18,32 @@ describe Authority do
   end
 
   describe "Create Token" do
-    it "with code verifier" do
-      http_client = OAUTH_CLIENT.http_client
-      token_url = "/token"
-      username = Faker::Internet.email
-      password = Faker::Internet.password
-      create_owner(username, password)
-      code, code_verifier, expected_state = prepare_code_challenge_url(username, password)
-      headers = HTTP::Headers{
-        "Accept"        => "application/json",
-        "Content-Type"  => "application/x-www-form-urlencoded",
-        "Authorization" => "Basic #{Base64.strict_encode("#{CLIENT_ID}:#{CLIENT_SECRET}")}",
-      }
+    describe "Method S256" do
+      it "creates access token" do
+        user = create_owner
+        code, code_verifier, expected_state = prepare_code_challenge_url(user.username, user.password, "S256")
 
-      result = http_client.post(token_url, headers: headers, form: {
-        "grant_type"    => "authorization_code",
-        "redirect_uri"  => REDIRECT_URI,
-        "code"          => code,
-        "code_verifier" => code_verifier,
-      })
+        response = create_token_request(code, code_verifier)
+        token = OAuth2::AccessToken::Bearer.from_json(response.body)
 
-      p result.body
+        response.status_message.should eq "OK"
+        token.should be_a OAuth2::AccessToken::Bearer
+      end
+    end
 
-      result.status_message.should eq "OK"
+    describe "Method PLAIN" do
+      it "creates access token" do
+        user = create_owner
+        code, code_verifier, expected_state = prepare_code_challenge_url(user.username, user.password, "plain")
+
+        response = create_token_request(code, code_verifier)
+        token = OAuth2::AccessToken::Bearer.from_json(response.body)
+
+        p token
+
+        response.status_message.should eq "OK"
+        token.should be_a OAuth2::AccessToken::Bearer
+      end
     end
   end
 

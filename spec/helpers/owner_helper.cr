@@ -1,4 +1,4 @@
-def create_owner(username : String, password : String)
+def create_owner(username : String = Faker::Internet.email, password : String = Faker::Internet.password)
   user = Authority::User.new({
     username:       username,
     password:       password,
