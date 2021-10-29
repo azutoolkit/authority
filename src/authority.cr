@@ -1,6 +1,7 @@
 require "azu"
 require "clear"
 require "authly"
+require "digest"
 
 # Docs - https://azutopia.gitbook.io/azu/defining-your-app
 module Authority

@@ -7,12 +7,7 @@ module Authority
 
     def call : EmptyResponse | AuthorizeShowResponse
       return signin unless user_login?
-      authorize_response
-    end
-
-    def authorize_response
-      client = authorize_show_request.client
-      AuthorizeShowResponse.new(authorize_show_request, client, "/authorize")
+      AuthorizeShowResponse.new(authorize_show_request, "/authorize")
     end
 
     def signin

@@ -3,7 +3,7 @@ module Authority
   struct TokenCreateResponse
     include Response
 
-    def initialize(@response : Authly::Response::AccessToken)
+    def initialize(@response : Authly::Response::AccessToken?)
     end
 
     def render

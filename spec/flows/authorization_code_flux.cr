@@ -1,7 +1,7 @@
 require "flux"
 require "uri"
 
-class AuthorizationCode < Flux
+class AuthorizationCodeFlux < Flux
   def self.flow(url, username, password)
     new(url, username, password).call
   end
@@ -14,13 +14,12 @@ class AuthorizationCode < Flux
     redirect = step do
       visit @url
 
-      implicit_wait 5.seconds
-
-      fill "#username", @username, by: :id
-      fill "#password", @password, by: :id
+      fill "#username", @username, by: :css
+      fill "#password", @password, by: :css
       submit "#signin"
 
       implicit_wait 5.seconds
+
       submit "#approve"
 
       implicit_wait 5.seconds

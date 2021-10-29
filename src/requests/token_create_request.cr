@@ -11,26 +11,17 @@ module Authority
     getter username : String = ""
     getter password : String = ""
     getter refresh_token : String = ""
+    getter code_verifier : String = ""
 
     validate grant_type, message: "Param grant_type must be present.", presence: true
     validate scope, message: "Param scope must be present.", presence: false
 
     validate username, presence: false
     validate password, presence: false
+    validate code_verifier, presence: false
 
-    def grant(client_id, client_secret)
-      Authly.authorize(
-        grant_type,
-        client_id,
-        client_secret,
-        redirect_uri,
-        code,
-        scope,
-        state,
-        username,
-        password,
-        refresh_token
-      ).authorize!
+    def code_challenge
+      Digest::SHA256.base64digest(code_verifier)
     end
   end
 end

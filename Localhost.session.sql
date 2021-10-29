@@ -1,1 +1,1 @@
-TRUNCATE TABLE __clear_metadatas
+SELECT * FROM clients

@@ -43,7 +43,7 @@ shards:
 
   flux:
     git: https://github.com/azutoolkit/flux.git
-    version: 0.1.4
+    version: 0.1.6
 
   generate:
     git: https://github.com/anykeyh/generate.cr.git
