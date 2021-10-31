@@ -5,25 +5,12 @@ module Authority
     post "/authorize"
 
     def call : EmptyResponse
-      save_auth_code!
-      redirect to: forward_url
+      redirect to: authorization_code.forward_url
       EmptyResponse.new
     end
 
-    private def forward_url
-      "#{approve_request.redirect_uri}?code=#{approve_request.code}&state=#{approve_request.state}"
-    end
-
-    private def save_auth_code!
-      AuthorizeService.save! approve_request, user_id
-    end
-
-    private def user_id
-      cookies["session_id"]?
-    end
-
-    private def approve_request
-      authorize_create_request
+    private def authorization_code
+      AuthorizationCodeService.new(authorize_create_request)
     end
   end
 end

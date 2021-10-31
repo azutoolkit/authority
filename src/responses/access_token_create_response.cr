@@ -1,13 +1,13 @@
 # Response Docs https://azutopia.gitbook.io/azu/endpoints/response
 module Authority
-  struct TokenCreateResponse
+  struct AccessTokenCreateResponse
     include Response
 
-    def initialize(@response : Authly::Response::AccessToken?)
+    def initialize(@response : Authly::AccessToken?)
     end
 
     def render
-      @response.to_json
+      @response.try &.to_json
     end
   end
 end

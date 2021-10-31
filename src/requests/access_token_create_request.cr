@@ -1,6 +1,6 @@
 # Request Docs https://azutopia.gitbook.io/azu/endpoints/requests
 module Authority
-  struct TokenCreateRequest
+  struct AccessTokenCreateRequest
     include Request
 
     getter grant_type : String
@@ -19,9 +19,5 @@ module Authority
     validate username, presence: false
     validate password, presence: false
     validate code_verifier, presence: false
-
-    def code_challenge
-      Digest::SHA256.base64digest(code_verifier)
-    end
   end
 end

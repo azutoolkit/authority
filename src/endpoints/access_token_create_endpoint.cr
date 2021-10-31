@@ -1,16 +1,16 @@
 # Endpoint Docs https://azutopia.gitbook.io/azu/endpoints
 module Authority
-  class TokenCreateEndpoint
-    include Endpoint(TokenCreateRequest, TokenCreateResponse)
+  class AccessTokenCreateEndpoint
+    include Endpoint(AccessTokenCreateRequest, AccessTokenCreateResponse)
 
     BASIC = "Basic"
     AUTH  = "Authorization"
 
     post "/token"
 
-    def call : TokenCreateResponse
-      access_token = TokenService.grant!(*credentials, token_create_request)
-      TokenCreateResponse.new access_token
+    def call : AccessTokenCreateResponse
+      access_token = AccessTokenService.access_token *credentials, access_token_create_request
+      AccessTokenCreateResponse.new access_token
     end
 
     private def credentials

@@ -16,12 +16,12 @@ module Authority
 
     def render
       render TEMPLATE, {
-        code:                  authorize_show_request.code.as(Authly::Response::Code).code,
         state:                 authorize_show_request.state,
         scope:                 authorize_show_request.scope,
         authorize_endpoint:    path,
         code_challenge:        authorize_show_request.code_challenge,
         code_challenge_method: authorize_show_request.code_challenge_method,
+        response_type:         authorize_show_request.response_type,
         client:                {
           client_id:    client.client_id,
           redirect_uri: client.redirect_uri,
