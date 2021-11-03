@@ -1,6 +1,17 @@
+<div style="text-align:center"><img src="https://raw.githubusercontent.com/azutoolkit/authority/main/logo.png" /></div>
+
 # authority
 
-TODO: Write a description here
+OpenID Connect and OAuth Provider written in Crystal - Security-first, open
+source API security for your infrastructure. SDKs to come.
+
+Authority is a OpenID OAuth 2.0 Server and OpenID Connect Provider optimized for
+low-latency, high throughput, and low resource consumption. Authority has a built
+in identity provider user login.
+
+Implementing and using OAuth2 without understanding the whole specification is
+challenging and prone to errors, even when SDKs are being used. The primary goal
+of Authority is to make OAuth 2.0 and OpenID Connect 1.0 better accessible.
 
 ## Installation
 
@@ -53,6 +64,7 @@ ID Tokens
 User Registration
 
 Client Registration
+
 ## Development
 
 TODO: Write development instructions here

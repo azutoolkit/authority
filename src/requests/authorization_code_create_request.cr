@@ -1,6 +1,6 @@
 # Request Docs https://azutopia.gitbook.io/azu/endpoints/requests
 module Authority
-  struct AuthorizeCreateRequest
+  struct AuthorizationCodeCreateRequest
     include Request
 
     getter response_type : String

@@ -10,18 +10,15 @@ services:
     ports:
       - 5432:5432
 
-  web:
+  server:
     build:
       context: .
       dockerfile: Dockerfile
-    command: ./start
+    command: ./server
     container_name: web
     working_dir: /root/
-    environment:
-      CRYSTAL_ENV: development
-      HOST: 0.0.0.0
-      PORT: 4000
-      DATABASE_URL: postgres://auth_user:auth_pass@db:5432/authority_db
+    env_file:
+      - local.env
     ports:
       - "4000:4000"
     depends_on:

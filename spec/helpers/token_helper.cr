@@ -16,7 +16,7 @@ def prepare_code_challenge_url(username, password, method = "S256", scope = "rea
   {code, code_verifier, expected_state}
 end
 
-def create_token_request(code, code_verifier)
+def create_token_request(code, code_verifier, scope = "")
   http_client = OAUTH_CLIENT.http_client
   headers = HTTP::Headers{
     "Accept"        => "application/json",
@@ -28,6 +28,7 @@ def create_token_request(code, code_verifier)
     "grant_type"    => "authorization_code",
     "redirect_uri"  => REDIRECT_URI,
     "code"          => code,
+    "scope"         => scope,
     "code_verifier" => code_verifier,
   })
 end

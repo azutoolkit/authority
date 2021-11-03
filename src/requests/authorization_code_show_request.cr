@@ -1,12 +1,12 @@
 # Request Docs https://azutopia.gitbook.io/azu/endpoints/requests
 module Authority
-  struct AuthorizeShowRequest
+  struct AuthorizationCodeShowRequest
     include Request
 
     getter response_type : String
     getter client_id : String
     getter redirect_uri : String
-    getter scope : String = ""
+    getter scope : String
     getter state : String
     getter code_challenge : String = ""
     getter code_challenge_method : String = ""

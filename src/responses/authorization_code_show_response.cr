@@ -1,16 +1,16 @@
 # Response Docs https://azutopia.gitbook.io/azu/endpoints/response
 module Authority
-  struct AuthorizeShowResponse
+  struct AuthorizationCodeShowResponse
     include Response
     include Templates::Renderable
 
     TEMPLATE = "authorize.html"
 
-    getter authorize_show_request : AuthorizeShowRequest
+    getter authorize_show_request : AuthorizationCodeShowRequest
     getter client : Client
     getter path : String
 
-    def initialize(@authorize_show_request : AuthorizeShowRequest, @path : String)
+    def initialize(@authorize_show_request : AuthorizationCodeShowRequest, @path : String)
       @client = @authorize_show_request.client
     end
 

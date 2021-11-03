@@ -6,7 +6,7 @@ module Authority
     getter grant_type : String
     getter redirect_uri : String = ""
     getter code : String = ""
-    getter scope : String = "read"
+    getter scope : String
     getter state : String = ""
     getter username : String = ""
     getter password : String = ""

@@ -28,4 +28,7 @@ development_dependencies:
   flux:
     github: azutoolkit/flux
     version: 0.1.6
+  azu_cli:
+    github: azutoolkit/azu_cli
+    
     

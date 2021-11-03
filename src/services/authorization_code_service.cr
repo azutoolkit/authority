@@ -1,9 +1,10 @@
 module Authority
   class AuthorizationCodeService
-    getter auth_code_request : AuthorizeCreateRequest
+    getter auth_code_request : AuthorizationCodeCreateRequest
     getter code : String
+    getter user_id : String
 
-    def initialize(@auth_code_request : AuthorizeCreateRequest)
+    def initialize(@auth_code_request : AuthorizationCodeCreateRequest, @user_id : String)
       @code = generate_code
     end
 
@@ -12,13 +13,14 @@ module Authority
     end
 
     private def generate_code
-      Authly.code(auth_code_request.response_type,
+      Authly.code(
+        auth_code_request.response_type,
         auth_code_request.client_id,
         auth_code_request.redirect_uri,
         auth_code_request.scope,
-        auth_code_request.state,
         auth_code_request.code_challenge,
-        auth_code_request.code_challenge_method).to_s
+        auth_code_request.code_challenge_method,
+        user_id).to_s
     end
   end
 end

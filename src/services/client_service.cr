@@ -3,7 +3,6 @@ module Authority
     include Authly::AuthorizableClient
 
     def valid_redirect?(client_id : String, redirect_uri : String) : Bool
-      p client_id, redirect_uri
       Client.query.find!({client_id: client_id, redirect_uri: redirect_uri})
       true
     rescue e

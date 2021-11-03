@@ -2,11 +2,19 @@ require "./spec_helper"
 
 describe "TokenSpec" do
   describe "OpenID" do
-    user = create_owner
-    code, code_verifier, expected_state = prepare_code_challenge_url(user.username, user.password, "S256", scope = "openid read")
+    it "returns id_token" do
+      user = create_owner
+      scope = "openid read"
+      code, code_verifier, expected_state = prepare_code_challenge_url(user.username, user.password, "S256", scope)
 
-    response = create_token_request(code, code_verifier)
-    token = OAuth2::AccessToken::Bearer.from_json(response.body)
+      response = create_token_request(code, code_verifier, scope)
+      token = OAuth2::AccessToken::Bearer.from_json(response.body)
+      p response.body
+      id_token = token.extra.not_nil!["id_token"]
+      p Authly.config.secret_key
+      p id_token
+      id_token.should_not be_nil
+    end
   end
 
   describe "Refresh Token Flow" do

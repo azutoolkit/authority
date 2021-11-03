@@ -1,7 +1,7 @@
 # Endpoint Docs https://azutopia.gitbook.io/azu/endpoints
 module Authority
-  class AuthorizeCreateEndpoint
-    include Endpoint(AuthorizeCreateRequest, EmptyResponse)
+  class AuthorizationCodeCreateEndpoint
+    include Endpoint(AuthorizationCodeCreateRequest, EmptyResponse)
     post "/authorize"
 
     def call : EmptyResponse
@@ -10,7 +10,11 @@ module Authority
     end
 
     private def authorization_code
-      AuthorizationCodeService.new(authorize_create_request)
+      AuthorizationCodeService.new(authorization_code_create_request, user_id)
+    end
+
+    def user_id
+      cookies["session_id"].value
     end
   end
 end

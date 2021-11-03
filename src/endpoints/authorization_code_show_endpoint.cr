@@ -1,13 +1,13 @@
 # Endpoint Docs https://azutopia.gitbook.io/azu/endpoints
 module Authority
   class AuthorizeShowEndpoint
-    include Endpoint(AuthorizeShowRequest, EmptyResponse | AuthorizeShowResponse)
+    include Endpoint(AuthorizationCodeShowRequest, EmptyResponse | AuthorizationCodeShowResponse)
 
     get "/authorize"
 
-    def call : EmptyResponse | AuthorizeShowResponse
+    def call : EmptyResponse | AuthorizationCodeShowResponse
       return signin unless user_login?
-      AuthorizeShowResponse.new(authorize_show_request, "/authorize")
+      AuthorizationCodeShowResponse.new(authorization_code_show_request, "/authorize")
     end
 
     def signin

@@ -7,11 +7,15 @@ shards:
 
   authly:
     git: https://github.com/azutoolkit/authly.git
-    version: 0.3+git.commit.0600c6afbd45c19ba0ae96b156bb110e19fafa30
+    version: 0.3+git.commit.732bf4dd11e4d0f1d4f0d17365f89042d04773d3
 
   azu:
     git: https://github.com/azutoolkit/azu.git
     version: 0.1.8
+
+  azu_cli:
+    git: https://github.com/azutoolkit/azu_cli.git
+    version: 0.1.0+git.commit.f628a06c7b25139908c718138a00f23d08346351
 
   backtracer:
     git: https://github.com/sija/backtracer.cr.git
@@ -20,6 +24,10 @@ shards:
   bindata:
     git: https://github.com/spider-gazelle/bindata.git
     version: 1.9.1
+
+  cadmium_inflector:
+    git: https://github.com/cadmiumcr/inflector.git
+    version: 0.1.0+git.commit.139b4d9628cf0a663f85f5e3727d5c97c1b6c4aa
 
   clear: # Overridden
     git: https://github.com/anykeyh/clear.git
@@ -65,9 +73,17 @@ shards:
     git: https://github.com/spider-gazelle/openssl_ext.git
     version: 2.1.5
 
+  opts:
+    git: https://github.com/maiha/opts.cr.git
+    version: 0.6.0
+
   pg: # Overridden
     git: https://github.com/will/crystal-pg.git
     version: 0.23.2
+
+  pretty:
+    git: https://github.com/maiha/pretty.cr.git
+    version: 1.1.1
 
   radix:
     git: https://github.com/luislavena/radix.git
@@ -76,4 +92,16 @@ shards:
   schema:
     git: https://github.com/eliasjpr/schema.git
     version: 0.2.1
+
+  shard:
+    git: https://github.com/maiha/shard.cr.git
+    version: 0.3.1
+
+  topia:
+    git: https://github.com/azutoolkit/topia.git
+    version: 0.1.0+git.commit.477521b2aea0687beed7462e11508b7728836bd7
+
+  var:
+    git: https://github.com/maiha/var.cr.git
+    version: 1.3.0
 

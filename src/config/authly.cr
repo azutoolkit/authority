@@ -1,7 +1,7 @@
 # Configure
 Authly.configure do |c|
   # Secret Key for JWT Tokens
-  c.secret_key = "Some Secret"
+  c.secret_key = "ExampleSecretKey"
 
   # Refresh Token Time To Live
   c.refresh_ttl = 1.hour
