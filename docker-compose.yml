@@ -10,12 +10,11 @@ services:
     ports:
       - 5432:5432
 
-  server:
+  migrator:
     build:
       context: .
-      dockerfile: Dockerfile
-    command: ./server
-    container_name: web
+      dockerfile: migrate.Dockerfile
+    container_name: migrator
     working_dir: /root/
     env_file:
       - local.env
@@ -23,3 +22,17 @@ services:
       - "4000:4000"
     depends_on:
       - db
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ./server
+    container_name: authority
+    working_dir: /root/
+    env_file:
+      - local.env
+    ports:
+      - "4000:4000"
+    depends_on:
+      - migrator

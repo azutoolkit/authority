@@ -1,6 +1,6 @@
-<div style="text-align:center"><img src="https://raw.githubusercontent.com/azutoolkit/authority/main/logo.png" /></div>
+<div style="text-align:center"><img src="https://github.com/azutoolkit/authority/blob/main/logo.png"></div>
 
-# authority
+# Authority
 
 OpenID Connect and OAuth Provider written in Crystal - Security-first, open
 source API security for your infrastructure. SDKs to come.
@@ -13,65 +13,99 @@ Implementing and using OAuth2 without understanding the whole specification is
 challenging and prone to errors, even when SDKs are being used. The primary goal
 of Authority is to make OAuth 2.0 and OpenID Connect 1.0 better accessible.
 
+The specification describes five grants for acquiring an access token:
+
+- Authorization code grant
+- Implicit grant
+- Resource owner credentials grant
+- Client credentials grant
+- Refresh token grant
+
+## JSON Web Tokens
+
+At this moment Authority issues JWT OAuth 2.0 Access Tokens as default.
+
+## Features
+
+Grant Types
+
+- [x] Authorization code grant
+- [x] Implicit grant
+- [x] Resource owner credentials grant
+- [x] Client credentials grant
+- [x] Refresh token grant
+- [x] OpenID Connect
+- [x] PKCE
+- [ ] Token Introspection
+- [ ] Token Revocation
+
+## Configuration
+
+Configuration files can be found in `./src/config`
+
+### Authly.cr
+
+This file contains the configuration for the OAuthly 2 library. Read more about [Authly shards](https://github.com/azutoolkit/authly)
+
+```crystal
+# Configure
+Authly.configure do |c|
+  # Secret Key for JWT Tokens
+  c.secret_key = "ExampleSecretKey"
+
+  # Refresh Token Time To Live
+  c.refresh_ttl = 1.hour
+
+  # Authorization Code Time To Live
+  c.code_ttl = 1.hour
+
+  # Access Token Time To Live
+  c.access_ttl = 1.hour
+
+  # Using your own classes
+  c.owners = Authority::OwnerService.new
+  c.clients = Authority::ClientService.new
+end
+```
+
+### Clear.cr
+
+This file contains the database configuration. No changes to this files is required.
+
+### Local.env
+
+This file contains the environment variables for Authority.
+
+```bash
+CRYSTAL_ENV=development
+CRYSTAL_LOG_SOURCES="*"
+CRYSTAL_LOG_LEVEL="debug"
+CRYSTAL_WORKERS=4
+PORT=4000
+PORT_REUSE=true
+HOST=0.0.0.0
+DATABASE_URL=postgres://auth_user:auth_pass@db:5432/authority_db
+```
+
+## HTML Templates
+
+You can change the look of Authority `signin` and `authorize` html pages.
+
+Just edit the `./public/templates/signin.html` and `./public/templates/authorize.html`
+
 ## Installation
 
-TODO: Write installation instructions here
+### Docker Compose
 
-## Usage
-
-TODO: Write usage instructions here
-
-## Features Missing
-
-Token Information Endpoint
+Spin up your server
 
 ```bash
-POST /token_info HTTP/1.1
-Host: authorization-server.com
-Authorization: Basic Y4NmE4MzFhZGFkNzU2YWRhN
-
-token=c1MGYwNDJiYmYxNDFkZjVkOGI0MSAgLQ
+docker-compose up server
 ```
-
-```bash
-HTTP/1.1 200 OK
-Content-Type: application/json; charset=utf-8
-
-{
-  "active": true,
-  "scope": "read write email",
-  "client_id": "J8NFmU4tJVgDxKaJFmXTWvaHO",
-  "username": "aaronpk",
-  "exp": 1437275311
-}
-```
-
-ID Tokens
-
-```bash
-{
-  "iss": "https://server.example.com",
-  "sub": "24400320",
-  "aud": "s6BhdRkqt3",
-  "nonce": "n-0S6_WzA2Mj",
-  "exp": 1311281970,
-  "iat": 1311280970,
-  "auth_time": 1311280969,
-  "acr": "urn:mace:incommon:iap:silver"
-}
-```
-
-User Registration
-
-Client Registration
-
-## Development
-
-TODO: Write development instructions here
 
 ## Contributing
 
-1. Fork it (<https://github.com/your-github-user/authority/fork>)
+1. Fork it (https://github.com/azutoolkit/authority/fork)
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
@@ -79,4 +113,4 @@ TODO: Write development instructions here
 
 ## Contributors
 
-- [Elias Perez](https://github.com/your-github-user) - creator and maintainer
+- [Elias Perez](https://github.com/eliasjpr) - creator and maintainer
