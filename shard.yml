@@ -20,7 +20,7 @@ dependencies:
     branch: master
   authly:
     github: azutoolkit/authly
-    branch: v1
+    version: 1.0
   
 development_dependencies:
   faker:
