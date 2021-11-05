@@ -3,23 +3,11 @@ module Authority
     include Authly::AuthorizableOwner
 
     def authorized?(username : String, password : String) : Bool
-      User.query.find!({username: username, password: password})
-      true
-    rescue e
-      false
+      UserRepo.authenticate? username, password
     end
 
     def id_token(user_id : String) : Hash(String, String)
-      owner = User.query.find!({username: user_id})
-
-      {
-        "user_id"    => owner.id.to_s,
-        "first_name" => owner.first_name,
-        "last_name"  => owner.last_name,
-        "email"      => owner.email,
-        "created_at" => owner.created_at.to_s,
-        "updated_at" => owner.updated_at.to_s,
-      }
+      UserRepo.id_token user_id
     end
   end
 end

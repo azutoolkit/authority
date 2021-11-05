@@ -3,10 +3,10 @@ module Authority
   class Client
     include Clear::Model
 
-    self.table = "clients"
-
     primary_key
-    column client_id : String
+
+    column name : String
+    column client_id : String = UUID.random
     column client_secret : String
     column redirect_uri : String
     column grant_types : String

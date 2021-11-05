@@ -30,12 +30,13 @@ At this moment Authority issues JWT OAuth 2.0 Access Tokens as default.
 Grant Types
 
 - [x] Authorization code grant
+- [x] Client credentials grant
 - [x] Implicit grant
 - [x] Resource owner credentials grant
-- [x] Client credentials grant
 - [x] Refresh token grant
 - [x] OpenID Connect
 - [x] PKCE
+- [ ] Device Code grant
 - [ ] Token Introspection
 - [ ] Token Revocation
 
