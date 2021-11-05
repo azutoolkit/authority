@@ -1,5 +1,5 @@
 module Authority
-  class ClientService
+  class ClientProvider
     include Authly::AuthorizableClient
 
     def valid_redirect?(client_id : String, redirect_uri : String) : Bool

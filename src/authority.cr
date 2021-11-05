@@ -22,6 +22,7 @@ end
 require "./config/**"
 require "./services/**"
 require "./requests/**"
+require "./providers/**"
 require "./responses/**"
 require "./entities/**"
 require "./repositories/**"

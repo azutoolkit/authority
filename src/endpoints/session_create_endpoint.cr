@@ -40,7 +40,7 @@ module Authority
     end
 
     private def authorized?
-      OwnerService.new.authorized?(
+      Authly.owners.authorized?(
         session_create_request.username,
         session_create_request.password
       )

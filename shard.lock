@@ -7,7 +7,7 @@ shards:
 
   authly:
     git: https://github.com/azutoolkit/authly.git
-    version: 1.0
+    version: 1.0.1
 
   azu:
     git: https://github.com/azutoolkit/azu.git

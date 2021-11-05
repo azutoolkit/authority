@@ -7,6 +7,10 @@ module Authority
     column username : String
     column password : String
     column email : String
+    column first_name : String
+    column last_name : String
+    column email_verified : Bool = false
+    column scope : String
     column encrypted_password : Crypto::Bcrypt::Password
     timestamps
 
@@ -20,12 +24,16 @@ module Authority
 
     def id_token
       {
-        "user_id"    => id.to_s,
-        "first_name" => first_name,
-        "last_name"  => last_name,
-        "email"      => email,
-        "created_at" => created_at.to_s,
-        "updated_at" => updated_at.to_s,
+        "user_id"        => id.to_s,
+        "first_name"     => first_name,
+        "last_name"      => last_name,
+        "email"          => email,
+        "scope"          => scope,
+        "email_verified" => email_verified.to_s,
+        "created_at"     => created_at.to_s,
+        "updated_at"     => updated_at.to_s,
+        "iat"            => Time.utc.to_unix,
+        "exp"            => 1.hour.from_now.to_unix,
       }
     end
   end
