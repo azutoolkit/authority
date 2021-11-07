@@ -3,9 +3,9 @@ class CreateUser
 
   def change(direction)
     direction.up do
-      create_table :users do |t|
+      create_table :users, id: :uuid do |t|
         t.column :username, "varchar(80)", null: false, index: true, unique: true
-        t.column :password, "varchar(80)", null: false
+        t.column :encrypted_password, "varchar(80)", null: false
         t.column :first_name, "varchar(80)", null: false
         t.column :last_name, "varchar(80)", null: false
         t.column :email, "varchar(80)", null: false

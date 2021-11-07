@@ -30,12 +30,13 @@ At this moment Authority issues JWT OAuth 2.0 Access Tokens as default.
 Grant Types
 
 - [x] Authorization code grant
+- [x] Client credentials grant
 - [x] Implicit grant
 - [x] Resource owner credentials grant
-- [x] Client credentials grant
 - [x] Refresh token grant
 - [x] OpenID Connect
 - [x] PKCE
+- [ ] Device Code grant
 - [ ] Token Introspection
 - [ ] Token Revocation
 
@@ -105,7 +106,7 @@ docker-compose up server
 
 ## Contributing
 
-1. Fork it (https://github.com/azutoolkit/authority/fork)
+1. Fork it (<https://github.com/azutoolkit/authority/fork>)
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)

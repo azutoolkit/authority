@@ -1,11 +1,11 @@
 def create_client(client_id, client_secret, redirect_uri)
-  client = Authority::Client.new({
+  Authority::Client.new({
     client_id:     client_id,
     client_secret: client_secret,
     redirect_uri:  redirect_uri,
-    grant_types:   "cleint_credentials",
-    scope:         "read",
-  })
-
-  client.save!
+    name:          Faker::Company.name,
+    description:   Faker::Lorem.paragraph(2),
+    logo:          Faker::Company.logo,
+    scopes:        "read",
+  }).save!
 end

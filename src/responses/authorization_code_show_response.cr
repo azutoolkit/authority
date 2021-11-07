@@ -23,11 +23,12 @@ module Authority
         code_challenge_method: authorize_show_request.code_challenge_method,
         response_type:         authorize_show_request.response_type,
         client:                {
-          client_id:    client.client_id,
+          client_id:    client.client_id.to_s,
           redirect_uri: client.redirect_uri,
-          name:         "Acme App",
-          description:  "This example is a quick exercise to illustrate how the bottom navbar works.",
-          scopes:       client.scope,
+          name:         client.name,
+          logo:         client.logo,
+          description:  client.description,
+          scopes:       client.scopes,
         },
       }
     end

@@ -1,18 +1,20 @@
 require "./spec_helper"
 
 describe "TokenSpec" do
+  password = Faker::Internet.password
+
   describe "OpenID" do
     it "returns id_token" do
-      user = create_owner
+      user = create_owner(password: password)
+
       scope = "openid read"
-      code, code_verifier, expected_state = prepare_code_challenge_url(user.username, user.password, "S256", scope)
+      code, code_verifier, expected_state = prepare_code_challenge_url(
+        user.username, password, "S256", scope)
 
       response = create_token_request(code, code_verifier, scope)
       token = OAuth2::AccessToken::Bearer.from_json(response.body)
-      p response.body
+
       id_token = token.extra.not_nil!["id_token"]
-      p Authly.config.secret_key
-      p id_token
       id_token.should_not be_nil
     end
   end
@@ -28,8 +30,9 @@ describe "TokenSpec" do
   describe "Create Token" do
     describe "Method S256" do
       it "creates access token" do
-        user = create_owner
-        code, code_verifier, expected_state = prepare_code_challenge_url(user.username, user.password, "S256")
+        user = create_owner(password: password)
+        code, code_verifier, expected_state = prepare_code_challenge_url(
+          user.username, password, "S256")
 
         response = create_token_request(code, code_verifier)
         token = OAuth2::AccessToken::Bearer.from_json(response.body)
@@ -41,13 +44,12 @@ describe "TokenSpec" do
 
     describe "Method PLAIN" do
       it "creates access token" do
-        user = create_owner
-        code, code_verifier, expected_state = prepare_code_challenge_url(user.username, user.password, "plain")
+        user = create_owner(password: password)
+        code, code_verifier, expected_state = prepare_code_challenge_url(
+          user.username, password, "plain")
 
         response = create_token_request(code, code_verifier)
         token = OAuth2::AccessToken::Bearer.from_json(response.body)
-
-        p token
 
         response.status_message.should eq "OK"
         token.should be_a OAuth2::AccessToken::Bearer

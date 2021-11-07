@@ -15,9 +15,10 @@ describe Authority do
 
   describe "Create" do
     it "create a new session" do
+      password = Faker::Internet.password
       session_flux = SessionFlux.new
-      user = create_owner
-      result = session_flux.create user.username, user.password
+      user = create_owner(password: password)
+      result = session_flux.create user.username, password
       result.should be_a URI::Params
     end
   end

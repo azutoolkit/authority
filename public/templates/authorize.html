@@ -33,8 +33,6 @@
       }
     }
   </style>
-
-
 </head>
 
 <body>
@@ -50,19 +48,19 @@
           <input type="hidden" name="code_challenge" value="{{code_challenge}}" />
           <input type="hidden" name="code_challenge_method" value="{{code_challenge_method}}" />
           <div class="card">
-            <div class="card-header text-center mt-2">
-              <h3>Authorize {{client.name}}</h3>
-            </div>
+            <img src="{{client.logo}}" class="card-img-top">
             <div class="card-body">
               <h5 class="card-title">{{client.name}}</h5>
               <p class="card-text">{{client.description}}</p>
             </div>
             <div class="card-footer">
               <div class="d-grid gap-2 mt-2">
-                <button type="submit" id="approve" name="approve" class="authorize-btn btn btn-success btn-lg">Authorize
-                  {{client.name}}</button>
+                <button type="submit" id="approve" name="approve" class="authorize-btn btn btn-success btn-lg">
+                  Authorize {{client.name}}
+                </button>
                 <p class="text-center mt-1">
-                  Authorizing will redirect to <strong>{{client.redirect_uri}}</strong>
+                  Authorizing will redirect to
+                  <strong>{{client.redirect_uri}}</strong>
                 </p>
               </div>
             </div>
