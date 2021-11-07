@@ -9,8 +9,11 @@ module Authority
     post "/token"
 
     def call : AccessTokenCreateResponse
-      access_token = AccessTokenService.access_token *credentials, access_token_create_request
       AccessTokenCreateResponse.new access_token
+    end
+
+    private def access_token : AccessToken
+      AccessTokenService.access_token *credentials, access_token_create_request
     end
 
     private def credentials

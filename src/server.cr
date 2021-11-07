@@ -1,4 +1,6 @@
 require "./authority"
+require "../db/migrations/**"
+Clear::Migration::Manager.instance.apply_all
 
 # Start your server
 # Add Handlers to your App Server

@@ -3,9 +3,10 @@ module Authority
   class User
     include Clear::Model
 
-    primary_key
+    self.table = "users"
+
+    primary_key :id, type: :uuid
     column username : String
-    column password : String
     column email : String
     column first_name : String
     column last_name : String
@@ -14,7 +15,7 @@ module Authority
     column encrypted_password : Crypto::Bcrypt::Password
     timestamps
 
-    def encrypted_password=(plain_text : String)
+    def password=(plain_text : String)
       self.encrypted_password = Crypto::Bcrypt::Password.create(plain_text)
     end
 

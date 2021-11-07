@@ -14,7 +14,7 @@ module Authority
     getter code_verifier : String = ""
 
     validate grant_type, message: "Param grant_type must be present.", presence: true
-    validate scope, message: "Param scope must be present.", presence: false
+    validate scope, message: "Param scope must be present.", presence: true
 
     validate username, presence: false
     validate password, presence: false
