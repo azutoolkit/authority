@@ -12,7 +12,7 @@ module Authority
       AccessTokenCreateResponse.new access_token
     end
 
-    private def access_token : AccessToken
+    private def access_token : Authly::AccessToken
       AccessTokenService.access_token *credentials, access_token_create_request
     end
 

@@ -1,7 +1,5 @@
 module Authority
   class AccessTokenService
-    getter code_verifier : String = ""
-
     def self.access_token(client_id, client_secret, access_token_req)
       new(client_id, client_secret, access_token_req).access_token
     end
@@ -22,8 +20,6 @@ module Authority
         password: @access_token_req.password,
         redirect_uri: @access_token_req.redirect_uri,
         code: @access_token_req.code,
-        state: @access_token_req.state,
-        scope: @access_token_req.scope,
         verifier: @access_token_req.code_verifier,
         refresh_token: @access_token_req.refresh_token,
       )
