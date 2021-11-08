@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+{% block header %}
+{% include "header.html" %}
+{% endblock %}
+
+<body>
+    {% if errors %}
+    <div class="alert alert-warning alert-dismissible fade show text-start" role="alert">
+      <h4 class="alert-heading">Oops! Errors</h4>
+      <hr />
+      <ul>
+        {% for error in errors %}
+        <li>
+          {{error | capitalize | safe}}
+        </li>
+        {% endfor %}
+      </ul>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+
+    {% block body %}
+    {% endblock %}
+  </div>
+</body>
+
+</html>

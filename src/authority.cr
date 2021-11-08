@@ -8,7 +8,7 @@ module Authority
   include Azu
   configure do |c|
     # Default HTML templates path
-    c.templates.path = "public/templates"
+    c.templates.path = "./public/templates"
 
     # Uncomment to enable Spark real time apps
     # Docs: https://azutopia.gitbook.io/azu/spark-1
