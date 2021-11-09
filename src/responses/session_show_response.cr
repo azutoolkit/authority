@@ -4,7 +4,7 @@ module Authority
     include Response
     include Templates::Renderable
 
-    TEMPLATE = "signin.html"
+    TEMPLATE = "new_session.html"
 
     def initialize(@forward_url : String = "/user-info", @errors : Array(String)? = nil)
     end

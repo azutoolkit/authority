@@ -12,17 +12,19 @@ class AuthorizationCodeFlux < Flux
 
   def call
     redirect = step do
+      fullscreen
       visit @url
+      sleep 3.seconds
 
       fill "#username", @username, by: :css
       fill "#password", @password, by: :css
       submit "#signin"
 
-      implicit_wait 5.seconds
+      sleep 3.seconds
 
       submit "#approve"
 
-      implicit_wait 5.seconds
+      sleep 3.seconds
 
       URI.parse(current_url).query_params
     end

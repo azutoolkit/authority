@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% set title = "Signin" %}
+
+{% block body %}
+<main class="login-form">
+  {% include "errors.html" %}
+  <form action="/signin" method="post">
+    <input type="hidden" name="forward_url" id="forward_url" value="{{forward_url}}">
+    <div class="avatar"><i class="material-icons">&#xE7FF;</i></div>
+    <h4 class="modal-title">Login to Your Account</h4>
+    <div class="form-group">
+      <input type="text" class="form-control" id="username" name="username" placeholder="Username" required="required">
+    </div>
+    <div class="form-group">
+      <input type="password" class="form-control" id="password" name="password" placeholder="Password"
+        required="required">
+    </div>
+    <div class="form-group small clearfix">
+      <label class="form-check-label"><input type="checkbox">Remember me</label>
+      <a href="/forgot-password" class="forgot-link">Forgot Password?</a>
+    </div>
+    <div class="d-grid gap-2 mx-auto">
+      <input type="submit" class="btn btn-primary" id="signin" value="Login">
+    </div>
+  </form>
+  <div class="text-center small">Don't have an account? <a href="/register">Sign up</a></div>
+</main>
+{% endblock %}
