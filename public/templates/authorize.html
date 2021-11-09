@@ -3,7 +3,6 @@
 
 {% block body %}
 <main class="login-form">
-
   {% include "errors.html" %}
   <form method="post" action="{{authorize_endpoint}}">
     <input type="hidden" name="response_type" value="{{response_type}}" />
@@ -13,7 +12,6 @@
     <input type="hidden" name="scope" value="{{scope}}" />
     <input type="hidden" name="code_challenge" value="{{code_challenge}}" />
     <input type="hidden" name="code_challenge_method" value="{{code_challenge_method}}" />
-
 
     <img src="{{client.logo}}" width="100%">
 
