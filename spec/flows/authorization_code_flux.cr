@@ -12,6 +12,7 @@ class AuthorizationCodeFlux < Flux
 
   def call
     redirect = step do
+      fullscreen
       visit @url
       sleep 3.seconds
 

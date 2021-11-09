@@ -20,6 +20,7 @@ module Authority
 end
 
 require "./config/**"
+require "./validators/**"
 require "./services/**"
 require "./requests/**"
 require "./providers/**"

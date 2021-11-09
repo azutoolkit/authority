@@ -6,7 +6,7 @@ module Authority
       get "/register"
 
       def call : NewOwnerResponse
-        NewOwnerResponse.new
+        NewOwnerResponse.new new_owner_request
       end
     end
   end

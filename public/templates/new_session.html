@@ -3,6 +3,7 @@
 
 {% block body %}
 <main class="login-form">
+  {% include "errors.html" %}
   <form action="/signin" method="post">
     <input type="hidden" name="forward_url" id="forward_url" value="{{forward_url}}">
     <div class="avatar"><i class="material-icons">&#xE7FF;</i></div>
@@ -18,7 +19,9 @@
       <label class="form-check-label"><input type="checkbox">Remember me</label>
       <a href="/forgot-password" class="forgot-link">Forgot Password?</a>
     </div>
-    <input type="submit" class="btn btn-primary btn-block btn-lg" id="signin" value="Login">
+    <div class="d-grid gap-2 mx-auto">
+      <input type="submit" class="btn btn-primary" id="signin" value="Login">
+    </div>
   </form>
   <div class="text-center small">Don't have an account? <a href="/register">Sign up</a></div>
 </main>
