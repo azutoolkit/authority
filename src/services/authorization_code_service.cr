@@ -1,10 +1,10 @@
 module Authority
   class AuthorizationCodeService
-    getter auth_code_request : AuthorizationCodeCreateRequest
+    getter auth_code_request : Authorize::NewRequest
     getter code : String
     getter user_id : String
 
-    def initialize(@auth_code_request : AuthorizationCodeCreateRequest, @user_id : String)
+    def initialize(@auth_code_request : Authorize::NewRequest, @user_id : String)
       @code = generate_code
     end
 

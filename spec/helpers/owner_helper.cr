@@ -1,5 +1,5 @@
 def create_owner(username : String = Faker::Internet.email, password : String = Faker::Internet.password)
-  user = Authority::User.new({
+  user = Authority::OwnerEntity.new({
     username:       username,
     password:       password,
     first_name:     Faker::Name.first_name,

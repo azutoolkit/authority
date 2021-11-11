@@ -1,5 +1,5 @@
-module Authority
-  struct NewOwnerRequest
+module Authority::Owner
+  struct NewRequest
     include Request
 
     getter first_name : String = ""

@@ -1,6 +1,6 @@
 # Model Docs - https://clear.gitbook.io/project/model/column-types
 module Authority
-  class Client
+  class ClientEntity
     include Clear::Model
 
     self.table = "clients"

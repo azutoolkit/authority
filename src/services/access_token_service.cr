@@ -7,7 +7,7 @@ module Authority
     def initialize(
       @client_id : String,
       @client_secret : String,
-      @access_token_req : AccessTokenCreateRequest
+      @access_token_req : AccessToken::CreateRequest
     )
     end
 

@@ -3,11 +3,11 @@ module Authority
     include Authly::AuthorizableOwner
 
     def authorized?(username : String, password : String) : Bool
-      UserRepo.authenticate? username, password
+      OwnerRepo.authenticate? username, password
     end
 
-    def id_token(user_id : String) : Hash(String, Int64 | String)
-      UserRepo.id_token user_id
+    def id_token(owner_id : String) : Hash(String, Int64 | String)
+      OwnerRepo.id_token owner_id
     end
   end
 end

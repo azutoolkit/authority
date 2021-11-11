@@ -22,10 +22,10 @@ OAUTH_CLIENT = OAuth2::Client.new(
   authorize_uri: "/authorize",
   token_uri: "/token")
 
-Clear::SQL.truncate("users", cascade: true)
+Clear::SQL.truncate("owners", cascade: true)
 Clear::SQL.truncate("clients", cascade: true)
 create_client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI)
 
 Spec.before_each do
-  Clear::SQL.truncate("users", cascade: true)
+  Clear::SQL.truncate("owners", cascade: true)
 end

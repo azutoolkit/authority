@@ -1,10 +1,10 @@
 require "./spec_helper"
 
-describe "Register User Flow" do
-  it "creates a new user" do
+describe "Register Owner Flow" do
+  it "creates a new owner" do
     url = RegisterOwnerFlux.flow("http://localhost:4000/register")
 
-    Authority::User.query.count.should eq 1
+    Authority::OwnerEntity.query.count.should eq 1
     url.should eq "http://localhost:4000/signin"
   end
 end

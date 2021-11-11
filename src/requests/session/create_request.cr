@@ -1,12 +1,12 @@
 # Request Docs https://azutopia.gitbook.io/azu/endpoints/requests
-module Authority
-  struct SessionCreateRequest
+module Authority::Session
+  struct CreateRequest
     include Request
 
-    getter username : String
-    getter password : String
+    getter username : String = ""
+    getter password : String = ""
     getter remember : String = "false"
-    getter forward_url : String = "/user-info"
+    getter forward_url : String = Base64.urlsafe_encode("/user-info")
 
     validate username, message: "Username must be present.", presence: true
     validate password, message: "Password must be present.", presence: true

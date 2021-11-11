@@ -1,6 +1,6 @@
 # Request Docs https://azutopia.gitbook.io/azu/endpoints/requests
-module Authority
-  struct AccessTokenCreateRequest
+module Authority::AccessToken
+  struct CreateRequest
     include Request
 
     getter grant_type : String

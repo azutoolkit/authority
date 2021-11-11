@@ -1,10 +1,10 @@
 # Response Docs https://azutopia.gitbook.io/azu/endpoints/response
-module Authority
-  struct SessionShowResponse
+module Authority::Session
+  struct FormResponse
     include Response
     include Templates::Renderable
 
-    TEMPLATE = "new_session.html"
+    TEMPLATE = "new_session_form.html"
 
     def initialize(@forward_url : String = "/user-info", @errors : Array(String)? = nil)
     end

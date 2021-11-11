@@ -12,6 +12,8 @@ def prepare_code_challenge_url(username, password, method = "S256", scope = "rea
     param.add "code_challenge_method", method
   end
 
+  p auth_url
+
   code, expected_state = AuthorizationCodeFlux.flow(auth_url, username, password)
   {code, code_verifier, expected_state}
 end
