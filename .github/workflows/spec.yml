@@ -1,0 +1,57 @@
+name: Test
+on:
+  push:
+  pull_request:
+    branches: [main]
+jobs:
+  docker:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_DB: authority_db
+          POSTGRES_USER: auth_user
+          POSTGRES_PASSWORD: auth_pass
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Install Firefox
+        run: sudo apt-get install firefox -y
+
+      - name: Install Geckodriver
+        run: sudo apt-get install firefox-geckodriver -y
+
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1
+
+      - name: Run Code Format
+        run: crystal tool format --check
+
+      - name: Install dependencies
+        run: shards install
+
+      - name: Run Ameba Checks
+        run: bin/ameba
+
+      - name: Build Authority Server
+        run: shards build server
+
+      - name: Run tests
+        run: crystal spec
+        env:
+          DATABASE_URL: postgres://auth_user:auth_pass@localhost:5432/authority_db?initial_pool_size=10&checkout_timeout=3

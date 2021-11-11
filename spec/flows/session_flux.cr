@@ -3,7 +3,8 @@ require "uri"
 
 class SessionFlux < Flux
   def initialize
-    super()
+    options = Marionette.firefox_options(args: ["-headless"])
+    super(Marionette::Browser::Firefox, options)
   end
 
   def show
@@ -26,7 +27,7 @@ class SessionFlux < Flux
 
       fill "#username", username, by: :css
       fill "#password", password, by: :css
-      submit "#signin"
+      submit "#signin", by: :css
 
       sleep 3.seconds
 

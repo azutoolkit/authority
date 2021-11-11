@@ -7,7 +7,8 @@ class RegisterOwnerFlux < Flux
   end
 
   def initialize(@url : String)
-    super()
+    options = Marionette.firefox_options(args: ["-headless"])
+    super(Marionette::Browser::Firefox, options)
   end
 
   def call
@@ -15,7 +16,6 @@ class RegisterOwnerFlux < Flux
     email = Faker::Internet.email
 
     step do
-      fullscreen
       visit @url
 
       fill "[name=first_name]", Faker::Name.first_name, by: :css
@@ -29,7 +29,7 @@ class RegisterOwnerFlux < Flux
 
       sleep 1.seconds
 
-      submit "[type=submit]"
+      submit "[type=submit]", by: :css
 
       sleep 2.seconds
 

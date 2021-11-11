@@ -8,7 +8,7 @@ describe "TokenSpec" do
       user = create_owner(password: password)
 
       scope = "openid read"
-      code, code_verifier, expected_state = prepare_code_challenge_url(
+      code, code_verifier, _ = prepare_code_challenge_url(
         user.username, password, "S256", scope)
 
       response = create_token_request(code, code_verifier, scope)
@@ -31,7 +31,7 @@ describe "TokenSpec" do
     describe "Method S256" do
       it "creates access token" do
         user = create_owner(password: password)
-        code, code_verifier, expected_state = prepare_code_challenge_url(
+        code, code_verifier, _ = prepare_code_challenge_url(
           user.username, password, "S256")
 
         response = create_token_request(code, code_verifier)
@@ -45,7 +45,7 @@ describe "TokenSpec" do
     describe "Method PLAIN" do
       it "creates access token" do
         user = create_owner(password: password)
-        code, code_verifier, expected_state = prepare_code_challenge_url(
+        code, code_verifier, _ = prepare_code_challenge_url(
           user.username, password, "plain")
 
         response = create_token_request(code, code_verifier)
