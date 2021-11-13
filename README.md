@@ -1,8 +1,8 @@
-<div style="text-align:center"><img src="https://github.com/azutoolkit/authority/blob/main/logo.png"></div>
-
 # Authority
 
 [![Test](https://github.com/azutoolkit/authority/actions/workflows/spec.yml/badge.svg)](https://github.com/azutoolkit/authority/actions/workflows/spec.yml) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/c19b4551de9f43c2b79664af5908f033)](https://www.codacy.com/gh/azutoolkit/authority/dashboard?utm_source=github.com&utm_medium=referral&utm_content=azutoolkit/authority&utm_campaign=Badge_Grade)
+
+https://github.com/azutoolkit/authority/blob/main/logo.png
 
 https://user-images.githubusercontent.com/1685772/140772737-179dd2e4-0eaa-4915-a942-5e0fe48f0124.mp4
 
