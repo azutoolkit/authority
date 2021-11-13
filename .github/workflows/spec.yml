@@ -54,4 +54,8 @@ jobs:
       - name: Run tests
         run: crystal spec
         env:
+          SECRET_KEY: secret_key
+          REFRESH_TTL: 60
+          CODE_TTL: 5
+          ACCESS_TOKEN_TTL: 60
           DATABASE_URL: postgres://auth_user:auth_pass@localhost:5432/authority_db?initial_pool_size=10&checkout_timeout=3

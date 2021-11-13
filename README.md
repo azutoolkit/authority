@@ -2,22 +2,37 @@
 
 [![Test](https://github.com/azutoolkit/authority/actions/workflows/spec.yml/badge.svg)](https://github.com/azutoolkit/authority/actions/workflows/spec.yml) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/c19b4551de9f43c2b79664af5908f033)](https://www.codacy.com/gh/azutoolkit/authority/dashboard?utm_source=github.com&utm_medium=referral&utm_content=azutoolkit/authority&utm_campaign=Badge_Grade)
 
-https://github.com/azutoolkit/authority/blob/main/logo.png
+![logo](https://user-images.githubusercontent.com/1685772/141647649-241cff93-a5dc-4e6a-9695-ff4b9e6a51d4.png)
 
-https://user-images.githubusercontent.com/1685772/140772737-179dd2e4-0eaa-4915-a942-5e0fe48f0124.mp4
+<https://user-images.githubusercontent.com/1685772/140772737-179dd2e4-0eaa-4915-a942-5e0fe48f0124.mp4>
 
-OpenID Connect and OAuth Provider written in Crystal - Security-first, open
-source API security for your infrastructure. SDKs to come.
+A OAuth2 Server, sometimes also referred to as an OAuth 2.0 Server, OAuth Server, Authorization Server, is a software system that implements network protocol flows that allow a client software application to act on behalf of a user.
 
-Authority is a OpenID OAuth 2.0 Server and OpenID Connect Provider optimized for
-low-latency, high throughput, and low resource consumption. Authority has a built
-in identity provider user login.
+Authority is a OpenID OAuth 2.0 Server and OpenID Connect Provider optimized for low-latency, high throughput, and low resource consumption. Authority has a built in identity provider user login.
+
+OpenID Connect and OAuth Provider written in Crystal - Security-first, open source API security for your infrastructure. SDKs to come.
+
+## Architecture
+
+Authority follows architecture principles that work best on container orchestration
+systems such as Kubernetes, CloudFoundry, OpenShift, and similar projects.
+While it is possible to run the Authority stack on a RaspberryPI, the integration
+with the Docker and Container ecosystem is best documented and supported.
+
+Authority's architecture is designed along several guiding principles:
+
+- Minimal dependencies (no system dependencies; might need a database backend)
+- Runs everywhere (Linux, macOS, FreeBSD, Windows; AMD64, i386, ARMv5, ...)
+- Scales without effort (no memcached, etcd, required, ...)
+- Minimize room for human and network errors
+
+## About OAuth 2.0
 
 Implementing and using OAuth2 without understanding the whole specification is
 challenging and prone to errors, even when SDKs are being used. The primary goal
 of Authority is to make OAuth 2.0 and OpenID Connect 1.0 better accessible.
 
-The specification describes five grants for acquiring an access token:
+The Authority implements five grants for acquiring an access token:
 
 - Authorization code grant
 - Implicit grant
@@ -25,11 +40,25 @@ The specification describes five grants for acquiring an access token:
 - Client credentials grant
 - Refresh token grant
 
-## JSON Web Tokens
+## Why Authority is Different​
 
-At this moment Authority issues JWT OAuth 2.0 Access Tokens as default.
+Authority differentiates itself in the following key areas:
 
-## Features
+- Everything is developed and licensed under Open Source Principles, allowing
+  you to participate, collaborate, and understand the inner workings of Authority.
+- You can bring your own UI, in the programming language of your choosing, with
+  the user experience that you like.
+- From designing Identity Schemas, to webhooks, to advanced configuration options -
+  Authority is fully customizable.
+- Authority spans the whole authentication and authorization real with well-designed APIs:
+  - Identity Management
+  - Session management
+  - Flows for login
+  - Registration
+  - Account recovery & verification
+  - Mfa, and many more.
+
+## Roadmap/Features
 
 Grant Types
 
@@ -40,44 +69,21 @@ Grant Types
 - [x] Refresh token grant
 - [x] OpenID Connect
 - [x] PKCE
+- [x] JSON Web Tokens
 - [ ] Device Code grant
 - [ ] Token Introspection
 - [ ] Token Revocation
+- [ ] Opaque Token
+- [ ] Client SDKs
+- [ ] Session Management
+- [ ] Account recovery & verification
+- [ ] MFA
+- [ ] Permission and Role Management
+- [ ] Social Signin
 
 ## Configuration
 
-Configuration files can be found in `./src/config`
-
-### Authly.cr
-
-This file contains the configuration for the OAuthly 2 library. Read more about [Authly shards](https://github.com/azutoolkit/authly)
-
-```crystal
-# Configure
-Authly.configure do |c|
-  # Secret Key for JWT Tokens
-  c.secret_key = "ExampleSecretKey"
-
-  # Refresh Token Time To Live
-  c.refresh_ttl = 1.hour
-
-  # Authorization Code Time To Live
-  c.code_ttl = 1.hour
-
-  # Access Token Time To Live
-  c.access_ttl = 1.hour
-
-  # Using your own classes
-  c.owners = Authority::OwnerService.new
-  c.clients = Authority::ClientService.new
-end
-```
-
-### Clear.cr
-
-This file contains the database configuration. No changes to this files is required.
-
-### Local.env
+All server Configuration are defined using environment variables
 
 This file contains the environment variables for Authority.
 
@@ -90,11 +96,21 @@ PORT=4000
 PORT_REUSE=true
 HOST=0.0.0.0
 DATABASE_URL=postgres://auth_user:auth_pass@db:5432/authority_db
+  ?initial_pool_size=10&checkout_timeout=3
+SECRET_KEY=secret_key
+REFRESH_TTL=60
+CODE_TTL=5
+ACCESS_TOKEN_TTL=60
 ```
 
-## HTML Templates
+## User Interface Custo
 
-You can change the look of Authority `signin` and `authorize` html pages.
+The Managed UI implements screens such as login, registration, account recovery,
+account setting, and account verification. This allows for fast adoption of Authority.
+
+Contrary to other vendors, Authority allows you to implement your own UI
+by offering simple html templates. You can change the look of Authority `signin`
+and `authorize` html pages.
 
 Just edit the `./public/templates/signin.html` and `./public/templates/authorize.html`
 

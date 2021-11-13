@@ -1,14 +1,13 @@
 module Authority::Clients
   class CreateEndpoint
-    include Endpoint(NewRequest, FormResponse | EmptyResponse)
+    include Endpoint(Clients::NewRequest, FormResponse | EmptyResponse)
 
     post "/clients"
 
     def call : FormResponse | EmptyResponse
       return owner_error unless new_request.valid?
-      ClientRepo.create! new_request
-
-      redirect to: "/signin"
+      client = ClientRepo.create!(new_request).not_nil!
+      redirect to: "/clients/#{client.id}"
       EmptyResponse.new
     end
 

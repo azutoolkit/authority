@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+{% set title = "Signup" %}
+
+{% block body %}
+<main class="signup-form">
+  {% include "errors.html" %}
+  <form action="/clients" method="post">
+    <div class="avatar"><i class="material-icons">&#xE7FF;</i></div>
+    <h2 class="modal-title">Register a new OAuth Application</h2>
+    <p>Please fill in this form to register a new OAuth application!</p>
+    <hr>
+    <div class="form-group">
+      <div class="col">
+        <input type="text" class="form-control" name="name" placeholder="Application name" required="required"
+          value="{{name}}">
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col"><input type="text" class="form-control" name="redirect_uri"
+          placeholder="Authorization callback URL" required="required" value="{{redirect_uri}}"></div>
+    </div>
+    <div class="form-group">
+      <textarea class="form-control" rows="4" name="description" placeholder="Application description"
+        required="required" value="{{description}}"></textarea>
+    </div>
+
+    <div class="form-group">
+      <input type="text" class="form-control" name="logo" placeholder="Application Logo Url" required="required"
+        value="{{logo}}">
+    </div>
+    <div class="d-grid gap-2 mx-auto">
+      <button type="submit" class="btn btn-primary">Register Application</button>
+    </div>
+  </form>
+</main>
+{% endblock %}

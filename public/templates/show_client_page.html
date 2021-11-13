@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+{% set title = "Signup" %}
+
+{% block body %}
+<main class="container mt-4 mb-4 p-5 d-flex justify-content-center">
+
+  <div class="card">
+    <div class="text-center mt-4 mb-4 p-2">
+      <img src="{{logo}}" class="rounded" width="200" alt="">
+    </div>
+
+    <div class="card-body">
+      <h5 class="card-title">{{name}}</h5>
+      <p class="card-text">{{description}}</p>
+
+      <div class="mt-10">
+        <span class="fs-4 badge bg-secondary">
+          0 <span class="fs-5 fw-light">users</span>
+        </span>
+
+        <span class="fs-4 badge bg-secondary">
+          0 <span class="fs-5 fw-light">users</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <a href="#" class="card-link">Card link</a>
+      <a href="#" class="card-link">Another link</a>
+    </div>
+    <table class="table table-hover">
+      <tr>
+        <th scope="row">Client ID</th>
+        <td colspan="2">{{client_id}}</td>
+      </tr>
+      <tr>
+        <th scope="row">Client Secret</th>
+        <td colspan="2">{{client_secret}}</td>
+      </tr>
+
+      <tr>
+        <th scope="row">Redirect Uri</th>
+        <td colspan="2">{{redirect_uri}}</td>
+      </tr>
+    </table>
+  </div>
+</main>
+{% endblock %}
