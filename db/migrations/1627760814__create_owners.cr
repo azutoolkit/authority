@@ -1,9 +1,9 @@
-class CreateUser
+class CreateOwners
   include Clear::Migration
 
   def change(direction)
     direction.up do
-      create_table :users, id: :uuid do |t|
+      create_table :owners, id: :uuid do |t|
         t.column :username, "varchar(80)", null: false, index: true, unique: true
         t.column :encrypted_password, "varchar(80)", null: false
         t.column :first_name, "varchar(80)", null: false
@@ -17,7 +17,7 @@ class CreateUser
     end
 
     direction.down do
-      execute "DROP TABLE IF EXISTS users;"
+      execute "DROP TABLE IF EXISTS owners;"
     end
   end
 end

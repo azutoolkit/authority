@@ -7,24 +7,19 @@ class AuthorizationCodeFlux < Flux
   end
 
   def initialize(@url : String, @username : String, @password : String)
-    super()
+    options = Marionette.firefox_options(args: ["-headless"])
+    super(Marionette::Browser::Firefox, options)
   end
 
   def call
     redirect = step do
-      fullscreen
       visit @url
-      sleep 3.seconds
 
       fill "#username", @username, by: :css
       fill "#password", @password, by: :css
-      submit "#signin"
+      submit "#signin", by: :css
 
-      sleep 3.seconds
-
-      submit "#approve"
-
-      sleep 3.seconds
+      submit "#approve", by: :css
 
       URI.parse(current_url).query_params
     end

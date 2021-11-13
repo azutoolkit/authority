@@ -1,9 +1,9 @@
 # Model Docs - https://clear.gitbook.io/project/model/column-types
 module Authority
-  class User
+  class OwnerEntity
     include Clear::Model
 
-    self.table = "users"
+    self.table = "owners"
 
     primary_key :id, type: :uuid
     column username : String

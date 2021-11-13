@@ -6,6 +6,8 @@ require "digest"
 # Docs - https://azutopia.gitbook.io/azu/defining-your-app
 module Authority
   include Azu
+
+  SESSION_KEY = "session_id"
   configure do |c|
     # Default HTML templates path
     c.templates.path = "./public/templates"
@@ -20,12 +22,11 @@ module Authority
 end
 
 require "./config/**"
+require "./entities/**"
+require "./repositories/**"
 require "./validators/**"
 require "./services/**"
 require "./requests/**"
 require "./providers/**"
 require "./responses/**"
-require "./entities/**"
-require "./repositories/**"
 require "./endpoints/**"
-require "./config/**"

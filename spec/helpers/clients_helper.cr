@@ -1,5 +1,5 @@
 def create_client(client_id, client_secret, redirect_uri)
-  Authority::Client.new({
+  Authority::ClientEntity.new({
     client_id:     client_id,
     client_secret: client_secret,
     redirect_uri:  redirect_uri,

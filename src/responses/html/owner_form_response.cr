@@ -1,12 +1,12 @@
-module Authority
-  struct NewOwnerResponse
+module Authority::Owner
+  struct FormResponse
     include Response
     include Templates::Renderable
 
-    TEMPLATE = "new_owner.html"
-    getter req : NewOwnerRequest, errors : Array(String)?
+    TEMPLATE = "new_owner_form.html"
+    getter req : Owner::NewRequest, errors : Array(String)?
 
-    def initialize(@req : NewOwnerRequest, @errors = nil)
+    def initialize(@req : Owner::NewRequest, @errors = nil)
     end
 
     def render

@@ -1,19 +1,19 @@
 # Endpoint Docs https://azutopia.gitbook.io/azu/endpoints
-module Authority
-  class AccessTokenCreateEndpoint
-    include Endpoint(AccessTokenCreateRequest, AccessTokenCreateResponse)
+module Authority::AccessToken
+  class CreateEndpoint
+    include Endpoint(CreateRequest, JsonResponse)
 
     BASIC = "Basic"
     AUTH  = "Authorization"
 
     post "/token"
 
-    def call : AccessTokenCreateResponse
-      AccessTokenCreateResponse.new access_token
+    def call : JsonResponse
+      JsonResponse.new access_token.not_nil!
     end
 
     private def access_token : Authly::AccessToken
-      AccessTokenService.access_token *credentials, access_token_create_request
+      AccessTokenService.access_token *credentials, create_request
     end
 
     private def credentials
