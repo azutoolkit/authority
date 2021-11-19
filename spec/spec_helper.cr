@@ -28,7 +28,11 @@ Clear::SQL.truncate("owners", cascade: true)
 Clear::SQL.truncate("clients", cascade: true)
 create_client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI)
 
-process = Process.new("./bin/server", env: ENV.to_h)
+process = Process.new(
+  "./bin/server",
+  env: ENV.to_h,
+  output: Process::Redirect::Inherit,
+  error: Process::Redirect::Inherit)
 # Wait for process to start
 sleep 1.seconds
 
