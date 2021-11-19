@@ -10,18 +10,7 @@ services:
     ports:
       - 5432:5432
 
-  # spec:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.spec
-  #   container_name: authority-spec
-  #   working_dir: /opt/app
-  #   environment:
-  #     - DATABASE_URL=postgres://auth_user:auth_pass@db:5432/authority_db
-  #   depends_on:
-  #     - server
-
-  server:
+  authority:
     build:
       context: .
       dockerfile: Dockerfile

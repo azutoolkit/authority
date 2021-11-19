@@ -53,6 +53,10 @@ shards:
     git: https://github.com/anykeyh/generate.cr.git
     version: 0.1.0+git.commit.f5dafc934a70e0ee2f246dddf3df44686f844da2
 
+  http-protection:
+    git: https://github.com/rogeriozambon/http-protection.git
+    version: 0.2.0+git.commit.892f29e2847c6fd86fcb5838eb56832cdb193295
+
   inflector:
     git: https://github.com/anykeyh/inflector.cr.git
     version: 0.1.8+git.commit.dc5c898b0a834617d8b3ff73ac5a2239bd9fc019

@@ -1,4 +1,4 @@
-def create_client(client_id, client_secret, redirect_uri)
+def create_client(client_id = UUID.random.to_s, client_secret = Faker::Internet.password(32, 32), redirect_uri = Faker::Internet.url("example.com"))
   Authority::ClientEntity.new({
     client_id:     client_id,
     client_secret: client_secret,

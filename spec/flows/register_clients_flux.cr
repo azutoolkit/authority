@@ -20,7 +20,7 @@ class RegisterClientFlux < Flux
       fill "[name=logo]", Faker::Company.logo, by: :css
       fill "[name=description]", Faker::Lorem.paragraph(2), by: :css
 
-      sleep 1.seconds
+      sleep 2.seconds
 
       submit "[type=submit]", by: :css
 

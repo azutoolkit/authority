@@ -19,7 +19,11 @@ class AuthorizationCodeFlux < Flux
       fill "#password", @password, by: :css
       submit "#signin", by: :css
 
+      sleep 2.seconds
+
       submit "#approve", by: :css
+
+      sleep 2.seconds
 
       URI.parse(current_url).query_params
     end

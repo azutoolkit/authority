@@ -23,13 +23,13 @@ class SessionFlux < Flux
     step do
       visit "http://localhost:4000/signin"
 
-      sleep 3.seconds
+      sleep 2.seconds
 
       fill "#username", username, by: :css
       fill "#password", password, by: :css
       submit "#signin", by: :css
 
-      sleep 3.seconds
+      sleep 2.seconds
 
       URI.parse(current_url).query_params
     end

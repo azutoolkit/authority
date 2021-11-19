@@ -3,11 +3,9 @@ require "faker"
 require "oauth2"
 require "http/client"
 require "digest"
-
 require "./helpers/**"
 require "./flows/**"
-require "../src/authority"
-require "../db/migrations/**"
+require "../src/app"
 
 # Migrate DB
 Clear::Migration::Manager.instance.apply_all
@@ -30,7 +28,7 @@ Clear::SQL.truncate("owners", cascade: true)
 Clear::SQL.truncate("clients", cascade: true)
 create_client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI)
 
-process = Process.new("./bin/server", env: {"DATABASE_URL" => ENV["DATABASE_URL"]?})
+process = Process.new("./bin/server", env: ENV.to_h)
 # Wait for process to start
 sleep 1.seconds
 

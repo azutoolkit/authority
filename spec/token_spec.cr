@@ -37,7 +37,7 @@ describe "TokenSpec" do
         response = create_token_request(code, code_verifier)
         token = OAuth2::AccessToken::Bearer.from_json(response.body)
 
-        response.status_message.should eq "OK"
+        response.status_message.should eq "Created"
         token.should be_a OAuth2::AccessToken::Bearer
       end
     end
@@ -51,7 +51,7 @@ describe "TokenSpec" do
         response = create_token_request(code, code_verifier)
         token = OAuth2::AccessToken::Bearer.from_json(response.body)
 
-        response.status_message.should eq "OK"
+        response.status_message.should eq "Created"
         token.should be_a OAuth2::AccessToken::Bearer
       end
     end
