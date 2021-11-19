@@ -1,6 +1,6 @@
 # Authority
 
-[![Test](https://github.com/azutoolkit/authority/actions/workflows/spec.yml/badge.svg)](https://github.com/azutoolkit/authority/actions/workflows/spec.yml) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/c19b4551de9f43c2b79664af5908f033)](https://www.codacy.com/gh/azutoolkit/authority/dashboard?utm_source=github.com&utm_medium=referral&utm_content=azutoolkit/authority&utm_campaign=Badge_Grade)
+[![Test](https://github.com/azutoolkit/authority/actions/workflows/spec.yml/badge.svg)](https://github.com/azutoolkit/authority/actions/workflows/spec.yml) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/c19b4551de9f43c2b79664af5908f033)](https://www.codacy.com/gh/azutoolkit/authority/dashboard?utm_source=github.com&utm_medium=referral&utm_content=azutoolkit/authority&utm_campaign=Badge_Grade) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/azutoolkit/authority?label=shard)
 
 ![logo](https://user-images.githubusercontent.com/1685772/141647649-241cff93-a5dc-4e6a-9695-ff4b9e6a51d4.png)
 
@@ -8,9 +8,9 @@
 
 A OAuth2 Server, sometimes also referred to as an OAuth 2.0 Server, OAuth Server, Authorization Server, is a software system that implements network protocol flows that allow a client software application to act on behalf of a user.
 
-Authority is a OpenID OAuth 2.0 Server and OpenID Connect Provider optimized for low-latency, high throughput, and low resource consumption. Authority has a built in identity provider user login.
+Authority is a OpenID OAuth 2.0 Server and OpenID Connect Provider written in Crystal optimized for low-latency, high throughput, and low resource consumption. Authority has a built in identity provider user login.
 
-OpenID Connect and OAuth Provider written in Crystal - Security-first, open source API security for your infrastructure. SDKs to come.
+Authority is an open source API security for your infrastructure.
 
 ## Architecture
 
@@ -34,11 +34,19 @@ of Authority is to make OAuth 2.0 and OpenID Connect 1.0 better accessible.
 
 The Authority implements five grants for acquiring an access token:
 
-- Authorization code grant
-- Implicit grant
-- Resource owner credentials grant
-- Client credentials grant
-- Refresh token grant
+- Authorization code Grant
+- Implicit Grant
+- Resource owner credentials Grant
+- Client credentials Grant
+- Refresh token Grant
+- Device Token Grant
+
+The following RFCs are implemented:
+
+- [RFC6749 "OAuth 2.0"](https://tools.ietf.org/html/rfc6749)
+- [RFC6750 " The OAuth 2.0 Authorization Framework: Bearer Token Usage"](https://tools.ietf.org/html/rfc6750)
+- [RFC7519 "JSON Web Token (JWT)"](https://tools.ietf.org/html/rfc7519)
+- [RFC7636 "Proof Key for Code Exchange by OAuth Public Clients"](https://tools.ietf.org/html/rfc7636)
 
 ## Why Authority is Different​
 
@@ -70,12 +78,11 @@ Grant Types
 - [x] OpenID Connect
 - [x] PKCE
 - [x] JSON Web Tokens
-- [ ] Device Code grant
+- [x] Device Code grant
 - [ ] Token Introspection
 - [ ] Token Revocation
-- [ ] Opaque Token
+- [ ] Opaque Tokens
 - [ ] Client SDKs
-- [ ] Session Management
 - [ ] Account recovery & verification
 - [ ] MFA
 - [ ] Permission and Role Management
@@ -95,24 +102,36 @@ CRYSTAL_WORKERS=4
 PORT=4000
 PORT_REUSE=true
 HOST=0.0.0.0
-DATABASE_URL=postgres://auth_user:auth_pass@db:5432/authority_db
-  ?initial_pool_size=10&checkout_timeout=3
+DATABASE_URL=postgres://auth_user:auth_pass@db:5432/authority_db?initial_pool_size=10&checkout_timeout=3
 SECRET_KEY=secret_key
 REFRESH_TTL=60
 CODE_TTL=5
 ACCESS_TOKEN_TTL=60
+TEMPLATES_PATH="./public/templates"
+ERROR_TEMPLATE
+SESSION_KEY="session_id"
+BASE_URL=http://localhost:4000
+ACTIVATE_URL=http://localhost:4000/activate
+DEVICE_CODE_TTL=300
+SSL_CERT=
+SSL_KEY=
+SSL_CA=
+SSL_MODE=
 ```
 
 ## User Interface Customization
 
-The Managed UI implements screens such as login, registration, account recovery,
+The Authority UI implements screens such as login, registration, account recovery,
 account setting, and account verification. This allows for fast adoption of Authority.
 
 Contrary to other vendors, Authority allows you to implement your own UI
 by offering simple html templates. You can change the look of Authority `signin`
 and `authorize` html pages.
 
-Just edit the `./public/templates/signin.html` and `./public/templates/authorize.html`
+Just edit the `./public/templates/`
+
+> **Note** ensure to maintain the same template variable names defined in
+> brackets `{{var_name}}`
 
 ## Installation
 
@@ -123,6 +142,16 @@ Spin up your server
 ```bash
 docker-compose up server
 ```
+
+## Which OAuth 2.0 grant should I use?
+
+A grant is a method of acquiring an access token. Deciding which grants to
+implement depends on the type of client the end user will be using, and the
+experience you want for your users.
+
+<p align="center">
+<img src="https://user-images.githubusercontent.com/1685772/142732731-bfaa94ab-5072-4a70-b91c-72c8b1b10f28.png">
+</p>
 
 ## Contributing
 

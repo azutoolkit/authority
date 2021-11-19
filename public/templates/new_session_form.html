@@ -2,7 +2,7 @@
 {% set title = "Signin" %}
 
 {% block body %}
-<main class="login-form">
+<main class="signup-form">
   {% include "errors.html" %}
   <form action="/signin" method="post">
     <input type="hidden" name="forward_url" id="forward_url" value="{{forward_url}}">

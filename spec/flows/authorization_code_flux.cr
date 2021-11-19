@@ -15,9 +15,13 @@ class AuthorizationCodeFlux < Flux
     redirect = step do
       visit @url
 
+      sleep 1.seconds
+
       fill "#username", @username, by: :css
       fill "#password", @password, by: :css
       submit "#signin", by: :css
+
+      sleep 1.seconds
 
       submit "#approve", by: :css
 

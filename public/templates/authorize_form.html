@@ -2,7 +2,7 @@
 {% set title = "Authorize" %}
 
 {% block body %}
-<main class="login-form">
+<main class="signup-form">
   {% include "errors.html" %}
   <form method="post" action="{{authorize_endpoint}}">
     <input type="hidden" name="response_type" value="{{response_type}}" />
