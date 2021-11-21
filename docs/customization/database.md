@@ -2,6 +2,10 @@
 
 You can customize the database table and fields of your Authority server by simply modifying the migration files found under `db/migrations.`
 
+{% hint style="warning" %}
+A bad database configuration might stop your database from working. Take extra care to make sure the configuration is correct.
+{% endhint %}
+
 #### Clients Migration File
 
 ```crystal
@@ -29,3 +33,4 @@ class CreateClients
   end
 end
 ```
+
