@@ -13,7 +13,7 @@
 
 ## Reference
 
-* [OAuth 2 API](reference/oauth-2-api/README.md)
+* [OAuth 2](reference/oauth-2-api/README.md)
   * [Device Flow](reference/oauth-2-api/device-flow.md)
   * [Authorization Flow](reference/oauth-2-api/authorization-flow.md)
   * [Implicit grant](reference/oauth-2-api/implicit-grant.md)
