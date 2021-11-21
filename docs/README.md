@@ -7,7 +7,7 @@ description: >-
 
 # Introduction
 
-### About Authority Server
+## About Authority Server
 
 Authority is an OAuth 2 Server, sometimes also referred to as an OAuth 2.0 Server, OAuth Server, Authorization Server, is a software system that implements network protocol flows that allow a client software application to act on behalf of a user.
 
@@ -21,10 +21,10 @@ Authority follows architecture principles that work best on container orchestrat
 
 Authority's architecture is designed along several guiding principles:
 
-* Minimal dependencies (no system dependencies; might need a database backend)
-* Runs everywhere (Linux, macOS, FreeBSD, Windows; AMD64, i386, ARMv5, ...)
-* Scales without effort (no memcached, etcd, required, ...)
-* Minimize room for human and network errors
+- Minimal dependencies (no system dependencies; might need a database backend)
+- Runs everywhere (Linux, macOS, FreeBSD, Windows; AMD64, i386, ARMv5, ...)
+- Scales without effort (no memcached, etcd, required, ...)
+- Minimize room for human and network errors
 
 ### OAuth 2 Implementations
 
@@ -32,14 +32,14 @@ Implementing and using OAuth2 without understanding the whole specification is c
 
 The Authority implements five grants for acquiring an access token:
 
-* Authorization code Grant
-* Implicit Grant
-* Resource owner credentials grant
-* Client credentials grant
-* Refresh token Grant
-* Device Token Grant
+- Authorization code Grant
+- Implicit Grant
+- Resource owner credentials grant
+- Client credentials grant
+- Refresh token Grant
+- Device Token Grant
 
-**Explore the implementations**
+#### Explore the implementations
 
 {% content-ref url="reference/oauth-2-api/" %}
 [oauth-2-api](reference/oauth-2-api/)
@@ -47,22 +47,22 @@ The Authority implements five grants for acquiring an access token:
 
 The following RFCs are implemented:
 
-* [RFC6749 "OAuth 2.0"](https://tools.ietf.org/html/rfc6749)
-* [RFC6750 " The OAuth 2.0 Authorization Framework: Bearer Token Usage"](https://tools.ietf.org/html/rfc6750)
-* [RFC7519 "JSON Web Token (JWT)"](https://tools.ietf.org/html/rfc7519)
-* [RFC7636 "Proof Key for Code Exchange by OAuth Public Clients"](https://tools.ietf.org/html/rfc7636)
+- [RFC6749 "OAuth 2.0"](https://tools.ietf.org/html/rfc6749)
+- [RFC6750 " The OAuth 2.0 Authorization Framework: Bearer Token Usage"](https://tools.ietf.org/html/rfc6750)
+- [RFC7519 "JSON Web Token (JWT)"](https://tools.ietf.org/html/rfc7519)
+- [RFC7636 "Proof Key for Code Exchange by OAuth Public Clients"](https://tools.ietf.org/html/rfc7636)
 
 ### Why Authority is Different​
 
 Authority differentiates itself in the following key areas:
 
-* Everything is developed and licensed under Open Source Principles, allowing you to participate, collaborate, and understand the inner workings of Authority.
-* You can bring your own UI, in the programming language of your choosing, with the user experience that you like.
-* From designing Identity Schemas, to webhooks, to advanced configuration options - Authority is fully customizable.
-* Authority spans the whole authentication and authorization real with well-designed APIs:
-  * Identity Management
-  * Session management
-  * Flows for login
-  * Registration
-  * Account recovery & verification
-  * Mfa, and many more.
+- Everything is developed and licensed under Open Source Principles, allowing you to participate, collaborate, and understand the inner workings of Authority.
+- You can bring your own UI, in the programming language of your choosing, with the user experience that you like.
+- From designing Identity Schemas, to webhooks, to advanced configuration options - Authority is fully customizable.
+- Authority spans the whole authentication and authorization real with well-designed APIs:
+  - Identity Management
+  - Session management
+  - Flows for login
+  - Registration
+  - Account recovery & verification
+  - Mfa, and many more.

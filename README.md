@@ -103,7 +103,7 @@ CODE_TTL=5
 ACCESS_TOKEN_TTL=60
 ```
 
-## User Interface Custo
+## User Interface Customization
 
 The Managed UI implements screens such as login, registration, account recovery,
 account setting, and account verification. This allows for fast adoption of Authority.
