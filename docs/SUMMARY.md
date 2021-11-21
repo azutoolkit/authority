@@ -1,6 +1,7 @@
 # Table of contents
 
 * [Introduction](README.md)
+* [In Action](in-action.md)
 * [Performance at Scale](performance-at-scale.md)
 * [Configuration](configuration.md)
 
