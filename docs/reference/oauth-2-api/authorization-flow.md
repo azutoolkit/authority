@@ -6,15 +6,11 @@ description: >-
 
 # Authorization Flow
 
+The authorization code grant is used when an application exchanges an authorization code for an access token. After the user returns to the application via the redirect URL, the application will get the authorization code from the URL and use it to request an access token. This request will be made to the token endpoint.
+
 ### The Flow (Part One) <a href="the-flow-part-one" id="the-flow-part-one"></a>
 
 The client will redirect the user to the authorization server with the following parameters in the query string:
-
-* `response_type` with the value `code`
-* `client_id` with the client identifier
-* `redirect_uri` with the client redirect URI. This parameter is optional, but if not send the user will be redirected to a pre-registered redirect URI.
-* `scope` a space delimited list of scopes
-* `state` with a [CSRF](https://en.wikipedia.org/wiki/Cross-site\_request\_forgery) token. This parameter is optional but highly recommended. You should store the value of the CSRF token in the user’s session to be validated when they return.
 
 ```bash
 GET https://authorization-server.com/authorize?client_id=a17c21ed
@@ -24,20 +20,70 @@ GET https://authorization-server.com/authorize?client_id=a17c21ed
 &scope=photos
 ```
 
-The parameters will be validated by the authorization server.
+{% swagger method="get" path="" baseUrl="https://authorization-server.com/authorize" summary="Authorization Code" %}
+{% swagger-description %}
+The client will redirect the user to the authorization server with the following parameters in the query string:
+{% endswagger-description %}
+
+{% swagger-parameter in="query" name="response_type" required="true" %}
+Indicates that your server expects to receive an authorization code. Must be 
+
+`code`
+{% endswagger-parameter %}
+
+{% swagger-parameter in="query" name="client_id" required="true" %}
+The client ID you received when you first registered the application
+{% endswagger-parameter %}
+
+{% swagger-parameter in="query" name="redirect_uri" required="true" %}
+Indicates the URI to return the user to after authorization is complete
+{% endswagger-parameter %}
+
+{% swagger-parameter in="query" name="scope" required="true" %}
+One or more scope values indicating which parts of the user's account you wish to access
+{% endswagger-parameter %}
+
+{% swagger-parameter in="query" name="state" %}
+with a 
+
+[CSRF](https://en.wikipedia.org/wiki/Cross-site_request_forgery)
+
+ token. This parameter is optional but highly recommended. 
+{% endswagger-parameter %}
+
+{% swagger-response status="302: Found" description="The user sees the authorization prompt" %}
+```javascript
+https://example-app.com/cb?code=AUTH_CODE_HERE&state=1234zyx
+```
+{% endswagger-response %}
+{% endswagger %}
 
 {% hint style="info" %}
-**Good to know:**&#x20;
+You should first compare this state value to ensure it matches the one you started with. You can typically store the state value in a cookie or session, and compare it when the user comes back. This helps ensure your redirection endpoint isn't able to be tricked into attempting to exchange arbitrary authorization codes.
+{% endhint %}
+
+The parameters will be validated by the authorization server.
+
+### User Authorization Prompt
 
 The user will then be asked to sign in to the authorization server and approve the client.
 
-If the user approves the client they will be redirected from the authorisation server back to the client (specifically to the redirect URI) with the following parameters in the query string:
+![](<../../.gitbook/assets/Authority - Signin.png>)
+
+The user sees the authorization prompt
+
+![](<../../.gitbook/assets/Authority - Authorize.png>)
+
+If the user approves the client they will be redirected from the authorization server back to the client (specifically to the redirect URI) with the following parameters in the query string:
 
 * `code` with the authorization code
 * `state` with the state parameter sent in the original request. You should compare this value with the value stored in the user’s session to ensure the authorization code obtained is in response to requests made by this client rather than another client application.
-{% endhint %}
 
-#### PKCE Extension
+```
+https://example-app.com/cb?code=AUTH_CODE_HERE&state=1234zyx
+```
+
+### PKCE Extension
 
 The Proof Key for Code Exchange (PKCE, pronounced pixie) extension describes a technique for public clients to mitigate the threat of having the authorization code intercepted. The technique involves the client first creating a secret, and then using that secret again when exchanging the authorization code for an access token. This way if the code is intercepted, it will not be useful since the token request relies on the initial secret.
 
