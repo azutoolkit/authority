@@ -60,7 +60,7 @@ After validating the client ID and scopes, the authorization server returns the 
 * **`expires_in`** – Optional, the lifetime in seconds of the device code and user code.
 * **`interval`** – Optional, the minimum amount of time in seconds that the client should wait between polling requests to the token endpoint.
 
-#### User Flow
+### Device Activation
 
 The device shows the `verification_uri` and `user_code` to the user on its display, directing the user to enter the code at that URL.
 
