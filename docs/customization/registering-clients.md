@@ -6,19 +6,19 @@ While the OAuth 2.0 spec doesn’t require you to collect any application inform
 
 Typically services collect information about an application such as:
 
-- Application name
-- An icon for the application
-- URL to the application’s home page
-- A short description of the application
-- A link to the application’s privacy policy
-- A list of redirect URLs
+* Application name
+* An icon for the application
+* URL to the application’s home page
+* A short description of the application
+* A link to the application’s privacy policy
+* A list of redirect URLs
 
-## The Client ID and Secret
+### The Client ID and Secret
 
-Client ID
+**Client ID**
 
-The client_id is a public identifier for apps. Even though it’s public, it’s best that it isn’t guessable by third parties, so many implementations use something like a 32-character hex string. It must also be unique across all clients that the authorization server handles. If the client ID is guessable, it makes it slightly easier to craft phishing attacks against arbitrary applications.
+The client\_id is a public identifier for apps. Even though it’s public, it’s best that it isn’t guessable by third parties, so many implementations use something like a 32-character hex string. It must also be unique across all clients that the authorization server handles. If the client ID is guessable, it makes it slightly easier to craft phishing attacks against arbitrary applications.
 
-Client Secret
+**Client Secret**
 
-The client_secret is a secret known only to the application and the authorization server. It must be sufficiently random to not be guessable, which means you should avoid using common UUID libraries which often take into account the timestamp or MAC address of the server generating it. A great way to generate a secure secret is to use a cryptographically-secure library to generate a 256-bit value and converting it to a hexadecimal representation.
+The client\_secret is a secret known only to the application and the authorization server. It must be sufficiently random to not be guessable, which means you should avoid using common UUID libraries which often take into account the timestamp or MAC address of the server generating it. A great way to generate a secure secret is to use a cryptographically-secure library to generate a 256-bit value and convert it to a hexadecimal representation.
