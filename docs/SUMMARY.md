@@ -5,18 +5,18 @@
 * [Performance at Scale](performance-at-scale.md)
 * [Roadmap / Features](roadmap-features.md)
 
-## CUSTOMIZATION
+## DEVELOPMENT
 
-* [Database](customization/database.md)
-* [User Interface](customization/user-interface.md)
-* [Registering Clients](customization/registering-clients.md)
-* [Deployment](customization/deployment/README.md)
-  * [Environment Variables](customization/deployment/configuration.md)
+* [Database](development/database.md)
+* [User Interface](development/user-interface.md)
+* [Deployment](development/deployment/README.md)
+  * [Environment Variables](development/deployment/configuration.md)
 
 ## Reference
 
 * [OAuth Terms](reference/oauth-terms.md)
 * [Grant Flows](reference/grant-flows.md)
+* [Registering Clients](reference/registering-clients.md)
 * [OAuth 2](reference/oauth-2-api/README.md)
   * [Device Flow](reference/oauth-2-api/device-flow.md)
   * [Authorization Flow](reference/oauth-2-api/authorization-flow.md)
