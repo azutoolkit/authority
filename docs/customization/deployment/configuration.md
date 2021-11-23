@@ -1,8 +1,6 @@
-# Configuration
+# Environment Variables
 
-All server Configuration are defined using environment variables
-
-This file contains the environment variables for Authority.
+All server settings are defined using environment variables
 
 |                           |                                                                                                     |                                                                 |
 | ------------------------- | --------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |

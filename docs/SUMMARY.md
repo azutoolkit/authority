@@ -3,13 +3,15 @@
 * [Introduction](README.md)
 * [In Action](in-action.md)
 * [Performance at Scale](performance-at-scale.md)
-* [Configuration](configuration.md)
+* [Roadmap / Features](roadmap-features.md)
 
 ## CUSTOMIZATION
 
 * [Database](customization/database.md)
 * [User Interface](customization/user-interface.md)
 * [Registering Clients](customization/registering-clients.md)
+* [Deployment](customization/deployment/README.md)
+  * [Environment Variables](customization/deployment/configuration.md)
 
 ## Reference
 
