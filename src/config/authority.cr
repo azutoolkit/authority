@@ -5,11 +5,11 @@ module Authority
 
   SESSION_KEY     = ENV.fetch "SESSION_KEY", "session_id"
   BASE_URL        = ENV.fetch "BASE_URL", "http://localhost:4000"
-  ACTIVATE_URL    = ENV.fetch "ACTIVATE_URL", "http://localhost:4000/activate"
+  ACTIVATE_URL    = "#{BASE_URL}/activate"
   DEVICE_CODE_TTL = ENV.fetch("DEVICE_CODE_TTL", "300").to_i
 
   configure do |c|
-    # To Server static content
+    c.templates.path = "./public/templates"
     c.router.get "/*", Handler::Static.new
   end
 end
