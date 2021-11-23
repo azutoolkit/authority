@@ -1,6 +1,6 @@
 # Authority
 
-[![Test](https://github.com/azutoolkit/authority/actions/workflows/spec.yml/badge.svg)](https://github.com/azutoolkit/authority/actions/workflows/spec.yml) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/c19b4551de9f43c2b79664af5908f033)](https://www.codacy.com/gh/azutoolkit/authority/dashboard?utm_source=github.com&utm_medium=referral&utm_content=azutoolkit/authority&utm_campaign=Badge_Grade) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/azutoolkit/authority?label=shard)
+[![Test](https://github.com/azutoolkit/authority/actions/workflows/spec.yml/badge.svg)](https://github.com/azutoolkit/authority/actions/workflows/spec.yml) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/c19b4551de9f43c2b79664af5908f033)](https://www.codacy.com/gh/azutoolkit/authority/dashboard?utm_source=github.com&utm_medium=referral&utm_content=azutoolkit/authority&utm_campaign=Badge_Grade) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/azutoolkit/authority?label=shard) [![documentation](https://img.shields.io/badge/documentation-authority-brightgreen)](https://azutopia.gitbook.io/authority)
 
 ![logo](https://user-images.githubusercontent.com/1685772/141647649-241cff93-a5dc-4e6a-9695-ff4b9e6a51d4.png)
 
