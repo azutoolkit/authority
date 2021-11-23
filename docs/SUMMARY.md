@@ -13,6 +13,8 @@
 
 ## Reference
 
+* [OAuth Terms](reference/oauth-terms.md)
+* [Grant Flows](reference/grant-flows.md)
 * [OAuth 2](reference/oauth-2-api/README.md)
   * [Device Flow](reference/oauth-2-api/device-flow.md)
   * [Authorization Flow](reference/oauth-2-api/authorization-flow.md)
