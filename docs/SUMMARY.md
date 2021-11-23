@@ -7,8 +7,10 @@
 
 ## DEVELOPMENT
 
+* [Requirements](development/requirements.md)
 * [Database](development/database.md)
 * [User Interface](development/user-interface.md)
+* [Specs](development/specs.md)
 * [Deployment](development/deployment/README.md)
   * [Environment Variables](development/deployment/configuration.md)
 
