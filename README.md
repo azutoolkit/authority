@@ -4,27 +4,11 @@
 
 ![logo](https://user-images.githubusercontent.com/1685772/141647649-241cff93-a5dc-4e6a-9695-ff4b9e6a51d4.png)
 
-<https://user-images.githubusercontent.com/1685772/140772737-179dd2e4-0eaa-4915-a942-5e0fe48f0124.mp4>
-
 A OAuth2 Server, sometimes also referred to as an OAuth 2.0 Server, OAuth Server, Authorization Server, is a software system that implements network protocol flows that allow a client software application to act on behalf of a user.
 
 Authority is a OpenID OAuth 2.0 Server and OpenID Connect Provider written in Crystal optimized for low-latency, high throughput, and low resource consumption. Authority has a built in identity provider user login.
 
 Authority is an open source API security for your infrastructure.
-
-## Architecture
-
-Authority follows architecture principles that work best on container orchestration
-systems such as Kubernetes, CloudFoundry, OpenShift, and similar projects.
-While it is possible to run the Authority stack on a RaspberryPI, the integration
-with the Docker and Container ecosystem is best documented and supported.
-
-Authority's architecture is designed along several guiding principles:
-
-- Minimal dependencies (no system dependencies; might need a database backend)
-- Runs everywhere (Linux, macOS, FreeBSD, Windows; AMD64, i386, ARMv5, ...)
-- Scales without effort (no memcached, etcd, required, ...)
-- Minimize room for human and network errors
 
 ## About OAuth 2.0
 
@@ -48,109 +32,11 @@ The following RFCs are implemented:
 - [RFC7519 "JSON Web Token (JWT)"](https://tools.ietf.org/html/rfc7519)
 - [RFC7636 "Proof Key for Code Exchange by OAuth Public Clients"](https://tools.ietf.org/html/rfc7636)
 
-## Why Authority is Different​
 
-Authority differentiates itself in the following key areas:
+Please refer to the project documentation to get started
 
-- Everything is developed and licensed under Open Source Principles, allowing
-  you to participate, collaborate, and understand the inner workings of Authority.
-- You can bring your own UI, in the programming language of your choosing, with
-  the user experience that you like.
-- From designing Identity Schemas, to webhooks, to advanced configuration options -
-  Authority is fully customizable.
-- Authority spans the whole authentication and authorization real with well-designed APIs:
-  - Identity Management
-  - Session management
-  - Flows for login
-  - Registration
-  - Account recovery & verification
-  - Mfa, and many more.
+[![documentation](https://img.shields.io/badge/documentation-authority-brightgreen?style=for-the-badge)](https://azutopia.gitbook.io/authority) 
 
-## Roadmap/Features
-
-Grant Types
-
-- [x] Authorization code grant
-- [x] Client credentials grant
-- [x] Implicit grant
-- [x] Resource owner credentials grant
-- [x] Refresh token grant
-- [x] OpenID Connect
-- [x] PKCE
-- [x] JSON Web Tokens
-- [x] Device Code grant
-- [ ] Token Introspection
-- [ ] Token Revocation
-- [ ] Opaque Tokens
-- [ ] Client SDKs
-- [ ] Account recovery & verification
-- [ ] MFA
-- [ ] Permission and Role Management
-- [ ] Social Signin
-
-## Configuration
-
-All server Configuration are defined using environment variables
-
-This file contains the environment variables for Authority.
-
-```bash
-CRYSTAL_ENV=development
-CRYSTAL_LOG_SOURCES="*"
-CRYSTAL_LOG_LEVEL="debug"
-CRYSTAL_WORKERS=4
-PORT=4000
-PORT_REUSE=true
-HOST=0.0.0.0
-DATABASE_URL=postgres://auth_user:auth_pass@db:5432/authority_db?initial_pool_size=10&checkout_timeout=3
-SECRET_KEY=secret_key
-REFRESH_TTL=60
-CODE_TTL=5
-ACCESS_TOKEN_TTL=60
-TEMPLATES_PATH="./public/templates"
-ERROR_TEMPLATE
-SESSION_KEY="session_id"
-BASE_URL=http://localhost:4000
-DEVICE_CODE_TTL=300
-SSL_CERT=
-SSL_KEY=
-SSL_CA=
-SSL_MODE=
-```
-
-## User Interface Customization
-
-The Authority UI implements screens such as login, registration, account recovery,
-account setting, and account verification. This allows for fast adoption of Authority.
-
-Contrary to other vendors, Authority allows you to implement your own UI
-by offering simple html templates. You can change the look of Authority `signin`
-and `authorize` html pages.
-
-Just edit the `./public/templates/`
-
-> **Note** ensure to maintain the same template variable names defined in
-> brackets `{{var_name}}`
-
-## Installation
-
-### Docker Compose
-
-Spin up your server
-
-```bash
-docker-compose up server
-```
-
-## Which OAuth 2.0 grant should I use?
-
-A grant is a method of acquiring an access token. Deciding which grants to
-implement depends on the type of client the end user will be using, and the
-experience you want for your users.
-
-<p align="center">
-<img src="https://user-images.githubusercontent.com/1685772/142732731-bfaa94ab-5072-4a70-b91c-72c8b1b10f28.png">
-</p>
 
 ## Contributing
 
