@@ -111,10 +111,6 @@ TEMPLATES_PATH="./public/templates"
 ERROR_TEMPLATE
 SESSION_KEY="session_id"
 BASE_URL=http://localhost:4000
-<<<<<<< HEAD
-ACTIVATE_URL=http://localhost:4000/activate
-=======
->>>>>>> 25a95a7 ([v1.4] Adds Device Code Flow)
 DEVICE_CODE_TTL=300
 SSL_CERT=
 SSL_KEY=
