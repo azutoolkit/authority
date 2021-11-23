@@ -5,6 +5,9 @@ module Authority::Clients
     get "/clients/new"
 
     def call : FormResponse
+      header "Content-Type", "text/html; charset=UTF-8"
+      header "Cache-Control", "no-store"
+      header "Pragma", "no-cache"
       FormResponse.new new_request
     end
   end

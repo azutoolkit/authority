@@ -4,6 +4,10 @@ module Authority
       ClientEntity.query.find! { id == other_id }
     end
 
+    def self.find_by!(other_client_id : String) : ClientEntity
+      ClientEntity.query.find! { client_id == other_client_id }
+    end
+
     def self.valid_redirect?(client_id : String, redirect_uri : String) : Bool
       ClientEntity.query.find!({client_id: client_id, redirect_uri: redirect_uri})
       true

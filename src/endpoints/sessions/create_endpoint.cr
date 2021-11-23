@@ -14,6 +14,11 @@ module Authority::Session
       return unauthorized_error unless authorized?
 
       create_session
+
+      header "Content-Type", "text/html; charset=UTF-8"
+      header "Cache-Control", "no-store"
+      header "Pragma", "no-cache"
+
       redirect to: Base64.decode_string(create_request.forward_url), status: 302
       EmptyResponse.new
     end

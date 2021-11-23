@@ -8,6 +8,10 @@ module Authority::Owner
       return owner_error_response unless new_request.valid?
       create_owner!
 
+      header "Content-Type", "text/html; charset=UTF-8"
+      header "Cache-Control", "no-store"
+      header "Pragma", "no-cache"
+
       redirect to: "/signin"
       EmptyResponse.new
     end

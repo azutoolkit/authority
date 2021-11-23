@@ -1,6 +1,6 @@
 # Response Docs https://azutopia.gitbook.io/azu/endpoints/response
-module Authority::AccessToken
-  struct JsonResponse
+module Authority
+  struct AccessTokenResponse
     include Response
 
     def initialize(@access_token : Authly::AccessToken)
