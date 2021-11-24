@@ -8,39 +8,14 @@ OpenID Connect is maintained by the [OpenID Foundation](https://openid.net). The
 
 The [OpenID Connect Debugger](https://oidcdebugger.com) is a fantastic resource to help you build OpenID Connect requests and walk through the flows. Additionally, the [OAuth 2.0 Playground](https://www.oauth.com/playground/) provides a walkthrough of the OpenID Connect flow against a live server.
 
-{% swagger src="../../.gitbook/assets/openid.yaml" path="undefined" method="undefined" %}
-[openid.yaml](../../.gitbook/assets/openid.yaml)
-{% endswagger %}
+{% content-ref url="configuration.md" %}
+[configuration.md](configuration.md)
+{% endcontent-ref %}
 
-{% swagger src="../../.gitbook/assets/openid.yaml" path="/.well-known/jwks.json" method="get" %}
-[openid.yaml](../../.gitbook/assets/openid.yaml)
-{% endswagger %}
+{% content-ref url="user-info.md" %}
+[user-info.md](user-info.md)
+{% endcontent-ref %}
 
-{% swagger src="../../.gitbook/assets/openid.yaml" path="/userinfo" method="get" %}
-[openid.yaml](../../.gitbook/assets/openid.yaml)
-{% endswagger %}
-
-{% swagger src="../../.gitbook/assets/openid.yaml" path="/userinfo" method="post" %}
-[openid.yaml](../../.gitbook/assets/openid.yaml)
-{% endswagger %}
-
-{% swagger src="../../.gitbook/assets/openid.yaml" path="/register" method="post" %}
-[openid.yaml](../../.gitbook/assets/openid.yaml)
-{% endswagger %}
-
-{% swagger src="../../.gitbook/assets/openid.yaml" path="/register/{client_id}" method="get" %}
-[openid.yaml](../../.gitbook/assets/openid.yaml)
-{% endswagger %}
-
-{% swagger src="../../.gitbook/assets/openid.yaml" path="/register/{client_id}" method="delete" %}
-[openid.yaml](../../.gitbook/assets/openid.yaml)
-{% endswagger %}
-
-{% swagger src="../../.gitbook/assets/openid.yaml" path="/register/{client_id}" method="patch" %}
-[openid.yaml](../../.gitbook/assets/openid.yaml)
-{% endswagger %}
-
-{% swagger src="../../.gitbook/assets/openid.yaml" path="/register/{client_id}/renew_secret" method="post" %}
-[openid.yaml](../../.gitbook/assets/openid.yaml)
-{% endswagger %}
-
+{% content-ref url="registering-clients.md" %}
+[registering-clients.md](registering-clients.md)
+{% endcontent-ref %}
