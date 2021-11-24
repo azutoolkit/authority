@@ -1,4 +1,8 @@
-# OAuth 2 Grants
+# OAuth 2 Grant Flows
+
+A grant is a method of acquiring an access token. Deciding which grants to implement depends on the type of client the end-user will be using, and the experience you want for your users.
+
+![](../../.gitbook/assets/authority-grant-flows.png)
 
 Dive into the specifics of each OAuth 2 Flow implementation
 
