@@ -1,4 +1,4 @@
-# OAuth 2
+# OAuth 2 Grants
 
 Dive into the specifics of each OAuth 2 Flow implementation
 
@@ -26,6 +26,6 @@ Dive into the specifics of each OAuth 2 Flow implementation
 [refreshing-access-tokens.md](refreshing-access-tokens.md)
 {% endcontent-ref %}
 
-{% content-ref url="../access-token-response.md" %}
-[access-token-response.md](../access-token-response.md)
+{% content-ref url="access-token-response.md" %}
+[access-token-response.md](access-token-response.md)
 {% endcontent-ref %}

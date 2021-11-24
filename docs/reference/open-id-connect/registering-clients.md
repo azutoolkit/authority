@@ -22,3 +22,24 @@ The client\_id is a public identifier for apps. Even though it’s public, it’
 **Client Secret**
 
 The client\_secret is a secret known only to the application and the authorization server. It must be sufficiently random to not be guessable, which means you should avoid using common UUID libraries which often take into account the timestamp or MAC address of the server generating it. A great way to generate a secure secret is to use a cryptographically-secure library to generate a 256-bit value and convert it to a hexadecimal representation.
+
+{% swagger src="../../.gitbook/assets/openid.yaml" path="/register/{client_id}" method="get" %}
+[openid.yaml](../../.gitbook/assets/openid.yaml)
+{% endswagger %}
+
+{% swagger src="../../.gitbook/assets/openid.yaml" path="/register/{client_id}" method="delete" %}
+[openid.yaml](../../.gitbook/assets/openid.yaml)
+{% endswagger %}
+
+{% swagger src="../../.gitbook/assets/openid.yaml" path="/register/{client_id}" method="patch" %}
+[openid.yaml](../../.gitbook/assets/openid.yaml)
+{% endswagger %}
+
+{% swagger src="../../.gitbook/assets/openid.yaml" path="/register" method="post" %}
+[openid.yaml](../../.gitbook/assets/openid.yaml)
+{% endswagger %}
+
+{% swagger src="../../.gitbook/assets/openid.yaml" path="/register/{client_id}/renew_secret" method="post" %}
+[openid.yaml](../../.gitbook/assets/openid.yaml)
+{% endswagger %}
+
