@@ -1,6 +1,7 @@
-name: Test
 on:
   push:
+    branches:
+      - main
   pull_request:
     branches: [main]
 jobs:
@@ -61,3 +62,48 @@ jobs:
           CODE_TTL: 300
           ACCESS_TOKEN_TTL: 60
           DATABASE_URL: postgres://auth_user:auth_pass@localhost:5432/authority_db?initial_pool_size=10&checkout_timeout=3
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Compute Release Version
+        id: semver
+        uses: paulhatch/semantic-version@v4.0.2
+        with:
+          tag_prefix: "v"
+          major_pattern: "(MAJOR)"
+          minor_pattern: "(MINOR)"
+          # A string to determine the format of the version output
+          format: "${major}.${minor}.${patch}"
+          # If this is set to true, *every* commit will be treated as a new version.
+          bump_each_commit: false
+
+      - name: Bump Shard Version
+        id: bump-shard
+        uses: fjogeleit/yaml-update-action@master
+        with:
+          valueFile: shard.yml
+          propertyPath: version
+          value: ${{steps.semver.outputs.version}}
+          commitChange: true
+          updateFile: true
+          targetBranch: main
+          masterBranchName: main
+          createPR: false
+          branch: main
+          message: Version bump ${{ steps.semver.outputs.version }}
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{steps.semver.outputs.version_tag}}
+          release_name: Release v${{steps.semver.outputs.version}}
+          draft: false
+          prerelease: false
