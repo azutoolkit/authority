@@ -1,15 +1,12 @@
----
 name: authority
-version: 1.4.0
+version: 1.4.2
 crystal: 1.2.1
 license: MIT
-
 authors:
   - Elias Perez <eliasjpr@gmail.com>
 targets:
   server:
     main: ./src/authority.cr
-
 dependencies:
   azu:
     github: azutoolkit/azu
