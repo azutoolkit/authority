@@ -1,3 +1,7 @@
+require "azu"
+
+Log.setup_from_env
+
 # Docs - https://azutopia.gitbook.io/azu/defining-your-app
 module Authority
   # Defines Azu Framework
@@ -10,6 +14,7 @@ module Authority
 
   configure do |c|
     c.templates.path = "./public/templates"
+    # Static Assets Handler
     c.router.get "/*", Handler::Static.new
   end
 end

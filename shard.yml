@@ -1,5 +1,5 @@
 name: authority
-version: 1.4.3
+version: 1.4.4
 crystal: 1.2.1
 license: MIT
 authors:
@@ -16,6 +16,8 @@ dependencies:
   authly:
     github: azutoolkit/authly
     version: 1.1.1
+  datadog:
+    github: jgaskins/datadog
 development_dependencies:
   faker:
     github: askn/faker
