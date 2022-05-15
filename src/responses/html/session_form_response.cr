@@ -6,7 +6,7 @@ module Authority::Session
 
     TEMPLATE = "new_session_form.html"
 
-    def initialize(@forward_url : String = "/user-info", @errors : Array(String)? = nil)
+    def initialize(@forward_url : String = SIGNIN_PATH, @errors : Array(String)? = nil)
     end
 
     def render

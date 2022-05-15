@@ -3,7 +3,7 @@ module Authority::Session
   class NewEndpoint
     include Endpoint(CreateRequest, FormResponse)
 
-    get "/signin"
+    get SIGNIN_PATH
 
     def call : FormResponse
       header "Content-Type", "text/html; charset=UTF-8"

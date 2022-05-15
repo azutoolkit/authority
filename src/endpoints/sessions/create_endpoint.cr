@@ -1,5 +1,7 @@
 # Endpoint Docs https://azutopia.gitbook.io/azu/endpoints
 module Authority::Session
+  SIGNIN_PATH = "/signin"
+
   def self.id(cookies)
     cookies[SESSION_KEY]?
   end
@@ -7,7 +9,7 @@ module Authority::Session
   class CreateEndpoint
     include Endpoint(CreateRequest, FormResponse | EmptyResponse | Azu::Response::Error)
 
-    post "/signin"
+    post SIGNIN_PATH
 
     def call : FormResponse | EmptyResponse | Azu::Response::Error
       return request_error unless create_request.valid?
