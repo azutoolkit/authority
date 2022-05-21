@@ -1,15 +1,12 @@
-
-FROM crystallang/crystal:latest-alpine as source
+FROM docker.io/crystallang/crystal:latest-alpine
 WORKDIR /opt/app
 COPY . /opt/app
-RUN shards install
-RUN crystal build --release --static ./src/authority.cr -o ./server
+RUN crystal build --static ./src/authority.cr -o ./server
 CMD ["crystal", "spec"]
 
 FROM alpine:latest  
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
-COPY --from=source /opt/app/server .
-COPY --from=source /opt/app/public ./public
+COPY --from=0 /opt/app/server .
+COPY --from=0 /opt/app/public ./public/
 CMD ["./server"]
-

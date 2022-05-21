@@ -1,5 +1,6 @@
 module Authority::Owner
   struct UserInfoEndpoint
+    include SessionHelper
     include Endpoint(UserInfoRequest, UserInfoResponse)
     private AUTHORIZATION = "Authorization"
 
@@ -11,7 +12,7 @@ module Authority::Owner
     end
 
     private def owner
-      Session.get authorization
+      OwnerEntity.query.find!({id: user_id})
     end
 
     private def authorization

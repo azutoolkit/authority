@@ -1,12 +1,12 @@
 module Authority::Device
   class ShowVerifyEndpoint
-    include SessionProvider
+    include SessionHelper
     include Endpoint(ActivateRequest, DeviceActivationForm | EmptyResponse)
 
     get "/activate"
 
     def call : DeviceActivationForm | EmptyResponse
-      return signin unless user_logged_in?
+      return signin unless authenticated?
       status 200
 
       header "Content-Type", "text/html; charset=UTF-8"

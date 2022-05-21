@@ -5,10 +5,6 @@ shards:
     git: https://github.com/jwaldrip/admiral.cr.git
     version: 1.12.1
 
-  ameba:
-    git: https://github.com/crystal-ameba/ameba.git
-    version: 1.0.0
-
   authly:
     git: https://github.com/azutoolkit/authly.git
     version: 1.1.1
@@ -29,13 +25,9 @@ shards:
     git: https://github.com/anykeyh/clear.git
     version: 0.9+git.commit.480289555c833793fa6964398fefec6b7e25168d
 
-  crinja: # Overridden
+  crinja:
     git: https://github.com/straight-shoota/crinja.git
-    version: 0.8.0+git.commit.0160fa392b2bf12b475130af127f63bf389eba7a
-
-  datadog:
-    git: https://github.com/jgaskins/datadog.git
-    version: 0.1.0+git.commit.d68ff5dd17ee93476700aba1eb1c25d6c577ddd2
+    version: 0.8.0
 
   db:
     git: https://github.com/crystal-lang/crystal-db.git
@@ -69,10 +61,6 @@ shards:
     git: https://github.com/eliasjpr/marionette.git
     version: 0.3.0+git.commit.e62088de613a7f5002b5381478bc9e15c754d419
 
-  msgpack:
-    git: https://github.com/crystal-community/msgpack-crystal.git
-    version: 1.2.0
-
   openssl_ext:
     git: https://github.com/spider-gazelle/openssl_ext.git
     version: 2.1.5
@@ -81,15 +69,23 @@ shards:
     git: https://github.com/will/crystal-pg.git
     version: 0.23.2
 
+  pool:
+    git: https://github.com/ysbaddaden/pool.git
+    version: 0.2.4
+
   radix:
     git: https://github.com/luislavena/radix.git
     version: 0.4.1
+
+  redis:
+    git: https://github.com/stefanwille/crystal-redis.git
+    version: 2.8.3
 
   schema:
     git: https://github.com/eliasjpr/schema.git
     version: 0.2.1
 
-  statsd:
-    git: https://github.com/miketheman/statsd.cr.git
-    version: 0.4.0+git.commit.f3a461ef7b6281fc4a199150c6838b94adcddc00
+  session:
+    git: https://github.com/azutoolkit/session.git
+    version: 1.0.2
 

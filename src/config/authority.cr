@@ -1,5 +1,4 @@
 require "azu"
-
 Log.setup_from_env
 
 # Docs - https://azutopia.gitbook.io/azu/defining-your-app
@@ -7,13 +6,25 @@ module Authority
   # Defines Azu Framework
   include Azu
 
+  struct UserSession
+    include Session::Databag
+    property user_id : String = ""
+    property email : String = ""
+    property? authenticated : Bool = false
+  end
+
   SESSION_KEY     = ENV.fetch "SESSION_KEY", "session_id"
   BASE_URL        = ENV.fetch "BASE_URL", "http://localhost:4000"
   ACTIVATE_URL    = "#{BASE_URL}/activate"
   DEVICE_CODE_TTL = ENV.fetch("DEVICE_CODE_TTL", "300").to_i
+  SESSION         = Session::CookieStore(Authority::UserSession).provider
+
+  def self.session
+    SESSION
+  end
 
   configure do |c|
-    c.templates.path = "./public/templates"
+    c.templates.path = ENV["TEMPLATE_PATH"]
     # Static Assets Handler
     c.router.get "/*", Handler::Static.new
   end

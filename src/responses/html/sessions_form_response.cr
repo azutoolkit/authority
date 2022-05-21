@@ -1,5 +1,5 @@
 # Response Docs https://azutopia.gitbook.io/azu/endpoints/response
-module Authority::Session
+module Authority::Sessions
   struct FormResponse
     include Response
     include Templates::Renderable

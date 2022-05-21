@@ -1,5 +1,5 @@
 # Endpoint Docs https://azutopia.gitbook.io/azu/endpoints
-module Authority::Session
+module Authority::Sessions
   class NewEndpoint
     include Endpoint(CreateRequest, FormResponse)
 

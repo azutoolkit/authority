@@ -2,6 +2,8 @@
 module Authority::Authorize
   class CreateEndpoint
     include Endpoint(NewRequest, EmptyResponse)
+    include SessionHelper
+
     post "/authorize"
 
     def call : EmptyResponse
@@ -11,10 +13,6 @@ module Authority::Authorize
 
     private def authorization_code_url
       AuthorizationCodeService.new(new_request, user_id).forward_url
-    end
-
-    def user_id
-      Session.id(cookies).not_nil!.value.to_s
     end
   end
 end
