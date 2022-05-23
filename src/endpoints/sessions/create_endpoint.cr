@@ -1,47 +1,30 @@
 # Endpoint Docs https://azutopia.gitbook.io/azu/endpoints
-module Authority::Session
-  def self.id(cookies)
-    cookies[SESSION_KEY]?
-  end
+module Authority::Sessions
+  SIGNIN_PATH = "/signin"
 
   class CreateEndpoint
     include Endpoint(CreateRequest, FormResponse | EmptyResponse | Azu::Response::Error)
 
-    post "/signin"
+    post SIGNIN_PATH
 
     def call : FormResponse | EmptyResponse | Azu::Response::Error
       return request_error unless create_request.valid?
-      return unauthorized_error unless authorized?
 
-      create_session
+      if AuthenticationService.auth?(create_request)
+        header "Content-Type", "application/json; charset=UTF-8"
+        header "Cache-Control", "no-store"
+        header "Pragma", "no-cache"
 
-      header "Content-Type", "text/html; charset=UTF-8"
-      header "Cache-Control", "no-store"
-      header "Pragma", "no-cache"
-
-      redirect to: Base64.decode_string(create_request.forward_url), status: 302
-      EmptyResponse.new
+        redirect to: Base64.decode_string(create_request.forward_url), status: 302
+        EmptyResponse.new
+      else
+        unauthorized_error
+      end
     end
 
     private def request_error(errors = client_errors)
       status 400
       FormResponse.new create_request.forward_url, errors
-    end
-
-    private def unauthorized_error
-      status = HTTP::Status.new(400)
-      Azu::Response::Error.new("Invalid client", status, ["Invalid credentials"])
-    end
-
-    private def create_session
-      cookies HTTP::Cookie.new(
-        name: SESSION_KEY,
-        value: create_request.username,
-        expires: 1.minute.from_now,
-        samesite: HTTP::Cookie::SameSite::Strict,
-        secure: true,
-        http_only: true,
-      )
     end
 
     private def client_errors
@@ -50,11 +33,9 @@ module Authority::Session
       end
     end
 
-    private def authorized?
-      Authly.owners.authorized?(
-        create_request.username,
-        create_request.password
-      )
+    private def unauthorized_error
+      status = HTTP::Status.new(400)
+      Azu::Response::Error.new("Invalid client", status, ["Invalid credentials"])
     end
   end
 end

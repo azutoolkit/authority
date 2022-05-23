@@ -8,5 +8,6 @@ Authority.start [
   Azu::Handler::RequestID.new,
   Azu::Handler::Rescuer.new,
   Azu::Handler::Logger.new,
-  DatadogHandler.new,
+  # DatadogHandler.new,
+  Session::SessionHandler.new(Authority.session),
 ]

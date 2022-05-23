@@ -1,9 +1,9 @@
 # Endpoint Docs https://azutopia.gitbook.io/azu/endpoints
-module Authority::Session
+module Authority::Sessions
   class NewEndpoint
     include Endpoint(CreateRequest, FormResponse)
 
-    get "/signin"
+    get SIGNIN_PATH
 
     def call : FormResponse
       header "Content-Type", "text/html; charset=UTF-8"

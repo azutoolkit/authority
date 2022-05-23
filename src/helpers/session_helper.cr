@@ -1,8 +1,8 @@
 module Authority
-  module SessionProvider
+  module SessionHelper
     macro included
-      def signin
-        redirect to: "/signin?forward_url=#{forward_url}", status: 302
+      def signin(redirect_url = forward_url)
+        redirect to: "/signin?forward_url=#{redirect_url}", status: 302
         EmptyResponse.new
       end
 
@@ -10,8 +10,8 @@ module Authority
         Base64.urlsafe_encode(context.request.path + "?" + context.request.query.not_nil!)
       end
 
-      def user_logged_in?
-        Session.id(cookies)
+      def current_session
+        Authority.session.current_session
       end
     end
   end

@@ -29,9 +29,9 @@ shards:
     git: https://github.com/anykeyh/clear.git
     version: 0.9+git.commit.480289555c833793fa6964398fefec6b7e25168d
 
-  crinja: # Overridden
+  crinja:
     git: https://github.com/straight-shoota/crinja.git
-    version: 0.8.0+git.commit.0160fa392b2bf12b475130af127f63bf389eba7a
+    version: 0.8.0
 
   datadog:
     git: https://github.com/jgaskins/datadog.git
@@ -81,13 +81,25 @@ shards:
     git: https://github.com/will/crystal-pg.git
     version: 0.23.2
 
+  pool:
+    git: https://github.com/ysbaddaden/pool.git
+    version: 0.2.4
+
   radix:
     git: https://github.com/luislavena/radix.git
     version: 0.4.1
 
+  redis:
+    git: https://github.com/stefanwille/crystal-redis.git
+    version: 2.8.3
+
   schema:
     git: https://github.com/eliasjpr/schema.git
     version: 0.2.1
+
+  session:
+    git: https://github.com/azutoolkit/session.git
+    version: 1.0.2
 
   statsd:
     git: https://github.com/miketheman/statsd.cr.git
