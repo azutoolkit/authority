@@ -12,6 +12,7 @@ describe "TokenSpec" do
         user.username, password, "S256", scope)
 
       response = create_token_request(code, code_verifier, scope)
+
       token = OAuth2::AccessToken::Bearer.from_json(response.body)
 
       id_token = token.extra.not_nil!["id_token"]

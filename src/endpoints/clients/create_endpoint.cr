@@ -9,11 +9,13 @@ module Authority::Clients
       client = ClientRepo.create!(new_request).not_nil!
       redirect to: "/clients/#{client.id}"
       EmptyResponse.new
+    rescue e
+      owner_error [e.message.to_s]
     end
 
-    private def owner_error
+    private def owner_error(errors : Array(String) = owner_errors_html)
       status 400
-      FormResponse.new new_request, owner_errors_html
+      FormResponse.new new_request, errors
     end
 
     private def owner_errors_html

@@ -1,5 +1,5 @@
 # Request Docs https://azutopia.gitbook.io/azu/endpoints/requests
-module Authority::Session
+module Authority::Sessions
   struct CreateRequest
     include Request
 

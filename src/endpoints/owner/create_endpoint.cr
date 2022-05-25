@@ -14,11 +14,13 @@ module Authority::Owner
 
       redirect to: "/signin"
       EmptyResponse.new
+    rescue e
+      owner_error_response [e.message.to_s]
     end
 
-    private def owner_error_response
+    private def owner_error_response(errors : Array(String) = owner_errors_html)
       status 400
-      FormResponse.new new_request, owner_errors_html
+      FormResponse.new new_request, errors
     end
 
     private def owner_errors_html

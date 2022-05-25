@@ -1,3 +1,4 @@
+require "authly"
 # Configure
 Authly.configure do |c|
   c.secret_key = ENV.fetch "SECRET_KEY"

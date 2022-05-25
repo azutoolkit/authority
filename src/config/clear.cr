@@ -1,5 +1,5 @@
-::Log.builder.bind "clear.*", Log::Severity::Debug, Log::IOBackend.new
-# Clear Orm Docs - https://clear.gitbook.io/project/introduction/installation
-DATABASE_URL = ENV["DATABASE_URL"]
+require "clear"
 
-Clear::SQL.init(DATABASE_URL)
+# Clear Orm Docs
+# https://clear.gitbook.io/project/introduction/installation
+Clear::SQL.init(ENV["DATABASE_URL"])

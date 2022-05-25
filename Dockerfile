@@ -3,7 +3,7 @@ FROM crystallang/crystal:latest-alpine as source
 WORKDIR /opt/app
 COPY . /opt/app
 RUN shards install
-RUN crystal build --release --static ./src/server.cr -o ./server
+RUN crystal build --static ./src/authority.cr -o ./server
 CMD ["crystal", "spec"]
 
 FROM alpine:latest  

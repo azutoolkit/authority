@@ -4,6 +4,6 @@ module Authority::Clients
 
     getter id : String
 
-    validate name, message: "Param client id is required.", presence: true
+    validate id, message: "Param client id is required.", presence: true
   end
 end
