@@ -7,7 +7,7 @@ module Authority
     end
 
     def self.id_token(user_id : String)
-      find!(user_id).try &.id_token
+      OwnerEntity.query.find!({id: user_id}).try &.id_token
     end
 
     def self.find!(username : String)

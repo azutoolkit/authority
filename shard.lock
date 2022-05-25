@@ -99,7 +99,7 @@ shards:
 
   session:
     git: https://github.com/azutoolkit/session.git
-    version: 1.0.2
+    version: 1.0.4
 
   statsd:
     git: https://github.com/miketheman/statsd.cr.git

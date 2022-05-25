@@ -43,8 +43,7 @@ jobs:
       - name: Install Geckodriver
 
         run: |
-          chmod +x ./install-grckodriver.sh
-          ./install-grckodriver.sh
+          sudo apt-get install firefox-geckodriver
 
       - name: Install Dependencies
         run: shards install

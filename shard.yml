@@ -13,7 +13,6 @@ dependencies:
 
   session:
     github: azutoolkit/session
-    version: 1.0.2
 
   clear:
     github: anykeyh/clear
