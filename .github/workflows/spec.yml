@@ -67,7 +67,7 @@ jobs:
           ACCESS_TOKEN_TTL: 60
           ERROR_TEMPLATE:
           SESSION_KEY: "authority.sess"
-          SESSION_SECRET: "K,n:aT5CY4Trkg2JjS\e/?F[?e(Pjjhg"
+          SESSION_SECRET: "K,n:aT5CY4Trkg2JjS\e/?F[?e(Pjjhgd"
           BASE_URL: http://localhost:4000
           DEVICE_CODE_TTL: 300
           TEMPLATE_PATH: ./public/templates
