@@ -43,7 +43,11 @@ jobs:
       - name: Install Geckodriver
 
         run: |
-          sudo apt-get install firefox-geckodriver
+          wget https://github.com/mozilla/geckodriver/releases/download/v0.26.0/geckodriver-v0.26.0-linux64.tar.gz
+          sudo tar -xvf geckodriver-v0.26.0-linux64.tar.gz
+          sudo mv geckodriver /usr/local/bin/
+          cd /usr/local/bin/
+          sudo chmod +x geckodriver
 
       - name: Install Dependencies
         run: shards install
