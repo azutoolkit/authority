@@ -1,8 +1,8 @@
 class CreateClients
   include Clear::Migration
 
-  def change(direction)
-    direction.up do
+  def change(dir)
+    dir.up do
       create_table :clients, id: :uuid do |t|
         t.column :client_id, "uuid", index: true, unique: true, default: "uuid_generate_v4()"
         t.column :name, "varchar(120)", null: false, index: true, unique: true
@@ -16,7 +16,7 @@ class CreateClients
       end
     end
 
-    direction.down do
+    dir.down do
       execute "DROP TABLE IF EXISTS ;"
     end
   end

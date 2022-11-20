@@ -1,8 +1,8 @@
 class CreateDeviceCode
   include Clear::Migration
 
-  def change(direction)
-    direction.up do
+  def change(dir)
+    dir.up do
       create_enum("verification", %w(allowed denied pending))
 
       create_table :device_codes, id: :uuid do |t|
@@ -17,7 +17,7 @@ class CreateDeviceCode
       end
     end
 
-    direction.down do
+    dir.down do
       execute "DROP TABLE IF EXISTS device_codes;"
       execute "DROP TYPE IF EXISTS verification;"
     end
