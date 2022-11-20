@@ -1,14 +1,13 @@
 module Authority::Clients
   class CreateEndpoint
-    include Endpoint(Clients::NewRequest, FormResponse | EmptyResponse)
+    include Endpoint(Clients::NewRequest, FormResponse | Response)
 
     post "/clients"
 
-    def call : FormResponse | EmptyResponse
+    def call : FormResponse | Response
       return owner_error unless new_request.valid?
       client = ClientRepo.create!(new_request).not_nil!
       redirect to: "/clients/#{client.id}"
-      EmptyResponse.new
     rescue e
       owner_error [e.message.to_s]
     end

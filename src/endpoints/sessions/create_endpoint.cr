@@ -3,11 +3,11 @@ module Authority::Sessions
   SIGNIN_PATH = "/signin"
 
   class CreateEndpoint
-    include Endpoint(CreateRequest, FormResponse | EmptyResponse | Azu::Response::Error)
+    include Endpoint(CreateRequest, FormResponse | Response)
 
     post SIGNIN_PATH
 
-    def call : FormResponse | EmptyResponse | Azu::Response::Error
+    def call : FormResponse | Response
       return request_error unless create_request.valid?
 
       if AuthenticationService.auth?(create_request)
@@ -16,7 +16,6 @@ module Authority::Sessions
         header "Pragma", "no-cache"
 
         redirect to: Base64.decode_string(create_request.forward_url), status: 302
-        EmptyResponse.new
       else
         unauthorized_error
       end
@@ -34,8 +33,7 @@ module Authority::Sessions
     end
 
     private def unauthorized_error
-      status = HTTP::Status.new(400)
-      Azu::Response::Error.new("Invalid client", status, ["Invalid credentials"])
+      error "Invalid client", 400, ["Invalid credentials"]
     end
   end
 end

@@ -1,11 +1,11 @@
 module Authority::Device
   class ShowVerifyEndpoint
     include SessionHelper
-    include Endpoint(ActivateRequest, DeviceActivationForm | EmptyResponse)
+    include Endpoint(ActivateRequest, DeviceActivationForm | Response)
 
     get "/activate"
 
-    def call : DeviceActivationForm | EmptyResponse
+    def call : DeviceActivationForm | Response
       return signin unless current_session.authenticated?
       status 200
 

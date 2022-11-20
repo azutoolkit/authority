@@ -1,10 +1,10 @@
 module Authority::Owner
   class CreateEndpoint
-    include Endpoint(NewRequest, FormResponse | EmptyResponse)
+    include Endpoint(NewRequest, FormResponse | Response)
 
     post "/register"
 
-    def call : FormResponse | EmptyResponse
+    def call : FormResponse | Response
       return owner_error_response unless new_request.valid?
       create_owner!
 
@@ -13,7 +13,6 @@ module Authority::Owner
       header "Pragma", "no-cache"
 
       redirect to: "/signin"
-      EmptyResponse.new
     rescue e
       owner_error_response [e.message.to_s]
     end

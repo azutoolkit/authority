@@ -3,7 +3,6 @@ module Authority
     macro included
       def signin(redirect_url = forward_url)
         redirect to: "/signin?forward_url=#{redirect_url}", status: 302
-        EmptyResponse.new
       end
 
       def forward_url

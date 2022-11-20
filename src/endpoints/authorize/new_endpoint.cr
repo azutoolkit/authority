@@ -2,11 +2,11 @@
 module Authority::Authorize
   class NewEndpoint
     include SessionHelper
-    include Endpoint(NewRequest, EmptyResponse | FormResponse)
+    include Endpoint(NewRequest, Response | FormResponse)
 
     get "/authorize"
 
-    def call : EmptyResponse | FormResponse
+    def call : Response | FormResponse
       return signin unless current_session.authenticated?
 
       header "Content-Type", "text/html; charset=UTF-8"

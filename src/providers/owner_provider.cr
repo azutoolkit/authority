@@ -6,8 +6,8 @@ module Authority
       OwnerRepo.authenticate? username, password
     end
 
-    def id_token(owner_id : String) : Hash(String, Int64 | String)
-      OwnerRepo.id_token owner_id
+    def id_token(user_id : String) : Hash(String, Int64 | String)
+      OwnerRepo.id_token user_id
     end
   end
 end
