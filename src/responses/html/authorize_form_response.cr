@@ -15,7 +15,7 @@ module Authority::Authorize
     end
 
     def render
-      render TEMPLATE, {
+      view TEMPLATE, {
         state:                 authorize_show_request.state,
         scope:                 authorize_show_request.scope,
         authorize_endpoint:    path,

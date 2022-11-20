@@ -10,7 +10,7 @@ module Authority::Sessions
     end
 
     def render
-      render TEMPLATE, {
+      view TEMPLATE, {
         forward_url: @forward_url, errors: @errors,
       }
     end

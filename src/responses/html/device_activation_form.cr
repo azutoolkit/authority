@@ -12,7 +12,7 @@ module Authority::Device
     end
 
     def render
-      render TEMPLATE, {
+      view TEMPLATE, {
         target_device: activate_request.audience,
         user_code:     activate_request.user_code,
       }

@@ -11,14 +11,14 @@ module Authority::Clients
     end
 
     def render
-      render(TEMPLATE, {
+      view TEMPLATE, {
         errors:       errors,
         name:         req.name,
         description:  req.description,
         logo:         req.logo,
         redirect_uri: req.redirect_uri,
         scopes:       req.scopes,
-      })
+      }
     end
   end
 end

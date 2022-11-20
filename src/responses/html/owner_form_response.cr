@@ -10,14 +10,14 @@ module Authority::Owner
     end
 
     def render
-      render(TEMPLATE, {
+      view TEMPLATE, {
         errors:     errors,
         first_name: req.first_name,
         last_name:  req.last_name,
         email:      req.email,
         username:   req.username,
         password:   req.password,
-      })
+      }
     end
   end
 end

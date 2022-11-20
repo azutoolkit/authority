@@ -11,7 +11,7 @@ module Authority::Clients
     end
 
     def render
-      render(TEMPLATE, {
+      view TEMPLATE, {
         client_id:     client.client_id.to_s,
         client_secret: client.client_secret,
         name:          client.name,
@@ -19,7 +19,7 @@ module Authority::Clients
         logo:          client.logo,
         redirect_uri:  client.redirect_uri,
         scopes:        client.scopes,
-      })
+      }
     end
   end
 end
