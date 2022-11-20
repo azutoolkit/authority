@@ -29,15 +29,15 @@ services:
     image: postgres
     container_name: db
     restart: always
-    labels:
-      tags.datadoghq.com/postgres.env: "develop"
-      tags.datadoghq.com/postgres.service: "postgres"
-      tags.datadoghq.com/postgres.version: "0.1.0"
-      com.datadoghq.ad.check_names: '["postgres"]'
-      com.datadoghq.ad.init_configs: '[{}]'
-      com.datadoghq.ad.logs: '[{"source":"postgresql","service":"postgresql"}]'
-      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":5432,"username":"auth_user","password":"auth_pass"}]'
-      com.datadoghq.ad.datadoghq.com/postgres.logs: '[{"source":"postgresql"}]'
+    # labels:
+    #   tags.datadoghq.com/postgres.env: "develop"
+    #   tags.datadoghq.com/postgres.service: "postgres"
+    #   tags.datadoghq.com/postgres.version: "0.1.0"
+    #   com.datadoghq.ad.check_names: '["postgres"]'
+    #   com.datadoghq.ad.init_configs: '[{}]'
+    #   com.datadoghq.ad.logs: '[{"source":"postgresql","service":"postgresql"}]'
+    #   com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":5432,"username":"auth_user","password":"auth_pass"}]'
+    #   com.datadoghq.ad.datadoghq.com/postgres.logs: '[{"source":"postgresql"}]'
     environment:
       POSTGRES_DB: authority_db
       POSTGRES_USER: auth_user
@@ -45,28 +45,21 @@ services:
     command: postgres -c 'max_connections=200'
     ports:
       - "5432:5432"
-    networks:
-      - authority_net
 
   server:
     build:
       context: .
       dockerfile: Dockerfile
-    command: ./server
+    command: ./authority
     container_name: authority
     working_dir: /root/
-    labels:
-      com.datadoghq.tags.env: "dev"
-      com.datadoghq.tags.service: "authority"
-      com.datadoghq.tags.version: "1.4.4"
+    # labels:
+    #   com.datadoghq.tags.env: "dev"
+    #   com.datadoghq.tags.service: "authority"
+    #   com.datadoghq.tags.version: "1.4.4"
     env_file:
       - .env.local
     ports:
       - "4000:4000"
     depends_on:
       - postgres
-    networks:
-      - authority_net
-
-networks:
-  authority_net:
