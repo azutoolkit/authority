@@ -7,7 +7,7 @@ shards:
 
   ameba:
     git: https://github.com/crystal-ameba/ameba.git
-    version: 1.0.0
+    version: 1.3.1
 
   authly:
     git: https://github.com/azutoolkit/authly.git
@@ -15,15 +15,15 @@ shards:
 
   azu:
     git: https://github.com/azutoolkit/azu.git
-    version: 0.1.11
+    version: 0.4.6
 
   backtracer:
     git: https://github.com/sija/backtracer.cr.git
-    version: 1.2.1
+    version: 1.2.2
 
   bindata:
     git: https://github.com/spider-gazelle/bindata.git
-    version: 1.10.0
+    version: 1.11.1
 
   clear:
     git: https://github.com/anykeyh/clear.git
@@ -71,11 +71,11 @@ shards:
 
   msgpack:
     git: https://github.com/crystal-community/msgpack-crystal.git
-    version: 1.2.0
+    version: 1.3.3
 
   openssl_ext:
     git: https://github.com/spider-gazelle/openssl_ext.git
-    version: 2.1.5
+    version: 2.2.0
 
   pg: # Overridden
     git: https://github.com/will/crystal-pg.git
@@ -94,8 +94,8 @@ shards:
     version: 2.8.3
 
   schema:
-    git: https://github.com/eliasjpr/schema.git
-    version: 0.2.1
+    git: https://github.com/azutoolkit/schema.git
+    version: 0.2.2
 
   session:
     git: https://github.com/azutoolkit/session.git
@@ -103,5 +103,5 @@ shards:
 
   statsd:
     git: https://github.com/miketheman/statsd.cr.git
-    version: 0.4.0+git.commit.f3a461ef7b6281fc4a199150c6838b94adcddc00
+    version: 0.5.0+git.commit.6065b3635304d0e80ea05cb5030a576b0b55195b
 
