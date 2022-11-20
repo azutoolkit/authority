@@ -29,7 +29,7 @@ Clear::SQL.truncate("clients", cascade: true)
 create_client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI)
 
 process = Process.new(
-  "./bin/server",
+  "./bin/authority",
   env: ENV.to_h,
   output: Process::Redirect::Inherit,
   error: Process::Redirect::Inherit)
