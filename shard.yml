@@ -6,7 +6,7 @@ authors:
   - Elias Perez <eliasjpr@gmail.com>
 targets:
   authority:
-    main: ./src/authority.cr
+    main: ./src/server.cr
 dependencies:
   azu:
     github: azutoolkit/azu

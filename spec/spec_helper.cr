@@ -5,7 +5,7 @@ require "http/client"
 require "digest"
 require "./helpers/**"
 require "./flows/**"
-require "../src/app"
+require "../src/authority"
 
 # Migrate DB
 Clear::Migration::Manager.instance.apply_all

@@ -1,13 +1,15 @@
-require "./app"
-
-Clear::Migration::Manager.instance.apply_all
-
-# Start your server
-# Add Handlers to your App Server
-Authority.start [
-  Azu::Handler::RequestID.new,
-  Azu::Handler::Rescuer.new,
-  Azu::Handler::Logger.new,
-  # DatadogHandler.new,
-  Session::SessionHandler.new(Authority.session),
-]
+require "azu"
+require "digest"
+require "schema"
+require "./config/**"
+require "./helpers/**"
+require "./entities/**"
+require "./repositories/**"
+require "./validators/**"
+require "./services/**"
+require "./requests/**"
+require "./providers/**"
+require "./responses/**"
+require "./endpoints/**"
+require "./handlers/**"
+require "../db/migrations/**"
