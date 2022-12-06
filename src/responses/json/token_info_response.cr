@@ -5,25 +5,16 @@ module Authority
 
     getter client_id : String
 
-    def initialize(@client_id : String)
+    def initialize(@client_id : String, @exp : String, @scope : String, @active : Bool = false)
     end
 
     def render
       {
-        active:    session.data.authenticated?,
-        scope:     "",
-        client_id: client_id,
-        username:  session.data.email,
-        exp:       session.timeout.from_now,
+        active:    @active,
+        client_id: @client_id,
+        scope:     @scope,
+        exp:       @exp,
       }.to_json
-    end
-
-    def session
-      Authority.session
-    end
-
-    def session_id
-      session.session_id
     end
   end
 end

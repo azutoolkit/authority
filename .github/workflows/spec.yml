@@ -53,7 +53,7 @@ jobs:
         run: shards install
 
       - name: Build Authority Server
-        run: shards build server
+        run: shards build
 
       - name: Run tests
         run: crystal spec

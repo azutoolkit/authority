@@ -11,6 +11,12 @@ module Authority
   ACTIVATE_URL    = "#{BASE_URL}/activate"
   DEVICE_CODE_TTL = ENV.fetch("DEVICE_CODE_TTL", "300").to_i
   SESSION         = Session::CookieStore(UserSession).provider
+  HANDLERS        = [
+    Azu::Handler::RequestID.new,
+    Azu::Handler::Rescuer.new,
+    Azu::Handler::Logger.new,
+    Session::SessionHandler.new(Authority.session),
+  ]
 
   def self.session
     SESSION

@@ -3,6 +3,36 @@ require "./spec_helper"
 describe "TokenSpec" do
   password = Faker::Internet.password
 
+  describe "token instropection" do
+    client = OAUTH_CLIENT.http_client
+    client.basic_auth(CLIENT_ID, CLIENT_SECRET)
+    scope = "any"
+
+    it "return false fo inactive token" do
+      expires = 1.minute.ago.to_unix
+      jwt_token = Authly.jwt_encode({"exp" => expires, "scope" => scope})
+
+      response = client.post("/token-info", form: {token: jwt_token})
+      token_info = JSON.parse(response.body)
+
+      token_info["active"].as_bool.should be_falsey
+      token_info["exp"].should eq ""
+      token_info["scope"].should eq ""
+    end
+
+    it "returns true for a active token" do
+      expires = 1.minute.from_now.to_unix
+      jwt_token = Authly.jwt_encode({"exp" => 1.minute.from_now.to_unix, "scope" => scope})
+
+      response = client.post("/token-info", form: {token: jwt_token})
+      token_info = JSON.parse(response.body)
+
+      token_info["active"].as_bool.should be_truthy
+      token_info["exp"].should eq expires.to_s
+      token_info["scope"].should eq scope
+    end
+  end
+
   describe "OpenID" do
     it "returns id_token" do
       user = create_owner(password: password)

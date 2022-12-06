@@ -1,43 +1,10 @@
 version: "3.7"
 services:
-  # datadog-agent:
-  #   image: gcr.io/datadoghq/agent:7
-  #   container_name: dd_agent
-  #   environment:
-  #     - DD_ENV=develop
-  #     - DD_SERVICE=authority
-  #     - DD_VERSION=1.4.3
-  #     - DD_APM_ENABLED=true
-  #     - DD_APM_NON_LOCAL_TRAFFIC=true
-  #     - DD_SITE="datadoghq.com"
-  #     - DD_LOGS_ENABLED=true
-  #     - DD_CONTAINER_EXCLUDE_LOGS="name:datadog-agent"
-  #     - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true 
-  #     - DD_API_KEY=
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock:ro
-  #     - /proc/:/host/proc/:ro
-  #     - /opt/datadog-agent/run:/opt/datadog-agent/run:rw 
-  #     - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
-  #   ports:
-  #     - 8125:8125/udp
-  #     - 8126:8126/tcp
-  #   networks:
-  #     - authority_net
   
   postgres:
     image: postgres
     container_name: db
     restart: always
-    # labels:
-    #   tags.datadoghq.com/postgres.env: "develop"
-    #   tags.datadoghq.com/postgres.service: "postgres"
-    #   tags.datadoghq.com/postgres.version: "0.1.0"
-    #   com.datadoghq.ad.check_names: '["postgres"]'
-    #   com.datadoghq.ad.init_configs: '[{}]'
-    #   com.datadoghq.ad.logs: '[{"source":"postgresql","service":"postgresql"}]'
-    #   com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":5432,"username":"auth_user","password":"auth_pass"}]'
-    #   com.datadoghq.ad.datadoghq.com/postgres.logs: '[{"source":"postgresql"}]'
     environment:
       POSTGRES_DB: authority_db
       POSTGRES_USER: auth_user
@@ -53,10 +20,6 @@ services:
     command: ./authority
     container_name: authority
     working_dir: /root/
-    # labels:
-    #   com.datadoghq.tags.env: "dev"
-    #   com.datadoghq.tags.service: "authority"
-    #   com.datadoghq.tags.version: "1.4.4"
     env_file:
       - .env.local
     ports:
