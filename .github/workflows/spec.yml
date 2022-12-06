@@ -39,16 +39,6 @@ jobs:
 
       - name: Install Firefox
         run: sudo apt-get install firefox -y
-
-      - name: Install Geckodriver
-
-        run: |
-          wget https://github.com/mozilla/geckodriver/releases/download/v0.26.0/geckodriver-v0.26.0-linux64.tar.gz
-          sudo tar -xvf geckodriver-v0.26.0-linux64.tar.gz
-          sudo mv geckodriver /usr/local/bin/
-          cd /usr/local/bin/
-          sudo chmod +x geckodriver
-
       - name: Install Dependencies
         run: shards install
 
@@ -56,6 +46,7 @@ jobs:
         run: shards build
 
       - name: Run tests
+        uses: browser-actions/setup-geckodriver@latest
         run: crystal spec
         env:
           LOG_LEVEL: "debug"
