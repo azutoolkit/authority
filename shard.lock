@@ -7,15 +7,15 @@ shards:
 
   ameba:
     git: https://github.com/crystal-ameba/ameba.git
-    version: 1.3.1
+    version: 1.6.1
 
   authly:
     git: https://github.com/azutoolkit/authly.git
-    version: 1.1.1
+    version: 1.2
 
   azu:
     git: https://github.com/azutoolkit/azu.git
-    version: 0.4.6
+    version: 0.4.11
 
   backtracer:
     git: https://github.com/sija/backtracer.cr.git
@@ -23,7 +23,7 @@ shards:
 
   bindata:
     git: https://github.com/spider-gazelle/bindata.git
-    version: 1.11.1
+    version: 2.0.0
 
   clear:
     git: https://github.com/anykeyh/clear.git
@@ -31,11 +31,11 @@ shards:
 
   crinja:
     git: https://github.com/straight-shoota/crinja.git
-    version: 0.8.0
+    version: 0.8.1
 
   datadog:
     git: https://github.com/jgaskins/datadog.git
-    version: 0.1.0+git.commit.d68ff5dd17ee93476700aba1eb1c25d6c577ddd2
+    version: 0.1.0+git.commit.9808f7ceb663f4b87f321eb909469f46e5bf1663
 
   db:
     git: https://github.com/crystal-lang/crystal-db.git
@@ -43,7 +43,7 @@ shards:
 
   exception_page:
     git: https://github.com/crystal-loot/exception_page.git
-    version: 0.3.0
+    version: 0.4.1
 
   faker:
     git: https://github.com/askn/faker.git
@@ -63,7 +63,7 @@ shards:
 
   jwt:
     git: https://github.com/crystal-community/jwt.git
-    version: 1.6.0
+    version: 1.6.1
 
   marionette: # Overridden
     git: https://github.com/eliasjpr/marionette.git
@@ -71,11 +71,11 @@ shards:
 
   msgpack:
     git: https://github.com/crystal-community/msgpack-crystal.git
-    version: 1.3.3
+    version: 1.3.4
 
   openssl_ext:
     git: https://github.com/spider-gazelle/openssl_ext.git
-    version: 2.2.0
+    version: 2.4.4
 
   pg: # Overridden
     git: https://github.com/will/crystal-pg.git
@@ -91,17 +91,17 @@ shards:
 
   redis:
     git: https://github.com/stefanwille/crystal-redis.git
-    version: 2.8.3
+    version: 2.9.1
 
   schema:
     git: https://github.com/azutoolkit/schema.git
-    version: 0.2.2
+    version: 0.2.7
 
   session:
     git: https://github.com/azutoolkit/session.git
-    version: 1.0.4
+    version: 1.0.8
 
   statsd:
     git: https://github.com/miketheman/statsd.cr.git
-    version: 0.5.0+git.commit.6065b3635304d0e80ea05cb5030a576b0b55195b
+    version: 0.5.0+git.commit.f0820fac6d1f8d45ab36361573ad23d740146c47
 

@@ -1,0 +1,25 @@
+{% extends "layout.jinja" %}
+{% set title = "Device Activation" %}
+
+{% block body %}
+<main class="signup-form">
+  {% include "errors.jinja" %}
+  <form action="{{device_activation_endpoint_path}}" method="post">
+    <div class="avatar"><i class="material-icons">&#xE7FF;</i></div>
+    <h2 class="modal-title">Device Activation</h2>
+    <p>Enter the code displayed in your on your <b>{{target_device}}</b></p>
+    <hr>
+    <div class="form-group">
+      <div class="col">
+        <input type="text" class="form-control form-control-lg" name="user_code" placeholder="XXXXXX"
+          required="required" value="{{user_code}}">
+      </div>
+    </div>
+    <p>If you did not initiate this activation or do not recognize this device select deny.</p>
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+      <button type="submit" class="btn btn-light" name="verification" value="denied">Deny</button>
+      <button type="submit" class="btn btn-primary" name="verification" value="allowed">Allow</button>
+    </div>
+  </form>
+</main>
+{% endblock %}

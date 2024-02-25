@@ -1,0 +1,54 @@
+{% extends "layout.jinja" %}
+{% set title = "Signup" %}
+
+{% block body %}
+<main class="signup-form">
+  {% include "errors.jinja" %}
+  <form action="{{owner|owner_new_path}}" method="post">
+    <div class="avatar"><i class="material-icons">&#xE7FF;</i></div>
+    <h2 class="modal-title">Sign Up</h2>
+    <p>Please fill in this form to create an account!</p>
+    <hr>
+    <div class="form-group">
+      <div class="row">
+        <div class="col">
+          <input type="text" class="form-control" name="first_name" placeholder="First Name" required="required"
+            value="{{owner.first_name}}">
+        </div>
+        <div class="col"><input type="text" class="form-control" name="last_name" placeholder="Last Name"
+            required="required" value="{{owner.last_name}}"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <input type="email" class="form-control" name="email" placeholder="Email" required="required"
+        value="{{owner.email}}">
+    </div>
+
+    <div class="form-group">
+      <input type="text" class="form-control" name="username" placeholder="username" required="required"
+        value="{{owner.username}}">
+    </div>
+    <div class="form-group">
+      <input type="password" class="form-control" name="password" placeholder="Password" required="required"
+        value="{{owner.password}}">
+    </div>
+    <div class="form-group">
+      <input type="password" class="form-control" name="confirm_password" placeholder="Confirm Password"
+        value="{{owner.confirm_password}}" required="required">
+    </div>
+    <div class="form-group">
+      <label class="form-check-label">
+        <input type="checkbox" id="terms" required="required"> I accept the <a href="#">Terms of
+          Use</a> &amp; <a href="#">Privacy Policy</a>
+      </label>
+    </div>
+    <div class="d-grid gap-2 mx-auto">
+      <button type="submit" class="btn btn-primary">Sign Up</button>
+    </div>
+  </form>
+  <div class="hint-text">
+    Already have an account?
+    <a href="{{session|sessions_create_path}}">Login here</a>
+  </div>
+</main>
+{% endblock %}

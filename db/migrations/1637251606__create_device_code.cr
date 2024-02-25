@@ -5,7 +5,7 @@ class CreateDeviceCode
     dir.up do
       create_enum("verification", %w(allowed denied pending))
 
-      create_table :device_codes, id: :uuid do |t|
+      create_table :oauth_device_codes, id: :uuid do |t|
         t.column :client_id, "varchar(80)", null: false, index: true, unique: false
         t.column :client_name, "varchar(80)", null: false
         t.column :user_code, "varchar(10)", null: false, index: true, unique: false
