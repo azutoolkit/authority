@@ -1,6 +1,6 @@
 module Authority
   class DeviceCodeToken
-    private getter device_code : DeviceCode
+    private getter device_code : DeviceCodeEntity
     private getter client_id : String
 
     def self.activate!(activate_request : Device::ActivateRequest)

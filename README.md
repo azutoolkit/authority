@@ -32,11 +32,9 @@ The following RFCs are implemented:
 - [RFC7519 "JSON Web Token (JWT)"](https://tools.ietf.org/html/rfc7519)
 - [RFC7636 "Proof Key for Code Exchange by OAuth Public Clients"](https://tools.ietf.org/html/rfc7636)
 
-
 Please refer to the project documentation to get started
 
-[![documentation](https://img.shields.io/badge/documentation-authority-brightgreen?style=for-the-badge)](https://azutopia.gitbook.io/authority) 
-
+[![documentation](https://img.shields.io/badge/documentation-authority-brightgreen?style=for-the-badge)](https://azutopia.gitbook.io/authority)
 
 ## Contributing
 
