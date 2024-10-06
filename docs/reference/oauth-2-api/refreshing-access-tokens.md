@@ -52,38 +52,27 @@ grant_type=refresh_token
 &client_secret=xxxxxxxxxx
 ```
 
-{% swagger method="post" path="" baseUrl="https::/app.com/token" summary="Refresh Access Token" %}
-{% swagger-description %}
-The refresh token, make a POST request to the service’s token endpoint with 
+## Refresh Access Token
 
-`grant_type=refresh_token`
+<mark style="color:green;">`POST`</mark> `https::/app.com/token`
 
-, and include the refresh token as well as the client credentials.
-{% endswagger-description %}
+The refresh token, make a POST request to the service’s token endpoint with `grant_type=refresh_token`, and include the refresh token as well as the client credentials.
 
-{% swagger-parameter in="header" name="Authorization" required="true" %}
-The client needs to authenticate themselves for this request. Typically the service will allow either additional request parameters 
+#### Headers
 
-`client_id`
+| Name                                            | Type   | Description                                                                                                                                                                                                                            |
+| ----------------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Authorization<mark style="color:red;">\*</mark> | String | The client needs to authenticate themselves for this request. Typically the service will allow either additional request parameters `client_id` and `client_secret`, or accept the client ID and secret in the HTTP Basic auth header. |
 
- and 
+#### Request Body
 
-`client_secret`
+| Name                                             | Type   | Description                    |
+| ------------------------------------------------ | ------ | ------------------------------ |
+| grant\_type<mark style="color:red;">\*</mark>    | String | Must be set to `refresh_token` |
+| refresh\_token<mark style="color:red;">\*</mark> | String | The curent refresh token       |
 
-, or accept the client ID and secret in the HTTP Basic auth header.
-{% endswagger-parameter %}
-
-{% swagger-parameter in="body" name="grant_type" required="true" %}
-Must be set to 
-
-`refresh_token`
-{% endswagger-parameter %}
-
-{% swagger-parameter in="body" name="refresh_token" required="true" %}
-The curent refresh token
-{% endswagger-parameter %}
-
-{% swagger-response status="201: Created" description="The response will be a new access token, and optionally a new refresh token, just like you received when exchanging the authorization code for an access token." %}
+{% tabs %}
+{% tab title="201: Created The response will be a new access token, and optionally a new refresh token, just like you received when exchanging the authorization code for an access token." %}
 ```javascript
 {
   "access_token": "BWjcyMzY3ZDhiNmJkNTY",
@@ -92,5 +81,5 @@ The curent refresh token
   "expires": 3600
 }
 ```
-{% endswagger-response %}
-{% endswagger %}
+{% endtab %}
+{% endtabs %}

@@ -43,8 +43,8 @@ The Authority implements five grants for acquiring an access token:
 
 #### Explore the implementations
 
-{% content-ref url="reference/oauth-2-api/" %}
-[oauth-2-api](reference/oauth-2-api/)
+{% content-ref url="../reference/oauth-2-api/" %}
+[oauth-2-api](../reference/oauth-2-api/)
 {% endcontent-ref %}
 
 The following RFCs are implemented:

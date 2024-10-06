@@ -9,7 +9,7 @@ description: >-
 
 The Client Credentials grant type is used by clients to obtain an access token outside of the context of a user. This is typically used by clients to access resources about themselves rather than to access a user's resources.
 
-#### Example <a href="example" id="example"></a>
+#### Example <a href="#example" id="example"></a>
 
 The following is an example authorization code grant the service would receive.
 
@@ -22,40 +22,27 @@ grant_type=client_credentials
 &client_secret=xxxxxxxxxx
 ```
 
-{% swagger method="post" path="" baseUrl="https://app.com/token " summary="Client Credentials" %}
-{% swagger-description %}
-In some cases, applications may need an access token to act on behalf of themselves rather than a user. For example, the service may provide a way for the application to update their own information such as their website URL or icon, or they may wish to get statistics about the users of the app. In this case, applications need a way to get an access token for their own account, outside the context of any specific user. OAuth provides the 
+## Client Credentials
 
-`client_credentials`
+<mark style="color:green;">`POST`</mark> `https://app.com/token`&#x20;
 
- grant type for this purpose.
-{% endswagger-description %}
+In some cases, applications may need an access token to act on behalf of themselves rather than a user. For example, the service may provide a way for the application to update their own information such as their website URL or icon, or they may wish to get statistics about the users of the app. In this case, applications need a way to get an access token for their own account, outside the context of any specific user. OAuth provides the `client_credentials` grant type for this purpose.
 
-{% swagger-parameter in="body" name="grant_type" required="true" %}
-A Parameter must be set to 
+#### Headers
 
-`clienst_credentials`
+| Name          | Type   | Description                                                                                                                                                                                                                            |
+| ------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Authorization | String | The client needs to authenticate themselves for this request. Typically the service will allow either additional request parameters `client_id` and `client_secret`, or accept the client ID and secret in the HTTP Basic auth header. |
 
-.
-{% endswagger-parameter %}
+#### Request Body
 
-{% swagger-parameter in="body" name="scope" %}
-The service supports different scopes for the client credentials grant. In practice, not many services actually support this.
-{% endswagger-parameter %}
+| Name                                          | Type   | Description                                                                                                                   |
+| --------------------------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| grant\_type<mark style="color:red;">\*</mark> | String | A Parameter must be set to `clienst_credentials`.                                                                             |
+| scope                                         | String | The service supports different scopes for the client credentials grant. In practice, not many services actually support this. |
 
-{% swagger-parameter in="header" name="Authorization" %}
-The client needs to authenticate themselves for this request. Typically the service will allow either additional request parameters 
-
-`client_id`
-
- and 
-
-`client_secret`
-
-, or accept the client ID and secret in the HTTP Basic auth header.
-{% endswagger-parameter %}
-
-{% swagger-response status="201: Created" description="The server replies with an access token in the same format as the other grant types.  Note, the client secret is not included here under the assumption that most of the use cases for password grants will be mobile or desktop apps, where the secret cannot be protected." %}
+{% tabs %}
+{% tab title="201: Created The server replies with an access token in the same format as the other grant types.  Note, the client secret is not included here under the assumption that most of the use cases for password grants will be mobile or desktop apps, where the secret cannot be protected." %}
 ```javascript
 {
   "access_token":"MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3",
@@ -65,8 +52,8 @@ The client needs to authenticate themselves for this request. Typically the serv
   "scope":"create"
 }
 ```
-{% endswagger-response %}
-{% endswagger %}
+{% endtab %}
+{% endtabs %}
 
-****
+
 

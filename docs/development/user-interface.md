@@ -24,6 +24,7 @@ A template contains **variables** and/or **expressions**, which get replaced wit
 Below is a minimal template that illustrates a few basics using the default Jinja configuration. We will cover the details later in this document:
 
 ```django
+{% raw %}
 {% extends "layout.html" %}
 {% set title = "Signin" %}
 
@@ -52,6 +53,7 @@ Below is a minimal template that illustrates a few basics using the default Jinj
   <div class="text-center small">Don't have an account? <a href="/register">Sign up</a></div>
 </main>
 {% endblock %}
+{% endraw %}
 ```
 
 {% hint style="info" %}

@@ -31,7 +31,7 @@ docker-compose up server
 ```
 
 {% hint style="info" %}
-To change the Authority server configuration change the** local.env **file
+To change the Authority server configuration change the **local.env** file
 {% endhint %}
 
 ```yaml

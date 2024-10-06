@@ -4,7 +4,7 @@ The project specifications can be found in the specs directory. Use the director
 
 **Running Specs**
 
-If you have all the requirements installed, running the specs should be fairly simple.** Run the following commands to run the specs locally**
+If you have all the requirements installed, running the specs should be fairly simple. **Run the following commands to run the specs locally**
 
 ```bash
 shards build server

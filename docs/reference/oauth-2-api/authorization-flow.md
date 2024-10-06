@@ -8,7 +8,7 @@ description: >-
 
 The authorization code grant is used when an application exchanges an authorization code for an access token. After the user returns to the application via the redirect URL, the application will get the authorization code from the URL and use it to request an access token. This request will be made to the token endpoint.
 
-### The Flow (Part One) <a href="the-flow-part-one" id="the-flow-part-one"></a>
+### The Flow (Part One) <a href="#the-flow-part-one" id="the-flow-part-one"></a>
 
 The client will redirect the user to the authorization server with the following parameters in the query string:
 
@@ -20,43 +20,29 @@ GET https://authorization-server.com/authorize?client_id=a17c21ed
 &scope=photos
 ```
 
-{% swagger method="get" path="" baseUrl="https://authorization-server.com/authorize" summary="Authorization Code" %}
-{% swagger-description %}
+## Authorization Code
+
+<mark style="color:blue;">`GET`</mark> `https://authorization-server.com/authorize`
+
 The client will redirect the user to the authorization server with the following parameters in the query string:
-{% endswagger-description %}
 
-{% swagger-parameter in="query" name="response_type" required="true" %}
-Indicates that your server expects to receive an authorization code. Must be 
+#### Query Parameters
 
-`code`
-{% endswagger-parameter %}
+| Name                                             | Type   | Description                                                                                                                          |
+| ------------------------------------------------ | ------ | ------------------------------------------------------------------------------------------------------------------------------------ |
+| response\_type<mark style="color:red;">\*</mark> | String | Indicates that your server expects to receive an authorization code. Must be `code`                                                  |
+| client\_id<mark style="color:red;">\*</mark>     | String | The client ID you received when you first registered the application                                                                 |
+| redirect\_uri<mark style="color:red;">\*</mark>  | String | Indicates the URI to return the user to after authorization is complete                                                              |
+| scope<mark style="color:red;">\*</mark>          | String | One or more scope values indicating which parts of the user's account you wish to access                                             |
+| state                                            | String | with a [CSRF](https://en.wikipedia.org/wiki/Cross-site\_request\_forgery) token. This parameter is optional but highly recommended.  |
 
-{% swagger-parameter in="query" name="client_id" required="true" %}
-The client ID you received when you first registered the application
-{% endswagger-parameter %}
-
-{% swagger-parameter in="query" name="redirect_uri" required="true" %}
-Indicates the URI to return the user to after authorization is complete
-{% endswagger-parameter %}
-
-{% swagger-parameter in="query" name="scope" required="true" %}
-One or more scope values indicating which parts of the user's account you wish to access
-{% endswagger-parameter %}
-
-{% swagger-parameter in="query" name="state" %}
-with a 
-
-[CSRF](https://en.wikipedia.org/wiki/Cross-site_request_forgery)
-
- token. This parameter is optional but highly recommended. 
-{% endswagger-parameter %}
-
-{% swagger-response status="302: Found" description="The user sees the authorization prompt" %}
+{% tabs %}
+{% tab title="302: Found The user sees the authorization prompt" %}
 ```javascript
 https://example-app.com/cb?code=AUTH_CODE_HERE&state=1234zyx
 ```
-{% endswagger-response %}
-{% endswagger %}
+{% endtab %}
+{% endtabs %}
 
 {% hint style="info" %}
 You should first compare this state value to ensure it matches the one you started with. You can typically store the state value in a cookie or session, and compare it when the user comes back. This helps ensure your redirection endpoint isn't able to be tricked into attempting to exchange arbitrary authorization codes.
@@ -105,7 +91,7 @@ GET https://authorization-server.com/authorize?client_id=a17c21ed
 The PKCE extension does not add any new responses, so clients can always use the PKCE extension even if an authorization server does not support it.
 {% endhint %}
 
-### The Flow (Part Two) <a href="the-flow-part-two" id="the-flow-part-two"></a>
+### The Flow (Part Two) <a href="#the-flow-part-two" id="the-flow-part-two"></a>
 
 **Exchange the authorization code for an access token**
 
@@ -123,44 +109,29 @@ code=Yzk5ZDczMzRlNDEwY
 &code_verifier=a6b602d858ae0da189dacd297b188ef308dc754bd9cc359ac2e1d8d1
 ```
 
-{% swagger method="post" path=" " baseUrl="https://my-auth-server.com/token" summary="Creates an Access Token" %}
-{% swagger-description %}
+## Creates an Access Token
+
+<mark style="color:green;">`POST`</mark> `https://my-auth-server.com/token`&#x20;
+
 The server exchanges the authorization code for an access token by making a POST request to the token endpoint.
-{% endswagger-description %}
 
-{% swagger-parameter in="header" name="Authorization" required="true" %}
-Contains the word Basic, followed by a space and a base64-encoded(non-encrypted) string with the 
+#### Headers
 
-_client id _
+| Name                                            | Type   | Description                                                                                                                        |
+| ----------------------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Authorization<mark style="color:red;">\*</mark> | String | Contains the word Basic, followed by a space and a base64-encoded(non-encrypted) string with the _client id_ and _client_ _secret_ |
 
-and
+#### Request Body
 
-_ client_
+| Name                                            | Type   | Description                                                                                                                  |
+| ----------------------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| grant\_type<mark style="color:red;">\*</mark>   | String | The grant type for this flow is **authorization\_code**                                                                      |
+| redirect\_uri<mark style="color:red;">\*</mark> | String | Must be identical to the redirect URI provided in the original link                                                          |
+| code<mark style="color:red;">\*</mark>          | String | The authorization code from the query string                                                                                 |
+| code\_verifier                                  | String | PCKE Extension - the code verifier for the PKCE request, that the app originally generated before the authorization request. |
 
- 
-
-_secret_
-{% endswagger-parameter %}
-
-{% swagger-parameter in="body" name="grant_type" required="true" %}
-The grant type for this flow is 
-
-**authorization_code**
-{% endswagger-parameter %}
-
-{% swagger-parameter in="body" name="redirect_uri" required="true" %}
-Must be identical to the redirect URI provided in the original link
-{% endswagger-parameter %}
-
-{% swagger-parameter in="body" name="code" required="true" %}
-The authorization code from the query string
-{% endswagger-parameter %}
-
-{% swagger-parameter in="body" name="code_verifier" %}
-PCKE Extension - the code verifier for the PKCE request, that the app originally generated before the authorization request.
-{% endswagger-parameter %}
-
-{% swagger-response status="201: Created" description="The authorization server will respond with a JSON object containing the following properties:" %}
+{% tabs %}
+{% tab title="201: Created The authorization server will respond with a JSON object containing the following properties:" %}
 ```javascript
 {
   "access_token": "AYjcyMzY3ZDhiNmJkNTY",
@@ -169,8 +140,8 @@ PCKE Extension - the code verifier for the PKCE request, that the app originally
   "expires": 3600
 }
 ```
-{% endswagger-response %}
-{% endswagger %}
+{% endtab %}
+{% endtabs %}
 
 **OAuth Security**
 

@@ -20,20 +20,21 @@ Content-type: application/x-www-form-urlencoded
 client_id=a17c21ed&scope=read
 ```
 
-{% swagger method="post" path="http://app.com/device/code" baseUrl="" summary="Device Code" %}
-{% swagger-description %}
+## Device Code
+
+<mark style="color:green;">`POST`</mark> `http://app.com/device/code`
+
 The client makes a request to the authorization server to request the device code.
-{% endswagger-description %}
 
-{% swagger-parameter in="body" name="client_id" required="true" %}
-the client identifier
-{% endswagger-parameter %}
+#### Request Body
 
-{% swagger-parameter in="body" name="scope" %}
-Define the scopes the application has access to
-{% endswagger-parameter %}
+| Name                                         | Type   | Description                                     |
+| -------------------------------------------- | ------ | ----------------------------------------------- |
+| client\_id<mark style="color:red;">\*</mark> | String | the client identifier                           |
+| scope                                        | String | Define the scopes the application has access to |
 
-{% swagger-response status="201: Created" description="The authorization server responds with a JSON payload containing the device code, the code the user will enter, the URL the user should visit, and a polling interval." %}
+{% tabs %}
+{% tab title="201: Created The authorization server responds with a JSON payload containing the device code, the code the user will enter, the URL the user should visit, and a polling interval." %}
 ```javascript
 {
   "device_code": "e2623df1-8594-47b4-b528-41ed3daecc1a",
@@ -45,8 +46,8 @@ Define the scopes the application has access to
   "interval": 5
 }
 ```
-{% endswagger-response %}
-{% endswagger %}
+{% endtab %}
+{% endtabs %}
 
 {% hint style="info" %}
 **Note** that some authorization servers will allow the device to specify a scope in this request, which will be shown to the user later on the authorization interface.
@@ -74,54 +75,30 @@ Meanwhile, the client should attempt to acquire an access token every few second
 
 While the device is waiting for the user to complete the authorization flow on their own computer or phone, the device meanwhile begins polling the token endpoint to request an access token.
 
-{% swagger method="post" path="" baseUrl="https://app.com/device/token" summary="Access Token Request" %}
-{% swagger-description %}
-The device makes a POST request with the 
+## Access Token Request
 
-`device_code`
+<mark style="color:green;">`POST`</mark> `https://app.com/device/token`
 
- at the rate specified by 
+The device makes a POST request with the `device_code` at the rate specified by `interval`. The device should continue requesting an access token until a response other than `authorization_pending` is returned, either the user grants or denies the request or the device code expires.
 
-`interval`
+#### Request Body
 
-. The device should continue requesting an access token until a response other than 
+| Name                                          | Type   | Description                                                                                     |
+| --------------------------------------------- | ------ | ----------------------------------------------------------------------------------------------- |
+| grant\_type<mark style="color:red;">\*</mark> | String | The Device Code grant type value is `urn:ietf:params:oauth:grant-type:device_code`              |
+| client\_id<mark style="color:red;">\*</mark>  | String | The client id for which the device code was created                                             |
+| code<mark style="color:red;">\*</mark>        | String | The value of `code` should be the `device_code` from the JSON response in the previous request. |
 
-`authorization_pending`
-
- is returned, either the user grants or denies the request or the device code expires.
-{% endswagger-description %}
-
-{% swagger-parameter in="body" name="grant_type" required="true" %}
-The Device Code grant type value is 
-
-`urn:ietf:params:oauth:grant-type:device_code`
-{% endswagger-parameter %}
-
-{% swagger-parameter in="body" name="client_id" required="true" %}
-The client id for which the device code was created
-{% endswagger-parameter %}
-
-{% swagger-parameter in="body" name="code" required="true" %}
-The value of 
-
-`code`
-
- should be the 
-
-`device_code`
-
- from the JSON response in the previous request.
-{% endswagger-parameter %}
-
-{% swagger-response status="201: Created" description="" %}
+{% tabs %}
+{% tab title="201: Created " %}
 ```javascript
 {
     // Response
 }
 ```
-{% endswagger-response %}
+{% endtab %}
 
-{% swagger-response status="400: Bad Request" description="If the client is polling too frequently it will receive an error from the authorisation server" %}
+{% tab title="400: Bad Request If the client is polling too frequently it will receive an error from the authorisation server" %}
 ```javascript
 {
   "Status": "bad_request",
@@ -130,9 +107,9 @@ The value of
   "Detail": "",
 }
 ```
-{% endswagger-response %}
+{% endtab %}
 
-{% swagger-response status="400: Bad Request" description="If the user hasn’t yet authorized the client the error will be" %}
+{% tab title="400: Bad Request If the user hasn’t yet authorized the client the error will be" %}
 ```javascript
 {
   "Status": "bad_request",
@@ -141,20 +118,9 @@ The value of
   "Detail": "",
 }
 ```
-{% endswagger-response %}
+{% endtab %}
 
-{% swagger-response status="400: Bad Request" description="If the device code has expired, the authorization server will return the expired_token error. The device can immediately make a request for a new device code" %}
-```javascript
-{
-  "Status": "unauthorized",
-  "Link": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/INTERNAL_SERVER_ERROR",
-  "Title": "expired_token",
-  "Detail": "",
-}
-```
-{% endswagger-response %}
-
-{% swagger-response status="401: Unauthorized" description="If the user denies the request, the authorization server will return the access_denied error." %}
+{% tab title="401: Unauthorized If the user denies the request, the authorization server will return the access_denied error." %}
 ```javascript
 {
   "Status": "unauthorized",
@@ -163,5 +129,16 @@ The value of
   "Detail": "",
 }
 ```
-{% endswagger-response %}
-{% endswagger %}
+{% endtab %}
+
+{% tab title="400: Bad Request If the device code has expired, the authorization server will return the expired_token error. The device can immediately make a request for a new device code" %}
+```javascript
+{
+  "Status": "unauthorized",
+  "Link": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/INTERNAL_SERVER_ERROR",
+  "Title": "expired_token",
+  "Detail": "",
+}
+```
+{% endtab %}
+{% endtabs %}
