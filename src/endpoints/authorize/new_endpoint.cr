@@ -7,7 +7,7 @@ module Authority::Authorize
     get "/authorize"
 
     def call : Response | FormResponse
-      return signin unless current_session.authenticated?
+      return redirect_to_signin unless authenticated?
 
       header "Content-Type", "text/html; charset=UTF-8"
       header "Cache-Control", "no-store"

@@ -28,16 +28,16 @@ Clear::SQL.truncate("owners", cascade: true)
 Clear::SQL.truncate("clients", cascade: true)
 create_client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI)
 
-process = Process.new(
-  "./bin/authority",
-  env: ENV.to_h,
-  output: Process::Redirect::Inherit,
-  error: Process::Redirect::Inherit)
-# Wait for process to start
-sleep 1.seconds
+# process = Process.new(
+#   "./bin/authority",
+#   env: ENV.to_h,
+#   output: Process::Redirect::Inherit,
+#   error: Process::Redirect::Inherit)
+# # Wait for process to start
+# sleep 1.seconds
 
 Spec.after_suite do
-  process.not_nil!.signal Signal::KILL
+  # process.not_nil!.signal Signal::KILL
 end
 
 Spec.before_each do

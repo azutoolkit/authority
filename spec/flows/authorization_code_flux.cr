@@ -7,7 +7,7 @@ class AuthorizationCodeFlux < Flux
   end
 
   def initialize(@url : String, @username : String, @password : String)
-    options = Marionette.firefox_options(args: ["-headless"])
+    options = Marionette.firefox_options(args: [""])
     super(Marionette::Browser::Firefox, options)
   end
 

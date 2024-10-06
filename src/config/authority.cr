@@ -1,9 +1,7 @@
 require "azu"
 Log.setup_from_env
 
-# Docs - https://azutopia.gitbook.io/azu/defining-your-app
 module Authority
-  # Defines Azu Framework
   include Azu
 
   SESSION_KEY     = ENV.fetch "SESSION_KEY", "session_id"
@@ -11,9 +9,10 @@ module Authority
   ACTIVATE_URL    = "#{BASE_URL}/activate"
   DEVICE_CODE_TTL = ENV.fetch("DEVICE_CODE_TTL", "300").to_i
   SESSION         = Session::CookieStore(UserSession).provider
-  HANDLERS        = [
-    Azu::Handler::RequestID.new,
+
+  HANDLERS = [
     Azu::Handler::Rescuer.new,
+    Azu::Handler::RequestID.new,
     Azu::Handler::Logger.new,
     Session::SessionHandler.new(Authority.session),
   ]
@@ -22,9 +21,12 @@ module Authority
     SESSION
   end
 
+  def self.current_session
+    SESSION.current_session
+  end
+
   configure do |c|
     c.templates.path = ENV["TEMPLATE_PATH"]
-    # Static Assets Handler
     c.router.get "/*", Handler::Static.new
   end
 end

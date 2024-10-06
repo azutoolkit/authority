@@ -6,7 +6,7 @@ module Authority::Device
     get "/activate"
 
     def call : DeviceActivationForm | Response
-      return signin unless current_session.authenticated?
+      return redirect_to_signin unless authenticated?
       status 200
 
       header "Content-Type", "text/html; charset=UTF-8"

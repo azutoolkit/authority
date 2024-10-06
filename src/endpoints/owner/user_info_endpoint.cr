@@ -13,8 +13,13 @@ module Authority::Owner
       header "Cache-Control", "no-store"
       header "Pragma", "no-cache"
 
-      res = GetUserInfo.claims(header[AUTH]?)
-      res
+      user_claims = GetUserInfo.claims(auth_header)
+
+      UserInfoResponse.new user_claims
+    end
+
+    private def auth_header : String?
+      header[AUTH]?
     end
   end
 end

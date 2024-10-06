@@ -13,8 +13,7 @@ module Authority
         .set(verification: verification).execute
     end
 
-    def self.create!(client : ClientEntity)
-      user_code = "#{Random.new.hex(3)}".upcase
+    def self.create!(client : ClientEntity, user_code = Random.new.hex(3).upcase)
       DeviceCodeEntity.new({
         id:               UUID.random,
         client_id:        client.client_id,
