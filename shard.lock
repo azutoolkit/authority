@@ -23,7 +23,7 @@ shards:
 
   cql: # Overridden
     git: https://github.com/azutoolkit/cql.git
-    version: 0.0.483+git.commit.83d576699f7ff255ae6cb082403f8cd7f7187dc2
+    version: 0.0.483+git.commit.f070b7514d7c2511bccbd3590a8e27e0842ac292
 
   crinja:
     git: https://github.com/straight-shoota/crinja.git

@@ -1,9 +1,8 @@
 module Authority
   class RevokedToken
-    include CQL::ActiveRecord::Model(String)
+    include CQL::ActiveRecord::Model(UUID)
     db_context AuthorityDB, :oauth_revoked_tokens
 
-    property id : String?
     property jti : String = ""
     property client_id : String = ""
     property token_type : String = "access_token"
@@ -12,22 +11,14 @@ module Authority
     property created_at : Time?
     property updated_at : Time?
 
-    # Initialize with default values for new records
+    before_save :set_revoked_at
+
     def initialize
     end
 
-    # Override create! to handle UUID primary keys
-    def create!
-      validate!
-      @id ||= UUID.random.to_s
-      @revoked_at = Time.utc if @revoked_at == Time.utc
-      attrs = attributes
-      CQL::Insert
-        .new(RevokedToken.schema)
-        .into(RevokedToken.table)
-        .values(attrs)
-        .commit
-      self
+    private def set_revoked_at
+      @revoked_at = Time.utc
+      true
     end
 
     # Check if a token with the given JTI has been revoked

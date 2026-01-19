@@ -6,10 +6,9 @@ module Authority
   end
 
   class DeviceCode
-    include CQL::ActiveRecord::Model(String)
+    include CQL::ActiveRecord::Model(UUID)
     db_context AuthorityDB, :oauth_device_codes
 
-    property id : String?
     property client_id : String = ""
     property client_name : String = ""
     property user_code : String = ""
@@ -19,23 +18,15 @@ module Authority
     property created_at : Time?
     property updated_at : Time?
 
-    # Initialize with default values for new records
+    before_save :set_defaults
+
     def initialize
     end
 
-    # Override create! to handle UUID primary keys
-    def create!
-      validate!
-      @id ||= UUID.random.to_s
+    private def set_defaults
       @user_code = Random::Secure.hex(3).upcase if @user_code.empty?
       @expires_at = 5.minutes.from_now if @expires_at == Time.utc
-      attrs = attributes
-      CQL::Insert
-        .new(DeviceCode.schema)
-        .into(DeviceCode.table)
-        .values(attrs)
-        .commit
-      self
+      true
     end
 
     def verification_status : Verification
