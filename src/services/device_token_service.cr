@@ -17,7 +17,7 @@ module Authority
     end
 
     def token
-      raise device_code.errors.map(&.reason).join(", ") unless device_code.valid?
+      raise device_code.device_errors.map(&.reason).join(", ") unless device_code.valid_for_token?
       Authly::AccessToken.new client_id, scope: "", id_token: nil
     end
   end

@@ -7,23 +7,24 @@ module Authority
     end
 
     def self.id_token(user_id : String)
-      OwnerEntity.query.find!({id: user_id}).try &.id_token
+      User.find!(user_id).try &.id_token
     end
 
     def self.find!(username : String)
-      OwnerEntity.query.find!({username: username})
+      User.find_by!(username: username)
     end
 
     def self.create!(req : Owner::NewRequest)
-      OwnerEntity.new({
-        first_name:     req.first_name,
-        last_name:      req.last_name,
-        email:          req.email,
-        username:       req.username,
-        password:       req.password,
-        email_verified: false,
-        scope:          "",
-      }).save!
+      user = User.new
+      user.first_name = req.first_name
+      user.last_name = req.last_name
+      user.email = req.email
+      user.username = req.username
+      user.scope = ""
+      user.email_verified = false
+      user.password = req.password
+      user.save!
+      user
     end
   end
 end

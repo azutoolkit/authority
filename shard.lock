@@ -1,33 +1,29 @@
 # NOTICE: This lockfile contains some overrides from shard.override.yml
 version: 2.0
 shards:
-  admiral:
-    git: https://github.com/jwaldrip/admiral.cr.git
-    version: 1.12.1
-
   ameba:
     git: https://github.com/crystal-ameba/ameba.git
-    version: 1.6.1
+    version: 1.6.4
 
   authly:
     git: https://github.com/azutoolkit/authly.git
     version: 1.2
 
-  azu:
+  azu: # Overridden
     git: https://github.com/azutoolkit/azu.git
-    version: 0.4.11
+    version: 0.5.30+git.commit.461f3a6e2f92789d765ee9e5ac810117765c871c
 
   backtracer:
     git: https://github.com/sija/backtracer.cr.git
-    version: 1.2.2
+    version: 1.2.4
 
   bindata:
     git: https://github.com/spider-gazelle/bindata.git
-    version: 2.0.0
+    version: 2.1.1
 
-  clear:
-    git: https://github.com/anykeyh/clear.git
-    version: 0.9+git.commit.480289555c833793fa6964398fefec6b7e25168d
+  cql: # Overridden
+    git: https://github.com/azutoolkit/cql.git
+    version: 0.0.483+git.commit.83d576699f7ff255ae6cb082403f8cd7f7187dc2
 
   crinja:
     git: https://github.com/straight-shoota/crinja.git
@@ -41,9 +37,13 @@ shards:
     git: https://github.com/crystal-lang/crystal-db.git
     version: 0.10.1
 
+  ed25519:
+    git: https://github.com/spider-gazelle/ed25519.git
+    version: 1.1.0
+
   exception_page:
     git: https://github.com/crystal-loot/exception_page.git
-    version: 0.4.1
+    version: 0.5.0
 
   faker:
     git: https://github.com/askn/faker.git
@@ -53,17 +53,9 @@ shards:
     git: https://github.com/azutoolkit/flux.git
     version: 0.1.7
 
-  generate:
-    git: https://github.com/anykeyh/generate.cr.git
-    version: 0.1.0+git.commit.f5dafc934a70e0ee2f246dddf3df44686f844da2
-
-  inflector:
-    git: https://github.com/anykeyh/inflector.cr.git
-    version: 0.1.8+git.commit.dc5c898b0a834617d8b3ff73ac5a2239bd9fc019
-
   jwt:
     git: https://github.com/crystal-community/jwt.git
-    version: 1.6.1
+    version: 1.7.1
 
   marionette: # Overridden
     git: https://github.com/eliasjpr/marionette.git
@@ -71,11 +63,11 @@ shards:
 
   msgpack:
     git: https://github.com/crystal-community/msgpack-crystal.git
-    version: 1.3.4
+    version: 1.3.5
 
   openssl_ext:
     git: https://github.com/spider-gazelle/openssl_ext.git
-    version: 2.4.4
+    version: 2.8.3
 
   pg: # Overridden
     git: https://github.com/will/crystal-pg.git
@@ -99,9 +91,13 @@ shards:
 
   session:
     git: https://github.com/azutoolkit/session.git
-    version: 1.0.8
+    version: 1.0.15
 
   statsd:
     git: https://github.com/miketheman/statsd.cr.git
     version: 0.5.0+git.commit.f0820fac6d1f8d45ab36361573ad23d740146c47
+
+  ulid:
+    git: https://github.com/superpaintman/ulid.git
+    version: 0.1.0
 

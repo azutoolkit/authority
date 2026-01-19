@@ -1,6 +1,6 @@
 module Authority
   struct UserSession
-    include Session::Databag
+    include Session::SessionData
 
     property user_id : String = ""
     property email : String = ""

@@ -1,6 +1,7 @@
 require "./authority"
 
-Clear::Migration::Manager.instance.apply_all
+# Run CQL migrations
+AuthorityDB.migrator.up
 
 # Start your server
 # Add Handlers to your App Server

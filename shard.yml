@@ -11,8 +11,10 @@ dependencies:
     github: azutoolkit/azu
   session:
     github: azutoolkit/session
-  clear:
-    github: anykeyh/clear
+  cql:
+    github: azutoolkit/cql
+  pg:
+    github: will/crystal-pg
     branch: master
   authly:
     github: azutoolkit/authly

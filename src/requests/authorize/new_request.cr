@@ -21,9 +21,7 @@ module Authority::Authorize
     validate code_challenge_method
 
     def client
-      ClientEntity.query.find!({
-        client_id: client_id, redirect_uri: redirect_uri,
-      })
+      Client.find_by!(client_id: client_id)
     end
   end
 end

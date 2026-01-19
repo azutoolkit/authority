@@ -1,25 +1,29 @@
-class CreateDeviceCode
-  include Clear::Migration
+class CreateDeviceCode < CQL::Migration(1637251606)
+  def up
+    schema.exec <<-SQL
+      CREATE TYPE IF NOT EXISTS verification AS ENUM ('allowed', 'denied', 'pending');
 
-  def change(dir)
-    dir.up do
-      create_enum("verification", %w(allowed denied pending))
+      CREATE TABLE IF NOT EXISTS oauth_device_codes (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        client_id VARCHAR(80) NOT NULL,
+        client_name VARCHAR(80) NOT NULL,
+        user_code VARCHAR(10) NOT NULL,
+        verification VARCHAR(20) NOT NULL DEFAULT 'pending',
+        verification_uri VARCHAR(1000) NOT NULL,
+        expires_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_oauth_device_codes_client_id ON oauth_device_codes(client_id);
+      CREATE INDEX IF NOT EXISTS idx_oauth_device_codes_user_code ON oauth_device_codes(user_code);
+      CREATE INDEX IF NOT EXISTS idx_oauth_device_codes_expires_at ON oauth_device_codes(expires_at);
+    SQL
+  end
 
-      create_table :oauth_device_codes, id: :uuid do |t|
-        t.column :client_id, "varchar(80)", null: false, index: true, unique: false
-        t.column :client_name, "varchar(80)", null: false
-        t.column :user_code, "varchar(10)", null: false, index: true, unique: false
-        t.column :verification, :verification, null: false
-        t.column :verification_uri, "varchar(1000)", null: false
-        t.column :expires_at, "TIMESTAMPTZ", index: true, default: "CURRENT_TIMESTAMP"
-
-        t.timestamps
-      end
-    end
-
-    dir.down do
-      execute "DROP TABLE IF EXISTS device_codes;"
-      execute "DROP TYPE IF EXISTS verification;"
-    end
+  def down
+    schema.exec <<-SQL
+      DROP TABLE IF EXISTS oauth_device_codes;
+      DROP TYPE IF EXISTS verification;
+    SQL
   end
 end

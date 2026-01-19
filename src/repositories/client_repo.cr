@@ -1,37 +1,36 @@
 module Authority
   module ClientRepo
-    def self.get(other_id : String) : ClientEntity
-      ClientEntity.query.find! { id == other_id }
+    def self.get(other_id : String) : Client
+      Client.find!(other_id)
     end
 
-    def self.find_by!(other_client_id : String) : ClientEntity
-      ClientEntity.query.find! { client_id == other_client_id }
+    def self.find_by!(other_client_id : String) : Client
+      Client.find_by!(client_id: other_client_id)
     end
 
     def self.valid_redirect?(client_id : String, redirect_uri : String) : Bool
-      ClientEntity.query.find!({client_id: client_id, redirect_uri: redirect_uri})
-      true
+      Client.exists?(client_id: client_id, redirect_uri: redirect_uri)
     rescue e
       false
     end
 
     def self.authorized?(client_id : String, client_secret : String) : Bool
-      ClientEntity.query.find!({client_id: client_id, client_secret: client_secret})
-      true
+      Client.exists?(client_id: client_id, client_secret: client_secret)
     rescue e
       false
     end
 
     def self.create!(client : Clients::NewRequest)
-      ClientEntity.new({
-        client_id:     UUID.random,
-        client_secret: Base64.urlsafe_encode(UUID.random.to_s, false),
-        redirect_uri:  client.redirect_uri,
-        name:          client.name,
-        description:   client.description,
-        logo:          client.logo,
-        scopes:        "read,write",
-      }).save!
+      new_client = Client.new
+      new_client.name = client.name
+      new_client.client_id = UUID.random.to_s
+      new_client.client_secret = Base64.urlsafe_encode(UUID.random.to_s, false)
+      new_client.redirect_uri = client.redirect_uri
+      new_client.description = client.description
+      new_client.logo = client.logo
+      new_client.scopes = "read,write"
+      new_client.save!
+      new_client
     end
   end
 end

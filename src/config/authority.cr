@@ -12,7 +12,7 @@ module Authority
 
   HANDLERS = [
     Azu::Handler::Rescuer.new,
-    Azu::Handler::RequestID.new,
+    Azu::Handler::RequestId.new,
     Azu::Handler::Logger.new,
     Session::SessionHandler.new(Authority.session),
   ]

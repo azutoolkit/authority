@@ -6,3 +6,11 @@ dependencies:
   marionette:
     github: eliasjpr/marionette
     branch: master
+
+  cql:
+    github: azutoolkit/cql
+    branch: master
+
+  azu:
+    github: azutoolkit/azu
+    branch: master
