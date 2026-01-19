@@ -43,4 +43,14 @@ AuthorityDB = CQL::Schema.define(
     timestamp :expires_at, null: false, index: true
     timestamps
   end
+
+  table :oauth_revoked_tokens do
+    primary :id, UUID
+    text :jti, null: false, index: true, unique: true
+    text :client_id, null: false, index: true
+    text :token_type, null: false
+    timestamp :revoked_at, null: false
+    timestamp :expires_at, null: false, index: true
+    timestamps
+  end
 end

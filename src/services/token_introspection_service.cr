@@ -27,7 +27,7 @@ module Authority
     end
 
     private def active?
-      @introspect_request.valid? && authorized? && !expired?
+      @introspect_request.valid? && authorized? && !expired? && !revoked?
     end
 
     private def expired? : Bool
@@ -36,6 +36,24 @@ module Authority
       Time.utc.to_unix > exp
     rescue
       true
+    end
+
+    private def revoked? : Bool
+      payload, _ = Authly.jwt_decode @introspect_request.token
+      jti = extract_jti(payload.as_h)
+      RevokedToken.revoked?(jti)
+    rescue
+      false
+    end
+
+    private def extract_jti(payload : Hash(String, JSON::Any)) : String
+      if payload.has_key?("jti")
+        payload["jti"].as_s
+      else
+        sub = payload["sub"]?.try(&.to_s) || ""
+        iat = payload["iat"]?.try(&.to_s) || ""
+        "#{sub}:#{iat}"
+      end
     end
 
     private def authorized? : Bool
