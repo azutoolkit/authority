@@ -20,7 +20,8 @@ module Authority
         auth_code_request.scope,
         auth_code_request.code_challenge,
         auth_code_request.code_challenge_method,
-        user_id).to_s
+        user_id,
+        auth_code_request.nonce).to_s
     end
   end
 end
