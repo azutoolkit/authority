@@ -2,7 +2,7 @@ module Authority
   class ConfirmPasswordValidator < Schema::Validator
     getter :record, :field, :message
 
-    def initialize(@record : Owner::NewRequest)
+    def initialize(@record : Owner::NewRequest | Account::PasswordResetConfirmRequest)
       @field = :password
       @message = "Password did not match with confirm password."
     end

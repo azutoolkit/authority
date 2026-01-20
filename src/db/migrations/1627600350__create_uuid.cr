@@ -1,4 +1,4 @@
-class CreateUUID < CQL::Migration(1627600350)
+class CreateUuid < CQL::Migration(1627600350_i64)
   def up
     schema.exec %(CREATE EXTENSION IF NOT EXISTS "uuid-ossp";)
   end

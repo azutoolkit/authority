@@ -1,3 +1,5 @@
+# Token Introspection Service (RFC 7662)
+# Supports both JWT and opaque token introspection
 module Authority
   class TokenIntrospectionService
     @credentials : Tuple(String, String)
@@ -11,8 +13,37 @@ module Authority
     end
 
     def call : TokenInfoResponse
+      return TokenInfoResponse.new(client_id, "", "", false) unless authorized?
+
+      token_string = @introspect_request.token
+
+      # Check if it's an opaque token (no dots = not JWT)
+      if OpaqueToken.opaque?(token_string)
+        introspect_opaque_token(token_string)
+      else
+        introspect_jwt_token(token_string)
+      end
+    rescue ex
+      TokenInfoResponse.new client_id, "", "", false
+    end
+
+    # Introspect opaque token from database
+    private def introspect_opaque_token(token_string : String) : TokenInfoResponse
+      token = OpaqueToken.find_by(token: token_string)
+      return TokenInfoResponse.new(client_id, "", "", false) unless token
+
+      TokenInfoResponse.new(
+        client_id,
+        token.expires_at.to_unix.to_s,
+        token.scope,
+        token.active?
+      )
+    end
+
+    # Introspect JWT token
+    private def introspect_jwt_token(token_string : String) : TokenInfoResponse
       exp, scope = parse_jwt_token
-      TokenInfoResponse.new client_id, exp, scope, active?
+      TokenInfoResponse.new client_id, exp, scope, jwt_active?
     rescue ex
       TokenInfoResponse.new client_id, "", "", false
     end
@@ -26,11 +57,11 @@ module Authority
       credentials.first
     end
 
-    private def active?
-      @introspect_request.valid? && authorized? && !expired? && !revoked?
+    private def jwt_active?
+      @introspect_request.valid? && !jwt_expired? && !jwt_revoked?
     end
 
-    private def expired? : Bool
+    private def jwt_expired? : Bool
       payload, _ = Authly.jwt_decode @introspect_request.token
       exp = payload["exp"].as_i64
       Time.utc.to_unix > exp
@@ -38,7 +69,7 @@ module Authority
       true
     end
 
-    private def revoked? : Bool
+    private def jwt_revoked? : Bool
       payload, _ = Authly.jwt_decode @introspect_request.token
       jti = extract_jti(payload.as_h)
       RevokedToken.revoked?(jti)

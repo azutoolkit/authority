@@ -53,4 +53,28 @@ AuthorityDB = CQL::Schema.define(
     timestamp :expires_at, null: false, index: true
     timestamps
   end
+
+  # Opaque Tokens Table - stores non-JWT tokens with server-side metadata
+  table :oauth_opaque_tokens do
+    primary :id, UUID
+    text :token, null: false, index: true, unique: true
+    text :token_type, null: false, index: true
+    text :client_id, null: false, index: true
+    text :user_id, null: true, index: true
+    text :scope, null: false
+    timestamp :expires_at, null: false, index: true
+    timestamp :revoked_at, null: true
+    timestamps
+  end
+
+  # Account Recovery Tokens Table - password reset and email verification
+  table :oauth_recovery_tokens do
+    primary :id, UUID
+    text :token, null: false, index: true, unique: true
+    text :token_type, null: false, index: true
+    text :user_id, null: false, index: true
+    timestamp :expires_at, null: false, index: true
+    timestamp :used_at, null: true
+    timestamps
+  end
 end

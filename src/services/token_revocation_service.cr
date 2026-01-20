@@ -1,5 +1,5 @@
 # Token Revocation Service (RFC 7009)
-# Handles token revocation by storing the token's JTI in the revoked_tokens table
+# Handles revocation for both JWT and opaque tokens
 module Authority
   class TokenRevocationService
     @credentials : Tuple(String, String)
@@ -26,7 +26,26 @@ module Authority
     end
 
     private def revoke_token!
-      payload_any, _ = Authly.jwt_decode @revoke_request.token
+      token_string = @revoke_request.token
+
+      # Check if it's an opaque token (no dots = not JWT)
+      if OpaqueToken.opaque?(token_string)
+        revoke_opaque_token!(token_string)
+      else
+        revoke_jwt_token!(token_string)
+      end
+    end
+
+    # Revoke opaque token directly in database
+    private def revoke_opaque_token!(token_string : String)
+      OpaqueToken.revoke_by_token!(token_string)
+    rescue ex
+      # Token not found or already revoked, silently ignore
+    end
+
+    # Revoke JWT by storing JTI in revoked_tokens table
+    private def revoke_jwt_token!(token_string : String)
+      payload_any, _ = Authly.jwt_decode token_string
       payload = payload_any.as_h
       jti = extract_jti(payload)
       exp = Time.unix(payload["exp"].as_i64)
