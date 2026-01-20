@@ -24,8 +24,8 @@ OAUTH_CLIENT = OAuth2::Client.new(
   authorize_uri: "/authorize",
   token_uri: "/token")
 
-AuthorityDB.tables[:oauth_owners].truncate!
-AuthorityDB.tables[:oauth_clients].truncate!
+AuthorityDB.exec_query { |conn| conn.exec("TRUNCATE TABLE oauth_owners CASCADE") }
+AuthorityDB.exec_query { |conn| conn.exec("TRUNCATE TABLE oauth_clients CASCADE") }
 create_client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI)
 
 # process = Process.new(
@@ -41,9 +41,9 @@ Spec.after_suite do
 end
 
 Spec.before_each do
-  AuthorityDB.tables[:oauth_owners].truncate!
+  AuthorityDB.exec_query { |conn| conn.exec("TRUNCATE TABLE oauth_owners CASCADE") }
   begin
-    AuthorityDB.tables[:oauth_consents].truncate!
+    AuthorityDB.exec_query { |conn| conn.exec("TRUNCATE TABLE oauth_consents CASCADE") }
   rescue
   end
 end

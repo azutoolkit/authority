@@ -1,11 +1,13 @@
 module Authority::Device
   class ShowVerifyEndpoint
     include SessionHelper
+    include SecurityHeadersHelper
     include Endpoint(ActivateRequest, DeviceActivationForm | Response)
 
     get "/activate"
 
     def call : DeviceActivationForm | Response
+      set_security_headers!
       return redirect_to_signin unless authenticated?
       status 200
 

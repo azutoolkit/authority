@@ -2,7 +2,7 @@ module Authority::Owner
   class CreateEndpoint
     include Endpoint(NewRequest, FormResponse | Response)
 
-    post "/register"
+    post "/signup"
 
     def call : FormResponse | Response
       return owner_error_response unless new_request.valid?

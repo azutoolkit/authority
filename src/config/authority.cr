@@ -26,7 +26,7 @@ module Authority
   end
 
   configure do |c|
-    c.templates.path = ENV["TEMPLATE_PATH"]
+    c.templates.path = ENV.fetch("TEMPLATE_PATH") { "#{Dir.current}/public/templates" }
     c.router.get "/*", Handler::Static.new
   end
 end

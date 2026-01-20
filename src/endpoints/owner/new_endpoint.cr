@@ -2,7 +2,7 @@ module Authority::Owner
   class NewEndpoint
     include Endpoint(NewRequest, FormResponse)
 
-    get "/register"
+    get "/signup"
 
     def call : FormResponse
       header "Content-Type", "text/html; charset=UTF-8"
