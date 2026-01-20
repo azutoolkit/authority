@@ -1,6 +1,6 @@
 # Opaque Token Model
 # Stores non-JWT tokens with server-side metadata
-# Provides immediate revocation and enhanced security
+# Provides immediate revocation, enhanced security, and refresh token rotation
 module Authority
   class OpaqueToken
     include CQL::ActiveRecord::Model(UUID)
@@ -13,6 +13,8 @@ module Authority
     property scope : String = ""
     property expires_at : Time = Time.utc
     property revoked_at : Time?
+    property family_id : UUID?  # For refresh token rotation - tracks token lineage
+    property used_at : Time?    # When refresh token was exchanged (rotation)
     property created_at : Time?
     property updated_at : Time?
 
@@ -24,7 +26,7 @@ module Authority
     end
 
     private def generate_token
-      @token = Random::Secure.hex(TOKEN_LENGTH / 2) if @token.empty?
+      @token = Random::Secure.hex(TOKEN_LENGTH // 2) if @token.empty?
       true
     end
 
@@ -43,9 +45,20 @@ module Authority
       !revoked_at.nil?
     end
 
+    # Check if refresh token has been used (rotated)
+    def used? : Bool
+      !used_at.nil?
+    end
+
     # Revoke this token
     def revoke!
       @revoked_at = Time.utc
+      update!
+    end
+
+    # Mark refresh token as used (for rotation)
+    def mark_used!
+      @used_at = Time.utc
       update!
     end
 
@@ -67,11 +80,14 @@ module Authority
     end
 
     # Generate a refresh token for a client
+    # If family_id is nil, creates a new token family (first token in chain)
+    # If family_id is provided, joins existing family (rotation)
     def self.create_refresh_token(
       client_id : String,
       scope : String,
       user_id : String? = nil,
-      ttl : Time::Span = 24.hours
+      ttl : Time::Span = 24.hours,
+      family_id : UUID? = nil
     ) : OpaqueToken
       token = OpaqueToken.new
       token.token_type = "refresh_token"
@@ -79,8 +95,43 @@ module Authority
       token.user_id = user_id
       token.scope = scope
       token.expires_at = ttl.from_now
+      token.family_id = family_id || UUID.random
       token.save!
       token
+    end
+
+    # Rotate this refresh token - mark as used and create new one in same family
+    # Returns the new refresh token, or nil if rotation fails
+    def rotate!(ttl : Time::Span = 24.hours) : OpaqueToken?
+      return nil unless token_type == "refresh_token"
+      return nil if used?    # Already rotated
+      return nil if revoked? # Already revoked
+      return nil if expired? # Already expired
+
+      # Mark this token as used
+      mark_used!
+
+      # Create new refresh token in same family
+      OpaqueToken.create_refresh_token(
+        client_id: client_id,
+        scope: scope,
+        user_id: user_id,
+        ttl: ttl,
+        family_id: family_id
+      )
+    end
+
+    # Revoke all tokens in this token's family (for reuse detection)
+    def self.revoke_family!(family_id : UUID)
+      where(family_id: family_id.to_s).each do |token|
+        token.revoke! unless token.revoked?
+      end
+    end
+
+    # Check if a refresh token reuse attack is detected
+    # Returns true if the token was already used (potential theft)
+    def reuse_detected? : Bool
+      token_type == "refresh_token" && used? && !revoked?
     end
 
     # Find an active token by its string value

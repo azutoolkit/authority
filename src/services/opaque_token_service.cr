@@ -35,12 +35,29 @@ module Authority
       )
     end
 
-    # Refresh tokens by creating new access token from refresh token
+    # Refresh tokens with rotation - creates new access and refresh tokens
+    # Implements refresh token rotation per OAuth 2.0 Security Best Practices
     def self.refresh(refresh_token_string : String, client_id : String) : OpaqueTokenResponse?
-      refresh_token = OpaqueToken.find_active(refresh_token_string)
+      refresh_token = OpaqueToken.find_by(token: refresh_token_string)
       return nil unless refresh_token
       return nil unless refresh_token.token_type == "refresh_token"
       return nil unless refresh_token.client_id == client_id
+      return nil if refresh_token.expired?
+      return nil if refresh_token.revoked?
+
+      # SECURITY: Detect refresh token reuse attack
+      # If token was already used, an attacker may have stolen it
+      # Revoke the entire token family to protect the user
+      if refresh_token.used?
+        if family_id = refresh_token.family_id
+          OpaqueToken.revoke_family!(family_id)
+        end
+        return nil
+      end
+
+      # Rotate the refresh token - mark old as used, create new one
+      new_refresh_token = refresh_token.rotate!(REFRESH_TTL)
+      return nil unless new_refresh_token
 
       # Create new access token with same scope and user
       access_token = OpaqueToken.create_access_token(
@@ -52,7 +69,7 @@ module Authority
 
       OpaqueTokenResponse.new(
         access_token: access_token.token,
-        refresh_token: refresh_token_string, # Return same refresh token
+        refresh_token: new_refresh_token.token, # Return NEW refresh token
         expires_in: ACCESS_TTL.total_seconds.to_i64,
         scope: refresh_token.scope,
         id_token: nil
