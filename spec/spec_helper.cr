@@ -42,4 +42,8 @@ end
 
 Spec.before_each do
   AuthorityDB.tables[:oauth_owners].truncate!
+  begin
+    AuthorityDB.tables[:oauth_consents].truncate!
+  rescue
+  end
 end

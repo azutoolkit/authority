@@ -11,6 +11,7 @@ module Authority::Authorize
     getter code_challenge : String = ""
     getter code_challenge_method : String = ""
     getter nonce : String = ""  # OpenID Connect nonce for replay prevention
+    getter consent_action : String = "approve"  # approve or deny
 
     validate response_type, message: "Param response_type must be present.", presence: true
     validate client_id, message: "Param client_id must be present.", presence: true
@@ -21,9 +22,14 @@ module Authority::Authorize
     validate code_challenge
     validate code_challenge_method
     validate nonce
+    validate consent_action
 
     def client
       Client.find_by!(client_id: client_id)
+    end
+
+    def consent_denied? : Bool
+      consent_action == "deny"
     end
   end
 end
