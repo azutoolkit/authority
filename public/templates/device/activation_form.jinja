@@ -2,24 +2,93 @@
 {% set title = "Device Activation" %}
 
 {% block body %}
-<main class="signup-form">
-  {% include "errors.jinja" %}
-  <form action="{{device_activation_endpoint_path}}" method="post">
-    <div class="avatar"><i class="material-icons">&#xE7FF;</i></div>
-    <h2 class="modal-title">Device Activation</h2>
-    <p>Enter the code displayed in your on your <b>{{target_device}}</b></p>
-    <hr>
-    <div class="form-group">
-      <div class="col">
-        <input type="text" class="form-control form-control-lg" name="user_code" placeholder="XXXXXX"
-          required="required" value="{{user_code}}">
+<main class="min-h-screen flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-md">
+    <!-- Logo/Icon Section -->
+    <div class="text-center mb-8">
+      <div class="avatar placeholder">
+        <div class="bg-primary text-primary-content w-20 rounded-full">
+          <svg class="h-10 w-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" />
+          </svg>
+        </div>
+      </div>
+      <h1 class="mt-6 text-2xl font-bold">
+        Device Activation
+      </h1>
+      <p class="mt-2 text-sm text-base-content/60">
+        Enter the code displayed on your <strong>{{target_device}}</strong>
+      </p>
+    </div>
+
+    <!-- Card Container -->
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        {% include "errors.jinja" %}
+
+        <form action="{{device_activation_endpoint_path}}" method="post" class="space-y-6">
+          <!-- User Code Input -->
+          <div class="form-control">
+            <label class="label justify-center" for="user_code">
+              <span class="label-text">Device Code</span>
+            </label>
+            <input
+              type="text"
+              id="user_code"
+              name="user_code"
+              maxlength="8"
+              required
+              autocomplete="off"
+              autofocus
+              value="{{user_code}}"
+              class="input input-bordered w-full text-center text-2xl tracking-[0.3em] font-mono uppercase py-6"
+              placeholder="XXXXXX"
+            >
+            <label class="label justify-center">
+              <span class="label-text-alt">The code is case-insensitive</span>
+            </label>
+          </div>
+
+          <!-- Security Notice -->
+          <div class="alert alert-warning">
+            <svg class="h-5 w-5 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+            </svg>
+            <span class="text-xs">If you did not initiate this activation or do not recognize this device, select <strong>Deny</strong>.</span>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-col sm:flex-row gap-3">
+            <button
+              type="submit"
+              name="verification"
+              value="denied"
+              class="btn btn-ghost flex-1"
+            >
+              Deny
+            </button>
+            <button
+              type="submit"
+              name="verification"
+              value="allowed"
+              class="btn btn-primary flex-1"
+            >
+              Allow
+            </button>
+          </div>
+        </form>
       </div>
     </div>
-    <p>If you did not initiate this activation or do not recognize this device select deny.</p>
-    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-      <button type="submit" class="btn btn-light" name="verification" value="denied">Deny</button>
-      <button type="submit" class="btn btn-primary" name="verification" value="allowed">Allow</button>
+
+    <!-- Help Section -->
+    <div class="mt-8 text-center">
+      <p class="text-sm text-base-content/50">
+        Having trouble?
+        <a href="#" class="link link-primary">
+          Get help
+        </a>
+      </p>
     </div>
-  </form>
+  </div>
 </main>
 {% endblock %}

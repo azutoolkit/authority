@@ -1,0 +1,269 @@
+{% extends "layout.html" %}
+{% set title = "OAuth 2.0 & OpenID Connect Server" %}
+
+{% block body %}
+<div class="min-h-screen bg-base-200">
+  <!-- Navigation -->
+  <div class="navbar bg-base-100 shadow-sm border-b border-base-200">
+    <div class="navbar-start">
+      <div class="avatar placeholder">
+        <div class="bg-primary text-primary-content w-10 rounded-full">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+          </svg>
+        </div>
+      </div>
+      <span class="ml-3 text-xl font-bold text-base-content">Authority</span>
+    </div>
+    <div class="navbar-end gap-2">
+      <a href="{{docs_path}}" class="btn btn-ghost btn-sm">Discovery</a>
+      <a href="{{github_url}}" target="_blank" rel="noopener" class="btn btn-ghost btn-sm">GitHub</a>
+      <a href="{{signin_path}}" class="btn btn-primary btn-sm">Sign In</a>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <section class="py-16 px-4">
+    <div class="max-w-4xl mx-auto text-center">
+      <div class="avatar placeholder mb-6">
+        <div class="bg-primary text-primary-content w-20 rounded-full shadow-lg">
+          <svg class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+          </svg>
+        </div>
+      </div>
+      <h1 class="text-4xl font-bold text-base-content mb-3">Authority</h1>
+      <p class="text-xl text-primary mb-4">OAuth 2.0 & OpenID Connect Server</p>
+      <p class="text-base-content/60 max-w-2xl mx-auto">
+        A secure, standards-compliant authorization server built with Crystal. High performance, low latency, minimal resource consumption.
+      </p>
+    </div>
+  </section>
+
+  <!-- Quick Start Section -->
+  <section class="py-12 px-4 bg-base-100 border-y border-base-200">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="text-2xl font-bold text-base-content mb-6">Quick Start</h2>
+
+      <!-- Client Credentials Flow -->
+      <div class="mb-8">
+        <h3 class="text-sm font-semibold text-base-content/70 uppercase tracking-wide mb-3">Client Credentials Flow</h3>
+        <div class="mockup-code">
+          <pre data-prefix="$"><code>curl -X POST {{token_endpoint}} \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=client_credentials" \
+  -d "client_id=YOUR_CLIENT_ID" \
+  -d "client_secret=YOUR_CLIENT_SECRET" \
+  -d "scope=read write"</code></pre>
+        </div>
+      </div>
+
+      <!-- Authorization Code Flow -->
+      <div>
+        <h3 class="text-sm font-semibold text-base-content/70 uppercase tracking-wide mb-3">Authorization Code Flow</h3>
+        <div class="mockup-code">
+          <pre data-prefix="1"><code># Step 1: Redirect user to authorize</code></pre>
+          <pre data-prefix=""><code>{{auth_endpoint}}?response_type=code&client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT_URI&scope=openid%20profile&code_challenge=CHALLENGE&code_challenge_method=S256</code></pre>
+          <pre data-prefix="2"><code># Step 2: Exchange code for tokens</code></pre>
+          <pre data-prefix="$"><code>curl -X POST {{token_endpoint}} \
+  -d "grant_type=authorization_code" \
+  -d "code=AUTHORIZATION_CODE" \
+  -d "redirect_uri=YOUR_REDIRECT_URI" \
+  -d "client_id=YOUR_CLIENT_ID" \
+  -d "code_verifier=VERIFIER"</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- API Endpoints -->
+  <section class="py-12 px-4">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="text-2xl font-bold text-base-content mb-6">API Endpoints</h2>
+      <div class="card bg-base-100 shadow-xl overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="table">
+            <thead>
+              <tr>
+                <th class="text-base-content/60">Endpoint</th>
+                <th class="text-base-content/60">Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code class="text-sm font-mono text-primary">/authorize</code></td>
+                <td class="text-base-content/70">Authorization endpoint</td>
+              </tr>
+              <tr>
+                <td><code class="text-sm font-mono text-primary">/token</code></td>
+                <td class="text-base-content/70">Token endpoint</td>
+              </tr>
+              <tr>
+                <td><code class="text-sm font-mono text-primary">/oauth/revoke</code></td>
+                <td class="text-base-content/70">Token revocation (RFC 7009)</td>
+              </tr>
+              <tr>
+                <td><code class="text-sm font-mono text-primary">/oauth/introspect</code></td>
+                <td class="text-base-content/70">Token introspection (RFC 7662)</td>
+              </tr>
+              <tr>
+                <td><code class="text-sm font-mono text-primary">/device</code></td>
+                <td class="text-base-content/70">Device authorization (RFC 8628)</td>
+              </tr>
+              <tr>
+                <td><code class="text-sm font-mono text-primary">/register</code></td>
+                <td class="text-base-content/70">Dynamic client registration (RFC 7591)</td>
+              </tr>
+              <tr>
+                <td><code class="text-sm font-mono text-primary">/.well-known/openid-configuration</code></td>
+                <td class="text-base-content/70">OpenID Connect discovery</td>
+              </tr>
+              <tr>
+                <td><code class="text-sm font-mono text-primary">/.well-known/jwks.json</code></td>
+                <td class="text-base-content/70">JSON Web Key Set</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Grid -->
+  <section class="py-12 px-4 bg-base-100 border-y border-base-200">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="text-2xl font-bold text-base-content mb-6">Features</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Grant Types -->
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-sm uppercase tracking-wide">Grant Types</h3>
+            <ul class="space-y-2 mt-2">
+              <li class="flex items-center text-sm text-base-content/70">
+                <svg class="h-4 w-4 text-success mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                Authorization Code
+              </li>
+              <li class="flex items-center text-sm text-base-content/70">
+                <svg class="h-4 w-4 text-success mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                Client Credentials
+              </li>
+              <li class="flex items-center text-sm text-base-content/70">
+                <svg class="h-4 w-4 text-success mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                Device Code
+              </li>
+              <li class="flex items-center text-sm text-base-content/70">
+                <svg class="h-4 w-4 text-success mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                Refresh Token
+              </li>
+              <li class="flex items-center text-sm text-base-content/70">
+                <svg class="h-4 w-4 text-success mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                Resource Owner Password
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Security -->
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-sm uppercase tracking-wide">Security</h3>
+            <ul class="space-y-2 mt-2">
+              <li class="flex items-center text-sm text-base-content/70">
+                <svg class="h-4 w-4 text-success mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                PKCE (RFC 7636)
+              </li>
+              <li class="flex items-center text-sm text-base-content/70">
+                <svg class="h-4 w-4 text-success mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                Token Rotation
+              </li>
+              <li class="flex items-center text-sm text-base-content/70">
+                <svg class="h-4 w-4 text-success mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                Nonce Support
+              </li>
+              <li class="flex items-center text-sm text-base-content/70">
+                <svg class="h-4 w-4 text-success mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                Reuse Detection
+              </li>
+              <li class="flex items-center text-sm text-base-content/70">
+                <svg class="h-4 w-4 text-success mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                JWT Signing
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Standards -->
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h3 class="card-title text-sm uppercase tracking-wide">Standards</h3>
+            <ul class="space-y-2 mt-2">
+              <li class="flex items-center text-sm text-base-content/70">
+                <svg class="h-4 w-4 text-success mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                OAuth 2.0 (RFC 6749)
+              </li>
+              <li class="flex items-center text-sm text-base-content/70">
+                <svg class="h-4 w-4 text-success mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                OpenID Connect 1.0
+              </li>
+              <li class="flex items-center text-sm text-base-content/70">
+                <svg class="h-4 w-4 text-success mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                JWT (RFC 7519)
+              </li>
+              <li class="flex items-center text-sm text-base-content/70">
+                <svg class="h-4 w-4 text-success mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                Bearer Token (RFC 6750)
+              </li>
+              <li class="flex items-center text-sm text-base-content/70">
+                <svg class="h-4 w-4 text-success mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                JWKS (RFC 7517)
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer footer-center p-8 text-base-content/50">
+    <div>
+      <p class="text-sm">
+        Built with <a href="https://crystal-lang.org" class="link link-primary" target="_blank" rel="noopener">Crystal</a> and <a href="https://github.com/azutoolkit/azu" class="link link-primary" target="_blank" rel="noopener">Azu Framework</a>
+      </p>
+      <p class="text-xs mt-2">
+        Open source under MIT License
+      </p>
+    </div>
+  </footer>
+</div>
+{% endblock %}

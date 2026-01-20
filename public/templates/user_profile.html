@@ -1,0 +1,307 @@
+{% extends "layout.html" %}
+{% set title = "My Profile" %}
+
+{% block body %}
+<main class="min-h-screen py-12 px-4">
+  <div class="max-w-4xl mx-auto">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-base-content">Account Settings</h1>
+      <p class="mt-2 text-base-content/60">Manage your account information and security settings.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Profile Card -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Personal Information -->
+        <div class="card bg-base-100 shadow-xl">
+          <div class="card-body">
+            <h2 class="card-title text-lg">Personal Information</h2>
+            <div class="divider mt-0"></div>
+
+            {% include "errors.html" %}
+
+            <form action="/profile" method="post" class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="form-control w-full">
+                  <label class="label" for="first_name">
+                    <span class="label-text font-medium">First Name</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="first_name"
+                    name="first_name"
+                    required
+                    value="{{first_name}}"
+                    class="input input-bordered w-full focus:input-primary"
+                  >
+                </div>
+                <div class="form-control w-full">
+                  <label class="label" for="last_name">
+                    <span class="label-text font-medium">Last Name</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="last_name"
+                    name="last_name"
+                    required
+                    value="{{last_name}}"
+                    class="input input-bordered w-full focus:input-primary"
+                  >
+                </div>
+              </div>
+
+              <div class="form-control w-full">
+                <label class="label" for="email">
+                  <span class="label-text font-medium">Email Address</span>
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  value="{{email}}"
+                  class="input input-bordered w-full focus:input-primary"
+                >
+                {% if email_verified %}
+                <label class="label">
+                  <span class="label-text-alt text-success flex items-center gap-1">
+                    <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                    </svg>
+                    Verified
+                  </span>
+                </label>
+                {% else %}
+                <label class="label">
+                  <span class="label-text-alt text-warning flex items-center gap-1">
+                    <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                    </svg>
+                    Not verified - <a href="/resend-verification" class="link link-primary">Resend verification email</a>
+                  </span>
+                </label>
+                {% endif %}
+              </div>
+
+              <div class="form-control w-full">
+                <label class="label" for="username">
+                  <span class="label-text font-medium">Username</span>
+                </label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  value="{{username}}"
+                  class="input input-bordered w-full bg-base-200"
+                  disabled
+                >
+                <label class="label">
+                  <span class="label-text-alt">Username cannot be changed</span>
+                </label>
+              </div>
+
+              <div class="card-actions justify-end pt-4">
+                <button type="submit" class="btn btn-primary">
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Change Password -->
+        <div class="card bg-base-100 shadow-xl">
+          <div class="card-body">
+            <h2 class="card-title text-lg">Change Password</h2>
+            <div class="divider mt-0"></div>
+
+            <form action="/profile/password" method="post" class="space-y-4">
+              <div class="form-control w-full">
+                <label class="label" for="current_password">
+                  <span class="label-text font-medium">Current Password</span>
+                </label>
+                <input
+                  type="password"
+                  id="current_password"
+                  name="current_password"
+                  required
+                  autocomplete="current-password"
+                  class="input input-bordered w-full focus:input-primary"
+                >
+              </div>
+
+              <div class="form-control w-full">
+                <label class="label" for="new_password">
+                  <span class="label-text font-medium">New Password</span>
+                </label>
+                <input
+                  type="password"
+                  id="new_password"
+                  name="new_password"
+                  required
+                  autocomplete="new-password"
+                  class="input input-bordered w-full focus:input-primary"
+                  minlength="8"
+                >
+                <label class="label">
+                  <span class="label-text-alt">Must be at least 8 characters</span>
+                </label>
+              </div>
+
+              <div class="form-control w-full">
+                <label class="label" for="confirm_new_password">
+                  <span class="label-text font-medium">Confirm New Password</span>
+                </label>
+                <input
+                  type="password"
+                  id="confirm_new_password"
+                  name="confirm_new_password"
+                  required
+                  autocomplete="new-password"
+                  class="input input-bordered w-full focus:input-primary"
+                  minlength="8"
+                >
+              </div>
+
+              <div class="card-actions justify-end pt-4">
+                <button type="submit" class="btn btn-primary">
+                  Update Password
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Connected Applications -->
+        <div class="card bg-base-100 shadow-xl">
+          <div class="card-body">
+            <h2 class="card-title text-lg">Connected Applications</h2>
+            <div class="divider mt-0"></div>
+
+            {% if connected_apps and connected_apps|length > 0 %}
+            <ul class="divide-y divide-base-200">
+              {% for app in connected_apps %}
+              <li class="py-4 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                  <div class="avatar">
+                    <div class="w-10 rounded-lg">
+                      <img src="{{app.logo}}" alt="{{app.name}}" />
+                    </div>
+                  </div>
+                  <div>
+                    <p class="font-medium text-base-content">{{app.name}}</p>
+                    <p class="text-xs text-base-content/60">Connected {{app.connected_at}}</p>
+                  </div>
+                </div>
+                <form action="/profile/revoke" method="post">
+                  <input type="hidden" name="client_id" value="{{app.client_id}}">
+                  <button type="submit" class="btn btn-ghost btn-sm text-error">
+                    Revoke
+                  </button>
+                </form>
+              </li>
+              {% endfor %}
+            </ul>
+            {% else %}
+            <div class="text-center py-8">
+              <svg class="h-12 w-12 mx-auto text-base-content/30 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+              </svg>
+              <p class="text-base-content/60">No connected applications</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="space-y-6">
+        <!-- Profile Summary -->
+        <div class="card bg-base-100 shadow-xl">
+          <div class="card-body items-center text-center">
+            <div class="avatar placeholder">
+              <div class="bg-primary text-primary-content w-20 rounded-full">
+                <span class="text-2xl">{{first_name[0]}}{{last_name[0]}}</span>
+              </div>
+            </div>
+            <h3 class="card-title mt-4">{{first_name}} {{last_name}}</h3>
+            <p class="text-sm text-base-content/60">@{{username}}</p>
+            <div class="divider"></div>
+            <div class="w-full text-left space-y-2 text-sm">
+              <div class="flex justify-between">
+                <span class="text-base-content/60">Member since</span>
+                <span class="font-medium">{{created_at}}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-base-content/60">Last login</span>
+                <span class="font-medium">{{last_login}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card bg-base-100 shadow-xl">
+          <div class="card-body">
+            <h3 class="font-semibold text-base-content mb-4">Quick Actions</h3>
+            <div class="space-y-2">
+              <a href="/signout" class="btn btn-ghost btn-block justify-start gap-2">
+                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                </svg>
+                Sign Out
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="card bg-error/10 border border-error/20">
+          <div class="card-body">
+            <h3 class="font-semibold text-error mb-2">Danger Zone</h3>
+            <p class="text-sm text-base-content/60 mb-4">
+              Permanently delete your account and all associated data.
+            </p>
+            <button onclick="delete_modal.showModal()" class="btn btn-error btn-outline btn-sm">
+              Delete Account
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Delete Account Modal -->
+<dialog id="delete_modal" class="modal">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg text-error">Delete Account</h3>
+    <p class="py-4 text-base-content/70">
+      Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.
+    </p>
+    <form action="/profile/delete" method="post">
+      <div class="form-control mb-4">
+        <label class="label">
+          <span class="label-text">Type <strong>DELETE</strong> to confirm</span>
+        </label>
+        <input
+          type="text"
+          name="confirmation"
+          required
+          pattern="DELETE"
+          class="input input-bordered input-error"
+          placeholder="DELETE"
+        >
+      </div>
+      <div class="modal-action">
+        <button type="button" onclick="delete_modal.close()" class="btn btn-ghost">Cancel</button>
+        <button type="submit" class="btn btn-error">Delete My Account</button>
+      </div>
+    </form>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>
+{% endblock %}

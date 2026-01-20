@@ -9,6 +9,7 @@ targets:
 dependencies:
   azu:
     github: azutoolkit/azu
+    version: ~> 0.5.31
   session:
     github: azutoolkit/session
   cql:

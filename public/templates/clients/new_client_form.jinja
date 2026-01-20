@@ -1,36 +1,108 @@
 {% extends "layout.jinja" %}
-{% set title = "Signup" %}
+{% set title = "Register Application" %}
 
 {% block body %}
-<main class="signup-form">
-  {% include "errors.jinja" %}
-  <form action="{{session|sessions_new_path}}" method="post">
-    <div class="avatar"><i class="material-icons">&#xE7FF;</i></div>
-    <h2 class="modal-title">Register a new OAuth Application</h2>
-    <p>Please fill in this form to register a new OAuth application!</p>
-    <hr>
-    <div class="form-group">
-      <div class="col">
-        <input type="text" class="form-control" name="name" placeholder="Application name" required="required"
-          value="{{name}}">
+<main class="min-h-screen flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-lg">
+    <!-- Logo/Icon Section -->
+    <div class="text-center mb-8">
+      <div class="avatar placeholder">
+        <div class="bg-primary text-primary-content w-20 rounded-full">
+          <svg class="h-10 w-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+          </svg>
+        </div>
       </div>
-    </div>
-    <div class="form-group">
-      <div class="col"><input type="text" class="form-control" name="redirect_uri"
-          placeholder="Authorization callback URL" required="required" value="{{redirect_uri}}"></div>
-    </div>
-    <div class="form-group">
-      <textarea class="form-control" rows="4" name="description" placeholder="Application description"
-        required="required" value="{{description}}"></textarea>
+      <h1 class="mt-6 text-2xl font-bold">
+        Register OAuth Application
+      </h1>
+      <p class="mt-2 text-sm text-base-content/60">
+        Create a new OAuth client for your application
+      </p>
     </div>
 
-    <div class="form-group">
-      <input type="text" class="form-control" name="logo" placeholder="Application Logo Url" required="required"
-        value="{{logo}}">
+    <!-- Card Container -->
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        {% include "errors.jinja" %}
+
+        <form action="{{session|sessions_new_path}}" method="post" class="space-y-5">
+          <!-- Application Name -->
+          <div class="form-control">
+            <label class="label" for="name">
+              <span class="label-text">Application Name</span>
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              required
+              value="{{name}}"
+              class="input input-bordered w-full"
+              placeholder="My Awesome App"
+            >
+          </div>
+
+          <!-- Redirect URI -->
+          <div class="form-control">
+            <label class="label" for="redirect_uri">
+              <span class="label-text">Authorization Callback URL</span>
+            </label>
+            <input
+              type="url"
+              id="redirect_uri"
+              name="redirect_uri"
+              required
+              value="{{redirect_uri}}"
+              class="input input-bordered w-full"
+              placeholder="https://example.com/auth/callback"
+            >
+            <label class="label">
+              <span class="label-text-alt">The URL where users will be redirected after authorization</span>
+            </label>
+          </div>
+
+          <!-- Description -->
+          <div class="form-control">
+            <label class="label" for="description">
+              <span class="label-text">Application Description</span>
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              required
+              rows="3"
+              class="textarea textarea-bordered w-full resize-y min-h-[80px]"
+              placeholder="Describe what your application does..."
+            >{{description}}</textarea>
+          </div>
+
+          <!-- Logo URL -->
+          <div class="form-control">
+            <label class="label" for="logo">
+              <span class="label-text">Application Logo URL</span>
+            </label>
+            <input
+              type="url"
+              id="logo"
+              name="logo"
+              required
+              value="{{logo}}"
+              class="input input-bordered w-full"
+              placeholder="https://example.com/logo.png"
+            >
+            <label class="label">
+              <span class="label-text-alt">A square image (recommended: 256x256 pixels)</span>
+            </label>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn btn-primary w-full">
+            Register Application
+          </button>
+        </form>
+      </div>
     </div>
-    <div class="d-grid gap-2 mx-auto">
-      <button type="submit" class="btn btn-primary">Register Application</button>
-    </div>
-  </form>
+  </div>
 </main>
 {% endblock %}

@@ -1,6 +1,10 @@
 require "azu"
 Log.setup_from_env
 
+# Set template path before Azu configuration is accessed
+# This ensures the Crinja loader gets the correct path at initialization
+ENV["TEMPLATES_PATH"] ||= "#{Dir.current}/public/templates"
+
 module Authority
   include Azu
 
@@ -15,6 +19,7 @@ module Authority
     Azu::Handler::RequestId.new,
     Azu::Handler::Logger.new,
     Session::SessionHandler.new(Authority.session),
+    Azu::Handler::Static.new("public", fallthrough: true),
   ]
 
   def self.session
@@ -25,8 +30,6 @@ module Authority
     SESSION.current_session
   end
 
-  configure do |c|
-    c.templates.path = ENV.fetch("TEMPLATE_PATH") { "#{Dir.current}/public/templates" }
-    c.router.get "/*", Handler::Static.new
-  end
+  # Static files are handled by Handler::Static in HANDLERS array
+  # Do NOT add catch-all routes here - they intercept dynamic endpoints
 end

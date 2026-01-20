@@ -1,12 +1,20 @@
 {% if errors %}
-<div class="alert alert-warning alert-dismissible fade show text-start" role="alert">
-  <h4 class="alert-heading">Oops!</h4>
-  <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert" aria-label="Close"></button>
-
-  {% for error in errors %}
-  <div>
-    {{error | capitalize | safe}}
+<div class="alert alert-warning mb-6" role="alert">
+  <svg class="h-5 w-5 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+    <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+  </svg>
+  <div class="flex-1">
+    <h3 class="font-semibold">Please correct the following:</h3>
+    <ul class="mt-2 text-sm list-disc list-inside space-y-1">
+      {% for error in errors %}
+      <li>{{error | capitalize | safe}}</li>
+      {% endfor %}
+    </ul>
   </div>
-  {% endfor %}
+  <button type="button" onclick="this.closest('[role=alert]').remove()" class="btn btn-ghost btn-sm btn-circle" aria-label="Dismiss">
+    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+      <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+    </svg>
+  </button>
 </div>
 {% endif %}

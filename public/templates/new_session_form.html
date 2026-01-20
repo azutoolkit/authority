@@ -1,28 +1,101 @@
 {% extends "layout.html" %}
-{% set title = "Signin" %}
+{% set title = "Sign In" %}
 
 {% block body %}
-<main class="signup-form">
-  {% include "errors.html" %}
-  <form action="/signin" method="post">
-    <input type="hidden" name="forward_url" id="forward_url" value="{{forward_url}}">
-    <div class="avatar"><i class="material-icons">&#xE7FF;</i></div>
-    <h4 class="modal-title">Login to Your Account</h4>
-    <div class="form-group">
-      <input type="text" class="form-control" id="username" name="username" placeholder="Username" required="required">
+<main class="min-h-screen flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-md">
+    <!-- Logo/Avatar Section -->
+    <div class="text-center mb-8">
+      <div class="avatar placeholder">
+        <div class="bg-primary text-primary-content w-20 rounded-full shadow-lg">
+          <svg class="h-10 w-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+          </svg>
+        </div>
+      </div>
+      <h1 class="mt-6 text-2xl font-bold text-base-content">
+        Sign in to Authority
+      </h1>
+      <p class="mt-2 text-sm text-base-content/60">
+        Secure OAuth 2.0 authentication
+      </p>
     </div>
-    <div class="form-group">
-      <input type="password" class="form-control" id="password" name="password" placeholder="Password"
-        required="required">
+
+    <!-- Card Container -->
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        {% include "errors.html" %}
+
+        <form action="/signin" method="post" class="space-y-5">
+          <input type="hidden" name="forward_url" id="forward_url" value="{{forward_url}}">
+
+          <!-- Username Field -->
+          <div class="form-control w-full">
+            <label class="label" for="username">
+              <span class="label-text font-medium">Username</span>
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              required
+              autocomplete="username"
+              class="input input-bordered w-full focus:input-primary"
+              placeholder="Enter your username"
+            >
+          </div>
+
+          <!-- Password Field -->
+          <div class="form-control w-full">
+            <label class="label" for="password">
+              <span class="label-text font-medium">Password</span>
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              required
+              autocomplete="current-password"
+              class="input input-bordered w-full focus:input-primary"
+              placeholder="Enter your password"
+            >
+          </div>
+
+          <!-- Remember Me & Forgot Password -->
+          <div class="flex items-center justify-between">
+            <label class="label cursor-pointer gap-2">
+              <input type="checkbox" name="remember" class="checkbox checkbox-primary checkbox-sm">
+              <span class="label-text">Remember me</span>
+            </label>
+            <a href="/forgot-password" class="link link-primary text-sm">
+              Forgot password?
+            </a>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" id="signin" class="btn btn-primary w-full">
+            Sign in
+          </button>
+        </form>
+      </div>
     </div>
-    <div class="form-group small clearfix">
-      <label class="form-check-label"><input type="checkbox">Remember me</label>
-      <a href="/forgot-password" class="forgot-link">Forgot Password?</a>
-    </div>
-    <div class="d-grid gap-2 mx-auto">
-      <input type="submit" class="btn btn-primary" id="signin" value="Login">
-    </div>
-  </form>
-  <div class="text-center small">Don't have an account? <a href="/signup">Sign up</a></div>
+
+    <!-- Sign Up Link -->
+    <p class="mt-8 text-center text-sm text-base-content/60">
+      Don't have an account?
+      <a href="/signup" class="link link-primary font-medium">
+        Sign up
+      </a>
+    </p>
+
+    <!-- Footer -->
+    <p class="mt-8 text-center text-xs text-base-content/50">
+      Protected by
+      <a href="https://github.com/azutoolkit/authority" target="_blank" rel="noopener" class="link link-primary">
+        Authority
+      </a>
+      OAuth 2.0 Server
+    </p>
+  </div>
 </main>
 {% endblock %}

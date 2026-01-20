@@ -1,54 +1,162 @@
 {% extends "layout.jinja" %}
-{% set title = "Signup" %}
+{% set title = "Sign Up" %}
 
 {% block body %}
-<main class="signup-form">
-  {% include "errors.jinja" %}
-  <form action="{{owner|owner_new_path}}" method="post">
-    <div class="avatar"><i class="material-icons">&#xE7FF;</i></div>
-    <h2 class="modal-title">Sign Up</h2>
-    <p>Please fill in this form to create an account!</p>
-    <hr>
-    <div class="form-group">
-      <div class="row">
-        <div class="col">
-          <input type="text" class="form-control" name="first_name" placeholder="First Name" required="required"
-            value="{{owner.first_name}}">
+<main class="min-h-screen flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-md">
+    <!-- Logo/Avatar Section -->
+    <div class="text-center mb-8">
+      <div class="avatar placeholder">
+        <div class="bg-primary text-primary-content w-20 rounded-full">
+          <svg class="h-10 w-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
+          </svg>
         </div>
-        <div class="col"><input type="text" class="form-control" name="last_name" placeholder="Last Name"
-            required="required" value="{{owner.last_name}}"></div>
       </div>
-    </div>
-    <div class="form-group">
-      <input type="email" class="form-control" name="email" placeholder="Email" required="required"
-        value="{{owner.email}}">
+      <h1 class="mt-6 text-2xl font-bold">
+        Create an Account
+      </h1>
+      <p class="mt-2 text-sm text-base-content/60">
+        Please fill in this form to sign up
+      </p>
     </div>
 
-    <div class="form-group">
-      <input type="text" class="form-control" name="username" placeholder="username" required="required"
-        value="{{owner.username}}">
+    <!-- Card Container -->
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        {% include "errors.jinja" %}
+
+        <form action="{{owner|owner_new_path}}" method="post" class="space-y-5">
+          <!-- Name Row -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="form-control">
+              <label class="label" for="first_name">
+                <span class="label-text">First Name</span>
+              </label>
+              <input
+                type="text"
+                id="first_name"
+                name="first_name"
+                required
+                autocomplete="given-name"
+                value="{{owner.first_name}}"
+                class="input input-bordered w-full"
+                placeholder="John"
+              >
+            </div>
+            <div class="form-control">
+              <label class="label" for="last_name">
+                <span class="label-text">Last Name</span>
+              </label>
+              <input
+                type="text"
+                id="last_name"
+                name="last_name"
+                required
+                autocomplete="family-name"
+                value="{{owner.last_name}}"
+                class="input input-bordered w-full"
+                placeholder="Doe"
+              >
+            </div>
+          </div>
+
+          <!-- Email Field -->
+          <div class="form-control">
+            <label class="label" for="email">
+              <span class="label-text">Email Address</span>
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              autocomplete="email"
+              value="{{owner.email}}"
+              class="input input-bordered w-full"
+              placeholder="john@example.com"
+            >
+          </div>
+
+          <!-- Username Field -->
+          <div class="form-control">
+            <label class="label" for="username">
+              <span class="label-text">Username</span>
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              required
+              autocomplete="username"
+              value="{{owner.username}}"
+              class="input input-bordered w-full"
+              placeholder="johndoe"
+            >
+          </div>
+
+          <!-- Password Field -->
+          <div class="form-control">
+            <label class="label" for="password">
+              <span class="label-text">Password</span>
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              required
+              autocomplete="new-password"
+              value="{{owner.password}}"
+              class="input input-bordered w-full"
+              placeholder="Create a password"
+            >
+          </div>
+
+          <!-- Confirm Password Field -->
+          <div class="form-control">
+            <label class="label" for="confirm_password">
+              <span class="label-text">Confirm Password</span>
+            </label>
+            <input
+              type="password"
+              id="confirm_password"
+              name="confirm_password"
+              required
+              autocomplete="new-password"
+              value="{{owner.confirm_password}}"
+              class="input input-bordered w-full"
+              placeholder="Confirm your password"
+            >
+          </div>
+
+          <!-- Terms Checkbox -->
+          <div class="form-control">
+            <label class="label cursor-pointer justify-start gap-3">
+              <input type="checkbox" id="terms" name="terms" required class="checkbox checkbox-primary checkbox-sm">
+              <span class="label-text">
+                I accept the
+                <a href="#" class="link link-primary">Terms of Use</a>
+                &amp;
+                <a href="#" class="link link-primary">Privacy Policy</a>
+              </span>
+            </label>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn btn-primary w-full">
+            Sign up
+          </button>
+        </form>
+      </div>
     </div>
-    <div class="form-group">
-      <input type="password" class="form-control" name="password" placeholder="Password" required="required"
-        value="{{owner.password}}">
-    </div>
-    <div class="form-group">
-      <input type="password" class="form-control" name="confirm_password" placeholder="Confirm Password"
-        value="{{owner.confirm_password}}" required="required">
-    </div>
-    <div class="form-group">
-      <label class="form-check-label">
-        <input type="checkbox" id="terms" required="required"> I accept the <a href="#">Terms of
-          Use</a> &amp; <a href="#">Privacy Policy</a>
-      </label>
-    </div>
-    <div class="d-grid gap-2 mx-auto">
-      <button type="submit" class="btn btn-primary">Sign Up</button>
-    </div>
-  </form>
-  <div class="hint-text">
-    Already have an account?
-    <a href="{{session|sessions_create_path}}">Login here</a>
+
+    <!-- Login Link -->
+    <p class="mt-8 text-center text-sm text-base-content/60">
+      Already have an account?
+      <a href="{{session|sessions_create_path}}" class="link link-primary">
+        Sign in
+      </a>
+    </p>
   </div>
 </main>
 {% endblock %}

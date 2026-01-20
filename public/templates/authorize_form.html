@@ -2,42 +2,93 @@
 {% set title = "Authorize" %}
 
 {% block body %}
-<main class="signup-form">
-  {% include "errors.html" %}
-  <form method="post" action="{{authorize_endpoint}}">
-    <input type="hidden" name="response_type" value="{{response_type}}" />
-    <input type="hidden" name="state" value="{{state}}" />
-    <input type="hidden" name="client_id" value="{{client.client_id}}" />
-    <input type="hidden" name="redirect_uri" value="{{client.redirect_uri}}" />
-    <input type="hidden" name="scope" value="{{scope}}" />
-    <input type="hidden" name="code_challenge" value="{{code_challenge}}" />
-    <input type="hidden" name="code_challenge_method" value="{{code_challenge_method}}" />
+<main class="min-h-screen flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-lg">
+    <!-- Card Container -->
+    <div class="card bg-base-100 shadow-xl overflow-hidden">
+      {% include "errors.html" %}
 
-    <img src="{{client.logo}}" width="100%">
+      <form method="post" action="{{authorize_endpoint}}">
+        <!-- Hidden OAuth fields -->
+        <input type="hidden" name="response_type" value="{{response_type}}" />
+        <input type="hidden" name="state" value="{{state}}" />
+        <input type="hidden" name="client_id" value="{{client.client_id}}" />
+        <input type="hidden" name="redirect_uri" value="{{client.redirect_uri}}" />
+        <input type="hidden" name="scope" value="{{scope}}" />
+        <input type="hidden" name="code_challenge" value="{{code_challenge}}" />
+        <input type="hidden" name="code_challenge_method" value="{{code_challenge_method}}" />
 
-    <hr />
+        <!-- Client Logo Section -->
+        <figure class="px-6 pt-6 bg-base-200">
+          <div class="avatar">
+            <div class="w-20 rounded-xl shadow-md">
+              <img src="{{client.logo}}" alt="{{client.name}} logo" />
+            </div>
+          </div>
+        </figure>
 
-    <h4 class="modal-title">{{client.name}}</h4>
-    <p class="text-center">{{client.description}}</p>
+        <!-- Content Section -->
+        <div class="card-body">
+          <!-- App Info -->
+          <div class="text-center">
+            <h2 class="card-title justify-center text-xl">
+              {{client.name}}
+            </h2>
+            <p class="text-sm text-base-content/60 mt-2">
+              {{client.description}}
+            </p>
+            <p class="text-sm text-base-content/50 mt-4">
+              wants to access your account
+            </p>
+          </div>
 
-    <br />
+          <!-- Permissions/Scopes Section -->
+          <div class="bg-base-200 rounded-lg p-4 mt-4">
+            <h3 class="text-sm font-semibold text-base-content/70 mb-3">
+              This application will be able to:
+            </h3>
+            <ul class="space-y-2">
+              {% for scope_item in client.scopes %}
+              <li class="flex items-center text-sm text-base-content/70">
+                <svg class="h-4 w-4 mr-2 text-success shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                </svg>
+                {{scope_item}}
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
 
-    <div class="form-group">
+          <!-- Security Notice -->
+          <div class="alert alert-warning mt-4">
+            <svg class="h-5 w-5 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+            </svg>
+            <span class="text-xs">Make sure you trust <strong>{{client.name}}</strong> before authorizing.</span>
+          </div>
 
-      <div class="d-grid gap-2 mx-auto">
-        <button type="submit" id="approve" name="approve" class="btn btn-primary btn-block btn-lg">
-          Authorize {{client.name}}
-        </button>
-      </div>
+          <!-- Action Buttons -->
+          <div class="card-actions flex-col gap-3 mt-6">
+            <button type="submit" id="approve" name="approve" class="btn btn-success w-full">
+              Authorize {{client.name}}
+            </button>
+            <button type="button" onclick="window.history.back()" class="btn btn-ghost w-full">
+              Cancel
+            </button>
+          </div>
 
-      <br />
-
-      <p class="text-center small">
-        Authorizing will redirect to
-        <br />
-        <strong>{{client.redirect_uri}}</strong>
-      </p>
+          <!-- Redirect Notice -->
+          <div class="divider"></div>
+          <p class="text-center text-xs text-base-content/50">
+            Authorizing will redirect you to
+            <br>
+            <code class="text-xs bg-base-200 px-2 py-1 rounded mt-1 inline-block">
+              {{client.redirect_uri}}
+            </code>
+          </p>
+        </div>
+      </form>
     </div>
-  </form>
+  </div>
 </main>
 {% endblock %}
