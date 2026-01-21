@@ -1,0 +1,197 @@
+{% extends "layout.html" %}
+{% set title = client.name %}
+
+{% block body %}
+<main class="min-h-screen py-12 px-4">
+  <div class="max-w-4xl mx-auto">
+    <!-- Page Header -->
+    <div class="flex justify-between items-start mb-8">
+      <div class="flex items-center gap-4">
+        {% if client.logo %}
+        <div class="avatar">
+          <div class="w-16 h-16 rounded-xl">
+            <img src="{{client.logo}}" alt="{{client.name}}" />
+          </div>
+        </div>
+        {% else %}
+        <div class="avatar placeholder">
+          <div class="bg-primary text-primary-content w-16 rounded-xl">
+            <span class="text-2xl">{{client.name[0]|upper}}</span>
+          </div>
+        </div>
+        {% endif %}
+        <div>
+          <h1 class="text-3xl font-bold text-base-content">{{client.name}}</h1>
+          {% if client.description %}
+          <p class="mt-1 text-base-content/60">{{client.description}}</p>
+          {% endif %}
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <a href="/dashboard/clients/{{client.id}}/edit" class="btn btn-outline gap-2">
+          <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+          </svg>
+          Edit
+        </a>
+      </div>
+    </div>
+
+    {% include "errors.html" %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Credentials Card -->
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title text-lg mb-4">Credentials</h2>
+
+          <div class="form-control mb-4">
+            <label class="label">
+              <span class="label-text font-medium">Client ID</span>
+            </label>
+            <div class="join w-full">
+              <input type="text" id="client_id" value="{{client.client_id}}" readonly
+                     class="input input-bordered join-item w-full font-mono text-sm" />
+              <button type="button" class="btn btn-outline join-item"
+                      onclick="navigator.clipboard.writeText(document.getElementById('client_id').value); this.textContent = 'Copied!'; setTimeout(() => this.textContent = 'Copy', 2000)">
+                Copy
+              </button>
+            </div>
+          </div>
+
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">Client Secret</span>
+            </label>
+            <div class="flex items-center gap-2">
+              <code class="bg-base-200 px-3 py-2 rounded text-sm flex-1 font-mono">
+                ••••••••••••••••••••••••
+              </code>
+              <a href="/dashboard/clients/{{client.id}}/regenerate-secret" class="btn btn-warning btn-sm"
+                 onclick="return confirm('Regenerating the secret will invalidate the current secret. Are you sure?')">
+                Regenerate
+              </a>
+            </div>
+            <label class="label">
+              <span class="label-text-alt text-base-content/60">Secret is hidden for security</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Configuration Card -->
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title text-lg mb-4">Configuration</h2>
+
+          <div class="space-y-4">
+            <div>
+              <span class="text-sm text-base-content/60">Redirect URI</span>
+              <p class="font-mono text-sm break-all">{{client.redirect_uri}}</p>
+            </div>
+
+            <div>
+              <span class="text-sm text-base-content/60">Scopes</span>
+              <div class="flex flex-wrap gap-1 mt-1">
+                {% for scope in client.scopes.split(' ') %}
+                <span class="badge badge-outline">{{scope}}</span>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div>
+              <span class="text-sm text-base-content/60">Client Type</span>
+              <p>
+                <span class="badge {% if client.is_confidential %}badge-primary{% else %}badge-secondary{% endif %}">
+                  {% if client.is_confidential %}Confidential{% else %}Public{% endif %}
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legal Documents Card -->
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title text-lg mb-4">Legal Documents</h2>
+
+          <div class="space-y-4">
+            <div>
+              <span class="text-sm text-base-content/60">Privacy Policy</span>
+              {% if client.policy_url %}
+              <p><a href="{{client.policy_url}}" class="link link-primary" target="_blank">{{client.policy_url}}</a></p>
+              {% else %}
+              <p class="text-base-content/40 italic">Not set</p>
+              {% endif %}
+            </div>
+
+            <div>
+              <span class="text-sm text-base-content/60">Terms of Service</span>
+              {% if client.tos_url %}
+              <p><a href="{{client.tos_url}}" class="link link-primary" target="_blank">{{client.tos_url}}</a></p>
+              {% else %}
+              <p class="text-base-content/40 italic">Not set</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Metadata Card -->
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title text-lg mb-4">Metadata</h2>
+
+          <div class="space-y-4">
+            <div class="flex justify-between">
+              <span class="text-base-content/60">ID</span>
+              <code class="text-sm">{{client.id}}</code>
+            </div>
+
+            <div class="flex justify-between">
+              <span class="text-base-content/60">Created</span>
+              <span>{{client.created_at|date('%Y-%m-%d %H:%M')}}</span>
+            </div>
+
+            <div class="flex justify-between">
+              <span class="text-base-content/60">Updated</span>
+              <span>{{client.updated_at|date('%Y-%m-%d %H:%M')}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="card bg-base-100 shadow-xl border-2 border-error/30 mt-6">
+      <div class="card-body">
+        <h2 class="card-title text-lg text-error mb-4">Danger Zone</h2>
+
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-medium">Delete this client</h3>
+            <p class="text-sm text-base-content/60">
+              Once deleted, all associated tokens and consents will be revoked. This action cannot be undone.
+            </p>
+          </div>
+          <form action="/dashboard/clients/{{client.id}}/delete" method="POST"
+                onsubmit="return confirm('Are you sure you want to delete this client? This action cannot be undone.')">
+            <button type="submit" class="btn btn-error btn-outline">Delete Client</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Back Link -->
+    <div class="mt-6">
+      <a href="/dashboard/clients" class="btn btn-ghost gap-2">
+        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+        </svg>
+        Back to Clients
+      </a>
+    </div>
+  </div>
+</main>
+{% endblock %}

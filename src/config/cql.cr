@@ -30,6 +30,10 @@ AuthorityDB = CQL::Schema.define(
     text :client_secret, null: false
     text :redirect_uri, null: false
     text :scopes, null: false
+    text :policy_url, null: true
+    text :tos_url, null: true
+    column :owner_id, UUID, null: true, index: true
+    boolean :is_confidential, null: false, default: true
     timestamps
   end
 

@@ -1,0 +1,122 @@
+{% extends "layout.html" %}
+{% set title = "New Client" %}
+
+{% block body %}
+<main class="min-h-screen py-12 px-4">
+  <div class="max-w-2xl mx-auto">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-base-content">Create New Client</h1>
+      <p class="mt-2 text-base-content/60">Register a new OAuth application</p>
+    </div>
+
+    {% include "errors.html" %}
+
+    <!-- Client Form -->
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <form action="/dashboard/clients" method="POST" class="space-y-6">
+          <!-- Name -->
+          <div class="form-control">
+            <label class="label" for="name">
+              <span class="label-text font-medium">Application Name <span class="text-error">*</span></span>
+            </label>
+            <input type="text" id="name" name="name" value="{{name}}"
+                   class="input input-bordered w-full" placeholder="My Application"
+                   required />
+            <label class="label">
+              <span class="label-text-alt text-base-content/60">A human-readable name for this client</span>
+            </label>
+          </div>
+
+          <!-- Description -->
+          <div class="form-control">
+            <label class="label" for="description">
+              <span class="label-text font-medium">Description</span>
+            </label>
+            <textarea id="description" name="description" rows="3"
+                      class="textarea textarea-bordered w-full" placeholder="Describe what this application does...">{{description}}</textarea>
+          </div>
+
+          <!-- Redirect URI -->
+          <div class="form-control">
+            <label class="label" for="redirect_uri">
+              <span class="label-text font-medium">Redirect URI <span class="text-error">*</span></span>
+            </label>
+            <input type="url" id="redirect_uri" name="redirect_uri" value="{{redirect_uri}}"
+                   class="input input-bordered w-full" placeholder="https://myapp.com/callback"
+                   required />
+            <label class="label">
+              <span class="label-text-alt text-base-content/60">The URL where users will be redirected after authorization</span>
+            </label>
+          </div>
+
+          <!-- Scopes -->
+          <div class="form-control">
+            <label class="label" for="scopes">
+              <span class="label-text font-medium">Scopes</span>
+            </label>
+            <input type="text" id="scopes" name="scopes" value="{{scopes}}"
+                   class="input input-bordered w-full" placeholder="read write openid profile email" />
+            <label class="label">
+              <span class="label-text-alt text-base-content/60">Space-separated list of allowed scopes</span>
+            </label>
+          </div>
+
+          <!-- Logo URL -->
+          <div class="form-control">
+            <label class="label" for="logo">
+              <span class="label-text font-medium">Logo URL</span>
+            </label>
+            <input type="url" id="logo" name="logo" value="{{logo}}"
+                   class="input input-bordered w-full" placeholder="https://myapp.com/logo.png" />
+          </div>
+
+          <div class="divider">Legal Documents</div>
+
+          <!-- Policy URL -->
+          <div class="form-control">
+            <label class="label" for="policy_url">
+              <span class="label-text font-medium">Privacy Policy URL</span>
+            </label>
+            <input type="url" id="policy_url" name="policy_url" value="{{policy_url}}"
+                   class="input input-bordered w-full" placeholder="https://myapp.com/privacy" />
+          </div>
+
+          <!-- TOS URL -->
+          <div class="form-control">
+            <label class="label" for="tos_url">
+              <span class="label-text font-medium">Terms of Service URL</span>
+            </label>
+            <input type="url" id="tos_url" name="tos_url" value="{{tos_url}}"
+                   class="input input-bordered w-full" placeholder="https://myapp.com/terms" />
+          </div>
+
+          <div class="divider">Security</div>
+
+          <!-- Confidential Client -->
+          <div class="form-control">
+            <label class="label cursor-pointer justify-start gap-4">
+              <input type="checkbox" name="is_confidential" value="true"
+                     class="checkbox checkbox-primary" {% if is_confidential %}checked{% endif %} />
+              <div>
+                <span class="label-text font-medium">Confidential Client</span>
+                <p class="text-sm text-base-content/60">
+                  Confidential clients can securely store credentials (server-side apps).
+                  Public clients cannot (SPAs, mobile apps).
+                </p>
+              </div>
+            </label>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="flex justify-end gap-4 pt-4">
+            <a href="/dashboard/clients" class="btn btn-ghost">Cancel</a>
+            <button type="submit" class="btn btn-primary">Create Client</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}

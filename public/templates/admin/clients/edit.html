@@ -1,0 +1,115 @@
+{% extends "layout.html" %}
+{% set title = "Edit " ~ client.name %}
+
+{% block body %}
+<main class="min-h-screen py-12 px-4">
+  <div class="max-w-2xl mx-auto">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-base-content">Edit Client</h1>
+      <p class="mt-2 text-base-content/60">Update {{client.name}}</p>
+    </div>
+
+    {% include "errors.html" %}
+
+    <!-- Client Form -->
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <form action="/dashboard/clients/{{client.id}}" method="POST" class="space-y-6">
+          <!-- Name -->
+          <div class="form-control">
+            <label class="label" for="name">
+              <span class="label-text font-medium">Application Name <span class="text-error">*</span></span>
+            </label>
+            <input type="text" id="name" name="name" value="{{client.name}}"
+                   class="input input-bordered w-full" placeholder="My Application"
+                   required />
+          </div>
+
+          <!-- Description -->
+          <div class="form-control">
+            <label class="label" for="description">
+              <span class="label-text font-medium">Description</span>
+            </label>
+            <textarea id="description" name="description" rows="3"
+                      class="textarea textarea-bordered w-full" placeholder="Describe what this application does...">{{client.description}}</textarea>
+          </div>
+
+          <!-- Redirect URI -->
+          <div class="form-control">
+            <label class="label" for="redirect_uri">
+              <span class="label-text font-medium">Redirect URI <span class="text-error">*</span></span>
+            </label>
+            <input type="url" id="redirect_uri" name="redirect_uri" value="{{client.redirect_uri}}"
+                   class="input input-bordered w-full" placeholder="https://myapp.com/callback"
+                   required />
+          </div>
+
+          <!-- Scopes -->
+          <div class="form-control">
+            <label class="label" for="scopes">
+              <span class="label-text font-medium">Scopes</span>
+            </label>
+            <input type="text" id="scopes" name="scopes" value="{{client.scopes}}"
+                   class="input input-bordered w-full" placeholder="read write openid profile email" />
+            <label class="label">
+              <span class="label-text-alt text-base-content/60">Space-separated list of allowed scopes</span>
+            </label>
+          </div>
+
+          <!-- Logo URL -->
+          <div class="form-control">
+            <label class="label" for="logo">
+              <span class="label-text font-medium">Logo URL</span>
+            </label>
+            <input type="url" id="logo" name="logo" value="{{client.logo}}"
+                   class="input input-bordered w-full" placeholder="https://myapp.com/logo.png" />
+          </div>
+
+          <div class="divider">Legal Documents</div>
+
+          <!-- Policy URL -->
+          <div class="form-control">
+            <label class="label" for="policy_url">
+              <span class="label-text font-medium">Privacy Policy URL</span>
+            </label>
+            <input type="url" id="policy_url" name="policy_url" value="{{client.policy_url}}"
+                   class="input input-bordered w-full" placeholder="https://myapp.com/privacy" />
+          </div>
+
+          <!-- TOS URL -->
+          <div class="form-control">
+            <label class="label" for="tos_url">
+              <span class="label-text font-medium">Terms of Service URL</span>
+            </label>
+            <input type="url" id="tos_url" name="tos_url" value="{{client.tos_url}}"
+                   class="input input-bordered w-full" placeholder="https://myapp.com/terms" />
+          </div>
+
+          <div class="divider">Security</div>
+
+          <!-- Confidential Client -->
+          <div class="form-control">
+            <label class="label cursor-pointer justify-start gap-4">
+              <input type="checkbox" name="is_confidential" value="true"
+                     class="checkbox checkbox-primary" {% if client.is_confidential %}checked{% endif %} />
+              <div>
+                <span class="label-text font-medium">Confidential Client</span>
+                <p class="text-sm text-base-content/60">
+                  Confidential clients can securely store credentials (server-side apps).
+                </p>
+              </div>
+            </label>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="flex justify-end gap-4 pt-4">
+            <a href="/dashboard/clients/{{client.id}}" class="btn btn-ghost">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}

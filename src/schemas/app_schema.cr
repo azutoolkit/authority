@@ -31,6 +31,10 @@ AppSchema = CQL::Schema.define(
     text :redirect_uri
     text :scopes
     text :redirect_uris, null: true
+    text :policy_url, null: true
+    text :tos_url, null: true
+    text :owner_id, null: true
+    boolean :is_confidential, null: true, default: "true"
     timestamps
   end
 
