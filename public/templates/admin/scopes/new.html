@@ -1,0 +1,82 @@
+{% extends "admin/layout.html" %}
+{% set title = "New Scope" %}
+{% set active_page = "scopes" %}
+
+{% block body %}
+<main class="min-h-screen py-12 px-4">
+  <div class="max-w-2xl mx-auto">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-base-content">Create New Scope</h1>
+      <p class="mt-2 text-base-content/60">Define a new OAuth scope for permission management</p>
+    </div>
+
+    {% include "errors.html" %}
+
+    <!-- Scope Form -->
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <form action="/dashboard/scopes" method="POST" class="space-y-6">
+          <!-- Name -->
+          <div class="form-control">
+            <label class="label" for="name">
+              <span class="label-text font-medium">Scope Name <span class="text-error">*</span></span>
+            </label>
+            <input type="text" id="name" name="name" value="{{name}}"
+                   class="input input-bordered w-full font-mono" placeholder="read:users"
+                   required pattern="[a-z0-9_:]+" />
+            <label class="label">
+              <span class="label-text-alt text-base-content/60">Lowercase alphanumeric with underscores or colons (e.g., read:users, admin:write)</span>
+            </label>
+          </div>
+
+          <!-- Display Name -->
+          <div class="form-control">
+            <label class="label" for="display_name">
+              <span class="label-text font-medium">Display Name <span class="text-error">*</span></span>
+            </label>
+            <input type="text" id="display_name" name="display_name" value="{{display_name}}"
+                   class="input input-bordered w-full" placeholder="Read User Data"
+                   required />
+            <label class="label">
+              <span class="label-text-alt text-base-content/60">Human-readable name shown to users during authorization</span>
+            </label>
+          </div>
+
+          <!-- Description -->
+          <div class="form-control">
+            <label class="label" for="description">
+              <span class="label-text font-medium">Description</span>
+            </label>
+            <textarea id="description" name="description" rows="3"
+                      class="textarea textarea-bordered w-full" placeholder="Describe what this scope allows...">{{description}}</textarea>
+            <label class="label">
+              <span class="label-text-alt text-base-content/60">Explain what access this scope grants</span>
+            </label>
+          </div>
+
+          <!-- Default Scope -->
+          <div class="form-control">
+            <label class="label cursor-pointer justify-start gap-4">
+              <input type="checkbox" name="is_default" value="true"
+                     class="checkbox checkbox-primary" {% if is_default %}checked{% endif %} />
+              <div>
+                <span class="label-text font-medium">Default Scope</span>
+                <p class="text-sm text-base-content/60">
+                  Default scopes are automatically included when no scopes are explicitly requested
+                </p>
+              </div>
+            </label>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="flex justify-end gap-4 pt-4">
+            <a href="/dashboard/scopes" class="btn btn-ghost">Cancel</a>
+            <button type="submit" class="btn btn-primary">Create Scope</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}

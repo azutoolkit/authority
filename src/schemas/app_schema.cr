@@ -127,6 +127,16 @@ AppSchema = CQL::Schema.define(
     timestamps
   end
 
+  table :oauth_scopes do
+    primary :id, String
+    text :name
+    text :display_name
+    text :description, null: true
+    boolean :is_default, null: true, default: "false"
+    boolean :is_system, null: true, default: "false"
+    timestamps
+  end
+
   table :oauth_used_auth_codes do
     primary :id, String
     text :code_hash
