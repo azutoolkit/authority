@@ -24,26 +24,8 @@ module Authority
       offset = (page - 1) * per_page
       results = [] of Scope
 
-      AuthorityDB.exec_query do |conn|
-        conn.query(
-          "SELECT id, name, display_name, description, is_default, is_system, " \
-          "created_at, updated_at " \
-          "FROM oauth_scopes ORDER BY is_system DESC, name ASC LIMIT $1 OFFSET $2",
-          per_page, offset
-        ) do |rs|
-          rs.each do
-            scope = Scope.new
-            scope.id = rs.read(UUID)
-            scope.name = rs.read(String)
-            scope.display_name = rs.read(String)
-            scope.description = rs.read(String?)
-            scope.is_default = rs.read(Bool?) || false
-            scope.is_system = rs.read(Bool?) || false
-            scope.created_at = rs.read(Time?)
-            scope.updated_at = rs.read(Time?)
-            results << scope
-          end
-        end
+      Scope.query.order(is_system: :desc, name: :asc).limit(per_page).offset(offset).each do |scope|
+        results << scope
       end
 
       results
@@ -51,92 +33,27 @@ module Authority
 
     # Get total count of scopes
     def self.count : Int64
-      count = 0_i64
-      AuthorityDB.exec_query do |conn|
-        count = conn.scalar("SELECT COUNT(*) FROM oauth_scopes").as(Int64)
-      end
-      count
+      Scope.count.to_i64
     end
 
     # Get a single scope by ID
     def self.get(id : String) : Scope?
-      scope = nil
-
-      AuthorityDB.exec_query do |conn|
-        conn.query_one?(
-          "SELECT id, name, display_name, description, is_default, is_system, " \
-          "created_at, updated_at " \
-          "FROM oauth_scopes WHERE id = $1::uuid",
-          id
-        ) do |rs|
-          s = Scope.new
-          s.id = rs.read(UUID)
-          s.name = rs.read(String)
-          s.display_name = rs.read(String)
-          s.description = rs.read(String?)
-          s.is_default = rs.read(Bool?) || false
-          s.is_system = rs.read(Bool?) || false
-          s.created_at = rs.read(Time?)
-          s.updated_at = rs.read(Time?)
-          scope = s
-        end
-      end
-
-      scope
+      Scope.find(UUID.new(id))
+    rescue
+      nil
     end
 
     # Get a scope by name
     def self.get_by_name(name : String) : Scope?
-      scope = nil
-
-      AuthorityDB.exec_query do |conn|
-        conn.query_one?(
-          "SELECT id, name, display_name, description, is_default, is_system, " \
-          "created_at, updated_at " \
-          "FROM oauth_scopes WHERE name = $1",
-          name
-        ) do |rs|
-          s = Scope.new
-          s.id = rs.read(UUID)
-          s.name = rs.read(String)
-          s.display_name = rs.read(String)
-          s.description = rs.read(String?)
-          s.is_default = rs.read(Bool?) || false
-          s.is_system = rs.read(Bool?) || false
-          s.created_at = rs.read(Time?)
-          s.updated_at = rs.read(Time?)
-          scope = s
-        end
-      end
-
-      scope
+      Scope.find_by(name: name)
     end
 
     # Get all default scopes
     def self.default_scopes : Array(Scope)
       results = [] of Scope
-
-      AuthorityDB.exec_query do |conn|
-        conn.query(
-          "SELECT id, name, display_name, description, is_default, is_system, " \
-          "created_at, updated_at " \
-          "FROM oauth_scopes WHERE is_default = true ORDER BY name ASC"
-        ) do |rs|
-          rs.each do
-            scope = Scope.new
-            scope.id = rs.read(UUID)
-            scope.name = rs.read(String)
-            scope.display_name = rs.read(String)
-            scope.description = rs.read(String?)
-            scope.is_default = rs.read(Bool?) || false
-            scope.is_system = rs.read(Bool?) || false
-            scope.created_at = rs.read(Time?)
-            scope.updated_at = rs.read(Time?)
-            results << scope
-          end
-        end
+      Scope.where(is_default: true).order(name: :asc).each do |scope|
+        results << scope
       end
-
       results
     end
 
@@ -164,25 +81,19 @@ module Authority
       end
 
       now = Time.utc
-      id = UUID.random.to_s
 
-      AuthorityDB.exec_query do |conn|
-        conn.exec("BEGIN")
-        begin
-          conn.exec(
-            "INSERT INTO oauth_scopes (id, name, display_name, description, is_default, is_system, " \
-            "created_at, updated_at) " \
-            "VALUES ($1, $2, $3, $4, $5, false, $6, $7)",
-            id, name, display_name, description, is_default, now, now
-          )
-          conn.exec("COMMIT")
-        rescue e
-          conn.exec("ROLLBACK")
-          raise e
-        end
-      end
+      scope = Scope.new
+      scope.id = UUID.random
+      scope.name = name
+      scope.display_name = display_name
+      scope.description = description
+      scope.is_default = is_default
+      scope.is_system = false
+      scope.created_at = now
+      scope.updated_at = now
+      scope.save!
 
-      created_scope = get(id)
+      created_scope = scope
 
       # Log audit trail
       if created_scope && actor
@@ -237,58 +148,35 @@ module Authority
         return Result.new(success: false, error: "Scope name already exists", error_code: "duplicate_name")
       end
 
-      # Build update query dynamically
-      updates = [] of String
-      params = [] of String | Time | Bool | Nil
-      param_idx = 1
+      # Update fields if provided
+      has_changes = false
 
       if name && !name.empty?
-        updates << "name = $#{param_idx}"
-        params << name
-        param_idx += 1
+        scope.name = name
+        has_changes = true
       end
 
       if display_name && !display_name.empty?
-        updates << "display_name = $#{param_idx}"
-        params << display_name
-        param_idx += 1
+        scope.display_name = display_name
+        has_changes = true
       end
 
       if description
-        updates << "description = $#{param_idx}"
-        params << description
-        param_idx += 1
+        scope.description = description
+        has_changes = true
       end
 
       unless is_default.nil?
-        updates << "is_default = $#{param_idx}"
-        params << is_default
-        param_idx += 1
+        scope.is_default = is_default
+        has_changes = true
       end
 
-      updates << "updated_at = $#{param_idx}"
-      params << Time.utc
-      param_idx += 1
+      return Result.new(success: true, scope: scope) unless has_changes
 
-      params << id
+      scope.updated_at = Time.utc
+      scope.update!
 
-      return Result.new(success: true, scope: scope) if updates.size == 1 # Only updated_at
-
-      AuthorityDB.exec_query do |conn|
-        conn.exec("BEGIN")
-        begin
-          conn.exec(
-            "UPDATE oauth_scopes SET #{updates.join(", ")} WHERE id = $#{param_idx}::uuid",
-            args: params
-          )
-          conn.exec("COMMIT")
-        rescue e
-          conn.exec("ROLLBACK")
-          raise e
-        end
-      end
-
-      updated_scope = get(id)
+      updated_scope = scope
 
       # Log audit trail with changes
       if updated_scope && actor
@@ -335,16 +223,7 @@ module Authority
       scope_name = scope.name
       scope_uuid = scope.id
 
-      AuthorityDB.exec_query do |conn|
-        conn.exec("BEGIN")
-        begin
-          conn.exec("DELETE FROM oauth_scopes WHERE id = $1::uuid", id)
-          conn.exec("COMMIT")
-        rescue e
-          conn.exec("ROLLBACK")
-          raise e
-        end
-      end
+      scope.delete!
 
       # Log audit trail
       AuditService.log(
@@ -363,11 +242,7 @@ module Authority
 
     # Check if scope name exists
     private def self.exists_by_name?(name : String) : Bool
-      count = 0_i64
-      AuthorityDB.exec_query do |conn|
-        count = conn.scalar("SELECT COUNT(*) FROM oauth_scopes WHERE name = $1", name).as(Int64)
-      end
-      count > 0
+      Scope.exists?(name: name)
     end
   end
 end

@@ -20,81 +20,34 @@ module Authority
     end
 
     def self.find_by_username_or_email(username_or_email : String) : User?
-      # Use raw SQL to bypass ORM UUID issues
-      sql = <<-SQL
-        SELECT id::text, username, email, first_name, last_name, encrypted_password,
-               role, scope, email_verified, locked_at, lock_reason,
-               failed_login_attempts, last_login_at, last_login_ip::text,
-               created_at, updated_at
-        FROM oauth_owners
-        WHERE username = $1 OR email = $1
-        LIMIT 1
-      SQL
+      # Try to find by username first
+      user = User.find_by(username: username_or_email)
+      return user if user
 
-      AuthorityDB.exec_query do |conn|
-        conn.query_one?(sql, username_or_email) do |rs|
-          build_user_from_rs(rs)
-        end
-      end
+      # If not found by username, try by email
+      User.find_by(email: username_or_email)
     end
 
     def self.find_by_id(user_id : String) : User?
-      sql = <<-SQL
-        SELECT id::text, username, email, first_name, last_name, encrypted_password,
-               role, scope, email_verified, locked_at, lock_reason,
-               failed_login_attempts, last_login_at, last_login_ip::text,
-               created_at, updated_at
-        FROM oauth_owners
-        WHERE id = $1::uuid
-        LIMIT 1
-      SQL
-
-      AuthorityDB.exec_query do |conn|
-        conn.query_one?(sql, user_id) do |rs|
-          build_user_from_rs(rs)
-        end
-      end
-    end
-
-    private def self.build_user_from_rs(rs) : User
-      user = User.new
-      user.id = rs.read(String)
-      user.username = rs.read(String)
-      user.email = rs.read(String)
-      user.first_name = rs.read(String)
-      user.last_name = rs.read(String)
-      user.encrypted_password = rs.read(String)
-      user.role = rs.read(String)
-      user.scope = rs.read(String)
-      user.email_verified = rs.read(Bool)
-      user.locked_at = rs.read(Time?)
-      user.lock_reason = rs.read(String?)
-      user.failed_login_attempts = rs.read(Int32)
-      user.last_login_at = rs.read(Time?)
-      user.last_login_ip = rs.read(String?)
-      user.created_at = rs.read(Time?)
-      user.updated_at = rs.read(Time?)
-      user
+      User.find_by(id: user_id)
+    rescue
+      nil
     end
 
     def self.create!(req : Owner::NewRequest)
-      encrypted_password = Crypto::Bcrypt::Password.create(req.password).to_s
-
-      sql = <<-SQL
-        INSERT INTO oauth_owners (
-          id, username, email, first_name, last_name, encrypted_password,
-          scope, email_verified, created_at, updated_at
-        )
-        VALUES (
-          uuid_generate_v4(), $1, $2, $3, $4, $5, '', false, NOW(), NOW()
-        )
-        RETURNING id::text
-      SQL
-
-      AuthorityDB.exec_query do |conn|
-        user_id = conn.query_one(sql, req.username, req.email, req.first_name, req.last_name, encrypted_password, as: String)
-        find_by_id(user_id).not_nil!
-      end
+      user = User.new
+      user.id = UUID.random
+      user.username = req.username
+      user.email = req.email
+      user.first_name = req.first_name
+      user.last_name = req.last_name
+      user.password = req.password
+      user.scope = ""
+      user.email_verified = false
+      user.created_at = Time.utc
+      user.updated_at = Time.utc
+      user.save!
+      user
     end
   end
 end

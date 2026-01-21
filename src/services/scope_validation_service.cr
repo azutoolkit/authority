@@ -52,20 +52,10 @@ module Authority
       end
     end
 
-    # Find client scopes by client_id using direct SQL
+    # Find client scopes by client_id using Active Record
     private def self.find_client_scopes(client_id : String) : String?
-      scopes = nil
-      AuthorityDB.exec_query do |conn|
-        conn.query_one?(
-          "SELECT scopes FROM oauth_clients WHERE client_id = $1",
-          client_id
-        ) do |result|
-          scopes = result.read(String)
-        end
-      end
-      scopes
-    rescue PQ::PQError
-      # Invalid UUID format - treat as client not found
+      Client.find_by(client_id: client_id).try(&.scopes)
+    rescue
       nil
     end
 

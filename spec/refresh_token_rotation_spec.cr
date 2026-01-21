@@ -8,7 +8,7 @@ describe Authority::OpaqueToken do
 
     before_each do
       # Clean up tokens before each test
-      AuthorityDB.tables[:oauth_opaque_tokens].truncate!
+      AuthorityDB.exec("DELETE FROM oauth_opaque_tokens")
     end
 
     describe ".create_refresh_token" do
@@ -180,7 +180,7 @@ describe Authority::OpaqueTokenService do
     user_id = "user-123"
 
     before_each do
-      AuthorityDB.tables[:oauth_opaque_tokens].truncate!
+      AuthorityDB.exec("DELETE FROM oauth_opaque_tokens")
     end
 
     it "returns new access and refresh tokens" do

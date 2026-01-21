@@ -13,37 +13,29 @@ def create_test_admin_user : Authority::User
   admin
 end
 
-# Helper to create test client via direct SQL (matches existing pattern)
+# Helper to create test client via Active Record
 def create_test_client(name : String = "Test Client") : Authority::Client
-  id = UUID.random.to_s
-  client_id = UUID.random.to_s
-  secret = "test_secret_#{Random.rand(10000)}"
-  redirect_uri = "https://example#{Random.rand(10000)}.com/callback"
-  scopes = "read"
   now = Time.utc
 
-  AuthorityDB.exec_query do |conn|
-    conn.exec(
-      "INSERT INTO oauth_clients (id, client_id, client_secret, redirect_uri, name, description, logo, scopes, created_at, updated_at) " \
-      "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
-      id, client_id, secret, redirect_uri, name, "Test description", "", scopes, now, now
-    )
-  end
-
   client = Authority::Client.new
-  client.id = UUID.new(id)
-  client.client_id = client_id
-  client.client_secret = secret
-  client.redirect_uri = redirect_uri
+  client.id = UUID.random
+  client.client_id = UUID.random.to_s
+  client.client_secret = "test_secret_#{Random.rand(10000)}"
+  client.redirect_uri = "https://example#{Random.rand(10000)}.com/callback"
   client.name = name
-  client.scopes = scopes
+  client.description = "Test description"
+  client.logo = ""
+  client.scopes = "read"
+  client.created_at = now
+  client.updated_at = now
+  client.save!
   client
 end
 
 describe Authority::AdminClientService do
   before_each do
-    AuthorityDB.exec_query { |conn| conn.exec("TRUNCATE TABLE oauth_clients CASCADE") }
-    AuthorityDB.exec_query { |conn| conn.exec("TRUNCATE TABLE oauth_owners CASCADE") }
+    AuthorityDB.exec("DELETE FROM oauth_clients")
+    AuthorityDB.exec("DELETE FROM oauth_owners")
     Authority::ClientCacheService.reset
   end
 
@@ -202,19 +194,23 @@ describe Authority::AdminClientService do
   describe ".regenerate_secret" do
     it "generates new secret and invalidates old one" do
       # Create client with known secret
-      id = UUID.random.to_s
-      client_id = UUID.random.to_s
-      old_secret_hash = Authority::ClientSecretService.hash("old_secret")
       now = Time.utc
+      old_secret_hash = Authority::ClientSecretService.hash("old_secret")
 
-      AuthorityDB.exec_query do |conn|
-        conn.exec(
-          "INSERT INTO oauth_clients (id, client_id, client_secret, redirect_uri, name, description, logo, scopes, created_at, updated_at) " \
-          "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
-          id, client_id, old_secret_hash, "https://regen.com/callback", "Regen Secret", "", "", "read", now, now
-        )
-      end
+      client = Authority::Client.new
+      client.id = UUID.random
+      client.client_id = UUID.random.to_s
+      client.client_secret = old_secret_hash
+      client.redirect_uri = "https://regen.com/callback"
+      client.name = "Regen Secret"
+      client.description = ""
+      client.logo = ""
+      client.scopes = "read"
+      client.created_at = now
+      client.updated_at = now
+      client.save!
 
+      id = client.id.to_s
       admin = create_test_admin_user
       result, new_secret = Authority::AdminClientService.regenerate_secret(
         id: id,

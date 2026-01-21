@@ -17,7 +17,12 @@ module Authority
       end
 
       def forward_url
-        Base64.urlsafe_encode(context.request.path + "?" + context.request.query.not_nil!)
+        query = context.request.query
+        if query && !query.empty?
+          Base64.urlsafe_encode(context.request.path + "?" + query)
+        else
+          Base64.urlsafe_encode(context.request.path)
+        end
       end
 
       def current_session

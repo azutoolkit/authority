@@ -35,23 +35,17 @@ describe "Multi-Redirect URI Support" do
     # Test with a client that has multiple redirect URIs
     before_each do
       # Add additional redirect URI to test client
-      AuthorityDB.exec_query do |conn|
-        conn.exec(
-          "UPDATE oauth_clients SET redirect_uris = $1 WHERE client_id = $2",
-          "#{REDIRECT_URI},https://app.example.com/callback2",
-          CLIENT_ID
-        )
+      if client = Authority::Client.find_by(client_id: CLIENT_ID)
+        client.redirect_uris = "#{REDIRECT_URI},https://app.example.com/callback2"
+        client.update!
       end
     end
 
     after_each do
       # Reset to single URI
-      AuthorityDB.exec_query do |conn|
-        conn.exec(
-          "UPDATE oauth_clients SET redirect_uris = $1 WHERE client_id = $2",
-          REDIRECT_URI,
-          CLIENT_ID
-        )
+      if client = Authority::Client.find_by(client_id: CLIENT_ID)
+        client.redirect_uris = REDIRECT_URI
+        client.update!
       end
     end
 

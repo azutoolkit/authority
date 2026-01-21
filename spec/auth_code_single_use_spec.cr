@@ -3,7 +3,7 @@ require "./spec_helper"
 describe Authority::AuthCodeSingleUseService do
   # Clear used codes before each test
   Spec.before_each do
-    AuthorityDB.exec_query { |conn| conn.exec("TRUNCATE TABLE oauth_used_auth_codes CASCADE") }
+    AuthorityDB.exec("DELETE FROM oauth_used_auth_codes")
   end
 
   describe ".mark_used" do

@@ -1,5 +1,5 @@
 module Authority
-  @[Crinja::Attributes(expose: [id, actor_id, actor_email, action, resource_type, resource_id, resource_name, ip_address, user_agent, created_at, action_badge_class, action_label])]
+  @[Crinja::Attributes(expose: [id_str, actor_id_str, actor_email, action, resource_type, resource_id_str, resource_name, ip_address, user_agent, created_at, action_badge_class, action_label])]
   class AuditLog
     include CQL::ActiveRecord::Model(UUID)
     include Crinja::Object::Auto
@@ -17,6 +17,19 @@ module Authority
     property created_at : Time?
 
     def initialize
+    end
+
+    # Returns UUID as string for template rendering
+    def id_str : String
+      id.to_s
+    end
+
+    def actor_id_str : String?
+      actor_id.try(&.to_s)
+    end
+
+    def resource_id_str : String?
+      resource_id.try(&.to_s)
     end
 
     # Action constants for consistency

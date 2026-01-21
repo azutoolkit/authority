@@ -104,7 +104,9 @@ module Authority
 
     # Cleanup expired tokens (for maintenance)
     def self.cleanup_expired!
-      RecoveryToken.where("expires_at < ?", Time.utc).delete_all
+      RecoveryToken
+        .where { oauth_recovery_tokens.expires_at < Time.utc }
+        .delete_all
     end
 
     # Verify a password reset token and return the user
@@ -112,7 +114,7 @@ module Authority
       token = find_valid(token_string, PASSWORD_RESET)
       return nil unless token
 
-      User.find(token.user_id)
+      User.find_by(id: token.user_id)
     end
 
     # Verify an email verification token and return the user
@@ -120,13 +122,13 @@ module Authority
       token = find_valid(token_string, EMAIL_VERIFICATION)
       return nil unless token
 
-      User.find(token.user_id)
+      User.find_by(id: token.user_id)
     end
 
     # Complete password reset - verify token, update password, mark token used
     def self.complete_password_reset!(token_string : String, new_password : String) : User
       token = find_valid!(token_string, PASSWORD_RESET)
-      user = User.find!(token.user_id)
+      user = User.find_by!(id: token.user_id)
 
       user.password = new_password
       user.save!
@@ -138,7 +140,7 @@ module Authority
     # Complete email verification - verify token, mark email verified, mark token used
     def self.complete_email_verification!(token_string : String) : User
       token = find_valid!(token_string, EMAIL_VERIFICATION)
-      user = User.find!(token.user_id)
+      user = User.find_by!(id: token.user_id)
 
       user.email_verified = true
       user.save!

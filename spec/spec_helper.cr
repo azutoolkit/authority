@@ -24,8 +24,8 @@ OAUTH_CLIENT = OAuth2::Client.new(
   authorize_uri: "/authorize",
   token_uri: "/token")
 
-AuthorityDB.exec_query { |conn| conn.exec("TRUNCATE TABLE oauth_owners CASCADE") }
-AuthorityDB.exec_query { |conn| conn.exec("TRUNCATE TABLE oauth_clients CASCADE") }
+AuthorityDB.exec("DELETE FROM oauth_owners")
+AuthorityDB.exec("DELETE FROM oauth_clients")
 create_client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI)
 
 # process = Process.new(
@@ -41,9 +41,9 @@ Spec.after_suite do
 end
 
 Spec.before_each do
-  AuthorityDB.exec_query { |conn| conn.exec("TRUNCATE TABLE oauth_owners CASCADE") }
+  AuthorityDB.exec("DELETE FROM oauth_owners")
   begin
-    AuthorityDB.exec_query { |conn| conn.exec("TRUNCATE TABLE oauth_consents CASCADE") }
+    AuthorityDB.exec("DELETE FROM oauth_consents")
   rescue
   end
   # Reset client cache to ensure test isolation

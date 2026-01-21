@@ -3,7 +3,7 @@ require "./spec_helper"
 describe Authority::PARService do
   # Clear PAR data before each test
   Spec.before_each do
-    AuthorityDB.exec_query { |conn| conn.exec("TRUNCATE TABLE oauth_par_requests CASCADE") }
+    AuthorityDB.exec("DELETE FROM oauth_par_requests")
   end
 
   describe ".create_request" do

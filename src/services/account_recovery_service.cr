@@ -19,7 +19,7 @@ module Authority
 
     # Request email verification for a user
     def self.request_email_verification(user_id : String) : RecoveryToken?
-      user = User.find(user_id)
+      user = User.find_by(id: user_id)
       return nil unless user
       return nil if user.email_verified # Already verified
 

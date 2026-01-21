@@ -20,7 +20,7 @@ end
 
 describe Authority::RBACService do
   Spec.before_each do
-    AuthorityDB.exec_query { |conn| conn.exec("TRUNCATE TABLE oauth_owners CASCADE") }
+    AuthorityDB.exec("DELETE FROM oauth_owners")
   end
 
   describe ".admin?" do

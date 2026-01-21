@@ -7,57 +7,30 @@ module ClientCacheTestHelpers
     secret = Authority::ClientSecretService.generate
     hashed_secret = Authority::ClientSecretService.hash(secret)
     now = Time.utc
-    id = UUID.random.to_s
 
-    AuthorityDB.exec_query do |conn|
-      conn.exec(
-        "INSERT INTO oauth_clients (id, client_id, client_secret, name, description, logo, " \
-        "redirect_uri, scopes, created_at, updated_at) " \
-        "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
-        id, client_id, hashed_secret, "Test Client #{client_id[0, 8]}", "Test Description",
-        "", "https://example.com/callback", "read write", now, now
-      )
-    end
-
-    # Fetch and return the client
     client = Authority::Client.new
-    AuthorityDB.exec_query do |conn|
-      conn.query_one?(
-        "SELECT id, client_id, client_secret, name, description, logo, redirect_uri, scopes, " \
-        "policy_url, tos_url, owner_id, is_confidential, created_at, updated_at " \
-        "FROM oauth_clients WHERE client_id = $1::uuid",
-        client_id
-      ) do |rs|
-        client.id = rs.read(UUID)
-        client.client_id = rs.read(UUID).to_s
-        client.client_secret = rs.read(String)
-        client.name = rs.read(String)
-        client.description = rs.read(String?)
-        client.logo = rs.read(String?) || ""
-        client.redirect_uri = rs.read(String)
-        client.scopes = rs.read(String?) || ""
-        client.policy_url = rs.read(String?)
-        client.tos_url = rs.read(String?)
-        client.owner_id = rs.read(UUID?)
-        client.is_confidential = rs.read(Bool?) || true
-        client.created_at = rs.read(Time?)
-        client.updated_at = rs.read(Time?)
-      end
-    end
-
+    client.id = UUID.random
+    client.client_id = client_id
+    client.client_secret = hashed_secret
+    client.name = "Test Client #{client_id[0, 8]}"
+    client.description = "Test Description"
+    client.logo = ""
+    client.redirect_uri = "https://example.com/callback"
+    client.scopes = "read write"
+    client.created_at = now
+    client.updated_at = now
+    client.save!
     client
   end
 
   def self.delete_test_client(client_id : String)
-    AuthorityDB.exec_query do |conn|
-      conn.exec("DELETE FROM oauth_clients WHERE client_id = $1::uuid", client_id)
-    end
+    Authority::Client.where(client_id: client_id).delete_all
   end
 end
 
 describe Authority::ClientCacheService do
   before_each do
-    AuthorityDB.exec_query { |conn| conn.exec("TRUNCATE TABLE oauth_clients CASCADE") }
+    AuthorityDB.exec("DELETE FROM oauth_clients")
     Authority::ClientCacheService.reset
   end
 

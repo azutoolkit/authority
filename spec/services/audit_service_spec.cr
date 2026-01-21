@@ -15,12 +15,10 @@ module AuditTestHelpers
   end
 
   def self.cleanup_audit_logs(actor_email : String)
-    AuthorityDB.exec_query do |conn|
-      conn.exec(
-        "DELETE FROM oauth_audit_logs WHERE actor_email LIKE $1",
-        "#{actor_email.split("@").first}%"
-      )
-    end
+    prefix = actor_email.split("@").first
+    Authority::AuditLog
+      .where { oauth_audit_logs.actor_email.like("#{prefix}%") }
+      .delete_all
   end
 end
 
@@ -33,7 +31,7 @@ describe Authority::AuditService do
         actor: admin,
         action: Authority::AuditLog::Actions::CREATE,
         resource_type: Authority::AuditLog::ResourceTypes::CLIENT,
-        resource_id: UUID.random,
+        resource_id: UUID.random.to_s,
         resource_name: "Test Client",
         ip_address: "192.168.1.100",
         user_agent: "Mozilla/5.0 Test"
@@ -64,7 +62,7 @@ describe Authority::AuditService do
         actor: admin,
         action: Authority::AuditLog::Actions::UPDATE,
         resource_type: Authority::AuditLog::ResourceTypes::CLIENT,
-        resource_id: UUID.random,
+        resource_id: UUID.random.to_s,
         resource_name: "Test Client",
         changes: changes
       )
@@ -246,15 +244,14 @@ describe Authority::AuditService do
       admin = AuditTestHelpers.create_test_admin
 
       # Create an old log
-      AuthorityDB.exec_query do |conn|
-        conn.exec(
-          "INSERT INTO oauth_audit_logs (actor_id, actor_email, action, resource_type, created_at) " \
-          "VALUES ($1::uuid, $2, 'create', 'Client', $3::timestamp)",
-          admin.id.to_s,
-          admin.email,
-          (Time.utc - 30.days)
-        )
-      end
+      old_log = Authority::AuditLog.new
+      old_log.id = UUID.random
+      old_log.actor_id = UUID.new(admin.id.to_s)
+      old_log.actor_email = admin.email
+      old_log.action = "create"
+      old_log.resource_type = "Client"
+      old_log.created_at = Time.utc - 30.days
+      old_log.save!
 
       # Create a recent log
       Authority::AuditService.log(

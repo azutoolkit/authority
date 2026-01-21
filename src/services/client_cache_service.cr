@@ -74,33 +74,9 @@ module Authority
       Log.info { "ClientCacheService: Starting cache warmup..." }
       count = 0
 
-      AuthorityDB.exec_query do |conn|
-        conn.query(
-          "SELECT id, client_id, client_secret, name, description, logo, redirect_uri, scopes, " \
-          "policy_url, tos_url, owner_id, is_confidential, created_at, updated_at " \
-          "FROM oauth_clients"
-        ) do |rs|
-          rs.each do
-            client = Client.new
-            client.id = rs.read(UUID)
-            client.client_id = rs.read(UUID).to_s
-            client.client_secret = rs.read(String)
-            client.name = rs.read(String)
-            client.description = rs.read(String?)
-            client.logo = rs.read(String?) || ""
-            client.redirect_uri = rs.read(String)
-            client.scopes = rs.read(String?) || ""
-            client.policy_url = rs.read(String?)
-            client.tos_url = rs.read(String?)
-            client.owner_id = rs.read(UUID?)
-            client.is_confidential = rs.read(Bool?) || true
-            client.created_at = rs.read(Time?)
-            client.updated_at = rs.read(Time?)
-
-            set(client.client_id, client)
-            count += 1
-          end
-        end
+      Client.all.each do |client|
+        set(client.client_id, client)
+        count += 1
       end
 
       @@warmed_up = true
@@ -155,35 +131,7 @@ module Authority
 
     # Fetch client from database by client_id
     private def fetch_from_db(client_id : String) : Client?
-      client = nil
-
-      AuthorityDB.exec_query do |conn|
-        conn.query_one?(
-          "SELECT id, client_id, client_secret, name, description, logo, redirect_uri, scopes, " \
-          "policy_url, tos_url, owner_id, is_confidential, created_at, updated_at " \
-          "FROM oauth_clients WHERE client_id = $1::uuid",
-          client_id
-        ) do |rs|
-          c = Client.new
-          c.id = rs.read(UUID)
-          c.client_id = rs.read(UUID).to_s
-          c.client_secret = rs.read(String)
-          c.name = rs.read(String)
-          c.description = rs.read(String?)
-          c.logo = rs.read(String?) || ""
-          c.redirect_uri = rs.read(String)
-          c.scopes = rs.read(String?) || ""
-          c.policy_url = rs.read(String?)
-          c.tos_url = rs.read(String?)
-          c.owner_id = rs.read(UUID?)
-          c.is_confidential = rs.read(Bool?) || true
-          c.created_at = rs.read(Time?)
-          c.updated_at = rs.read(Time?)
-          client = c
-        end
-      end
-
-      client
+      Client.find_by(client_id: client_id)
     rescue
       nil
     end

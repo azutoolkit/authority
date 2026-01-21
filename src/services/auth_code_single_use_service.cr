@@ -11,17 +11,8 @@ module Authority
     # @return [Bool] True if the code has been used
     def self.used?(code : String) : Bool
       code_hash = hash_code(code)
-      used = false
-
-      AuthorityDB.exec_query do |conn|
-        conn.query_one?(
-          "SELECT 1 FROM oauth_used_auth_codes WHERE code_hash = $1",
-          code_hash
-        ) { |_| used = true }
-      end
-
-      used
-    rescue PQ::PQError
+      UsedAuthCode.used?(code_hash)
+    rescue
       false
     end
 
@@ -32,17 +23,7 @@ module Authority
     # @return [Bool] True if successfully marked
     def self.mark_used(code : String, client_id : String) : Bool
       code_hash = hash_code(code)
-
-      AuthorityDB.exec_query do |conn|
-        conn.exec(
-          "INSERT INTO oauth_used_auth_codes (code_hash, client_id) VALUES ($1, $2) ON CONFLICT (code_hash) DO NOTHING",
-          code_hash, client_id
-        )
-      end
-
-      true
-    rescue PQ::PQError
-      false
+      UsedAuthCode.mark_used!(code_hash, client_id)
     end
 
     # Try to use an authorization code (atomic check-and-mark).
@@ -53,24 +34,7 @@ module Authority
     # @return [NamedTuple] {success: Bool, reuse_detected: Bool}
     def self.try_use(code : String, client_id : String) : NamedTuple(success: Bool, reuse_detected: Bool)
       code_hash = hash_code(code)
-
-      # Try to insert; if already exists, it's a reuse
-      was_inserted = false
-      AuthorityDB.exec_query do |conn|
-        result = conn.exec(
-          "INSERT INTO oauth_used_auth_codes (code_hash, client_id) VALUES ($1, $2) ON CONFLICT (code_hash) DO NOTHING",
-          code_hash, client_id
-        )
-        was_inserted = result.rows_affected > 0
-      end
-
-      if was_inserted
-        {success: true, reuse_detected: false}
-      else
-        {success: false, reuse_detected: true}
-      end
-    rescue PQ::PQError
-      {success: false, reuse_detected: false}
+      UsedAuthCode.try_use(code_hash, client_id)
     end
 
     # Clean up expired authorization codes from the tracking table.
@@ -78,19 +42,8 @@ module Authority
     #
     # @param max_age [Time::Span] Maximum age of entries to keep (default: 10 minutes)
     def self.cleanup_expired(max_age : Time::Span = 10.minutes) : Int64
-      cutoff = Time.utc - max_age
-      rows_deleted = 0_i64
-
-      AuthorityDB.exec_query do |conn|
-        result = conn.exec(
-          "DELETE FROM oauth_used_auth_codes WHERE used_at < $1",
-          cutoff
-        )
-        rows_deleted = result.rows_affected
-      end
-
-      rows_deleted
-    rescue PQ::PQError
+      UsedAuthCode.cleanup_expired!(max_age)
+    rescue
       0_i64
     end
 

@@ -41,7 +41,9 @@ module Authority
 
     # Cleanup expired revoked tokens (tokens that have passed their original expiration)
     def self.cleanup_expired!
-      RevokedToken.where("expires_at < ?", Time.utc).delete_all
+      RevokedToken
+        .where { oauth_revoked_tokens.expires_at < Time.utc }
+        .delete_all
     end
   end
 end

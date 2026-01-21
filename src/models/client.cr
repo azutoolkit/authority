@@ -1,5 +1,5 @@
 module Authority
-  @[Crinja::Attributes(expose: [id, name, client_id, client_secret, description, logo, scopes, redirect_uri, policy_url, tos_url, owner_id, is_confidential?, created_at, updated_at])]
+  @[Crinja::Attributes(expose: [id_str, name, client_id, client_secret, description, logo, scopes, scopes_list, redirect_uri, policy_url, tos_url, is_confidential?, created_at, updated_at])]
   class Client
     include CQL::ActiveRecord::Model(UUID)
     include Crinja::Object::Auto
@@ -9,6 +9,7 @@ module Authority
     property client_id : String = ""
     property client_secret : String = ""
     property redirect_uri : String = ""
+    property redirect_uris : String?
     property description : String?
     property logo : String = ""
     property scopes : String = ""
@@ -20,6 +21,16 @@ module Authority
     property updated_at : Time?
 
     def initialize
+    end
+
+    # Returns UUID as string for template rendering
+    def id_str : String
+      id.to_s
+    end
+
+    # Returns scopes as array for template iteration
+    def scopes_list : Array(String)
+      scopes.split(' ').reject(&.empty?)
     end
   end
 end

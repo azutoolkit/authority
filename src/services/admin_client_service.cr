@@ -24,31 +24,8 @@ module Authority
       offset = (page - 1) * per_page
       results = [] of Client
 
-      AuthorityDB.exec_query do |conn|
-        conn.query(
-          "SELECT id, client_id, name, description, logo, redirect_uri, scopes, " \
-          "policy_url, tos_url, owner_id, is_confidential, created_at, updated_at " \
-          "FROM oauth_clients ORDER BY created_at DESC LIMIT $1 OFFSET $2",
-          per_page, offset
-        ) do |rs|
-          rs.each do
-            client = Client.new
-            client.id = rs.read(UUID)
-            client.client_id = rs.read(UUID).to_s
-            client.name = rs.read(String)
-            client.description = rs.read(String?)
-            client.logo = rs.read(String?) || ""
-            client.redirect_uri = rs.read(String)
-            client.scopes = rs.read(String?) || ""
-            client.policy_url = rs.read(String?)
-            client.tos_url = rs.read(String?)
-            client.owner_id = rs.read(UUID?)
-            client.is_confidential = rs.read(Bool?) || true
-            client.created_at = rs.read(Time?)
-            client.updated_at = rs.read(Time?)
-            results << client
-          end
-        end
+      Client.query.order(created_at: :desc).limit(per_page).offset(offset).each do |client|
+        results << client
       end
 
       results
@@ -56,35 +33,9 @@ module Authority
 
     # Get a single client by ID
     def self.get(id : String) : Client?
-      client = nil
-
-      AuthorityDB.exec_query do |conn|
-        conn.query_one?(
-          "SELECT id, client_id, client_secret, name, description, logo, redirect_uri, scopes, " \
-          "policy_url, tos_url, owner_id, is_confidential, created_at, updated_at " \
-          "FROM oauth_clients WHERE id = $1::uuid",
-          id
-        ) do |rs|
-          c = Client.new
-          c.id = rs.read(UUID)
-          c.client_id = rs.read(UUID).to_s
-          c.client_secret = rs.read(String)
-          c.name = rs.read(String)
-          c.description = rs.read(String?)
-          c.logo = rs.read(String?) || ""
-          c.redirect_uri = rs.read(String)
-          c.scopes = rs.read(String?) || ""
-          c.policy_url = rs.read(String?)
-          c.tos_url = rs.read(String?)
-          c.owner_id = rs.read(UUID?)
-          c.is_confidential = rs.read(Bool?) || true
-          c.created_at = rs.read(Time?)
-          c.updated_at = rs.read(Time?)
-          client = c
-        end
-      end
-
-      client
+      Client.find(UUID.new(id))
+    rescue
+      nil
     end
 
     # Create a new client with secret hashing
@@ -102,30 +53,28 @@ module Authority
       ip_address : String? = nil
     ) : Result
       # Generate client credentials
-      client_id = UUID.random.to_s
       plain_secret = ClientSecretService.generate
       hashed_secret = ClientSecretService.hash(plain_secret)
       now = Time.utc
 
-      AuthorityDB.exec_query do |conn|
-        conn.exec("BEGIN")
-        begin
-          conn.exec(
-            "INSERT INTO oauth_clients (id, client_id, client_secret, name, description, logo, " \
-            "redirect_uri, scopes, policy_url, tos_url, owner_id, is_confidential, created_at, updated_at) " \
-            "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11::uuid, $12, $13, $14)",
-            UUID.random.to_s, client_id, hashed_secret, name, description, logo,
-            redirect_uri, scopes, policy_url, tos_url, owner_id, is_confidential, now, now
-          )
-          conn.exec("COMMIT")
-        rescue e
-          conn.exec("ROLLBACK")
-          raise e
-        end
-      end
+      client = Client.new
+      client.id = UUID.random
+      client.client_id = UUID.random.to_s
+      client.client_secret = hashed_secret
+      client.name = name
+      client.description = description
+      client.logo = logo
+      client.redirect_uri = redirect_uri
+      client.scopes = scopes
+      client.policy_url = policy_url
+      client.tos_url = tos_url
+      client.owner_id = owner_id.try { |id| UUID.new(id) }
+      client.is_confidential = is_confidential
+      client.created_at = now
+      client.updated_at = now
+      client.save!
 
-      # Fetch the created client
-      created_client = find_by_client_id(client_id)
+      created_client = client
 
       # Log audit trail
       if created_client && actor
@@ -159,30 +108,28 @@ module Authority
       ip_address : String? = nil
     ) : Tuple(Result, String?)
       # Generate client credentials
-      client_id = UUID.random.to_s
       plain_secret = ClientSecretService.generate
       hashed_secret = ClientSecretService.hash(plain_secret)
       now = Time.utc
 
-      AuthorityDB.exec_query do |conn|
-        conn.exec("BEGIN")
-        begin
-          conn.exec(
-            "INSERT INTO oauth_clients (id, client_id, client_secret, name, description, logo, " \
-            "redirect_uri, scopes, policy_url, tos_url, owner_id, is_confidential, created_at, updated_at) " \
-            "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11::uuid, $12, $13, $14)",
-            UUID.random.to_s, client_id, hashed_secret, name, description, logo,
-            redirect_uri, scopes, policy_url, tos_url, owner_id, is_confidential, now, now
-          )
-          conn.exec("COMMIT")
-        rescue e
-          conn.exec("ROLLBACK")
-          raise e
-        end
-      end
+      client = Client.new
+      client.id = UUID.random
+      client.client_id = UUID.random.to_s
+      client.client_secret = hashed_secret
+      client.name = name
+      client.description = description
+      client.logo = logo
+      client.redirect_uri = redirect_uri
+      client.scopes = scopes
+      client.policy_url = policy_url
+      client.tos_url = tos_url
+      client.owner_id = owner_id.try { |id| UUID.new(id) }
+      client.is_confidential = is_confidential
+      client.created_at = now
+      client.updated_at = now
+      client.save!
 
-      # Fetch the created client
-      created_client = find_by_client_id(client_id)
+      created_client = client
 
       # Log audit trail
       if created_client && actor
@@ -229,83 +176,55 @@ module Authority
         "is_confidential" => client.is_confidential?.to_s,
       } of String => String?
 
-      # Build update query dynamically
-      updates = [] of String
-      params = [] of String | Time | Bool | Nil
-      param_idx = 1
+      # Update fields if provided
+      has_changes = false
 
       if name
-        updates << "name = $#{param_idx}"
-        params << name
-        param_idx += 1
+        client.name = name
+        has_changes = true
       end
 
       if description
-        updates << "description = $#{param_idx}"
-        params << description
-        param_idx += 1
+        client.description = description
+        has_changes = true
       end
 
       if logo
-        updates << "logo = $#{param_idx}"
-        params << logo
-        param_idx += 1
+        client.logo = logo
+        has_changes = true
       end
 
       if redirect_uri
-        updates << "redirect_uri = $#{param_idx}"
-        params << redirect_uri
-        param_idx += 1
+        client.redirect_uri = redirect_uri
+        has_changes = true
       end
 
       if scopes
-        updates << "scopes = $#{param_idx}"
-        params << scopes
-        param_idx += 1
+        client.scopes = scopes
+        has_changes = true
       end
 
       if policy_url
-        updates << "policy_url = $#{param_idx}"
-        params << policy_url
-        param_idx += 1
+        client.policy_url = policy_url
+        has_changes = true
       end
 
       if tos_url
-        updates << "tos_url = $#{param_idx}"
-        params << tos_url
-        param_idx += 1
+        client.tos_url = tos_url
+        has_changes = true
       end
 
       unless is_confidential.nil?
-        updates << "is_confidential = $#{param_idx}"
-        params << is_confidential
-        param_idx += 1
+        client.is_confidential = is_confidential
+        has_changes = true
       end
 
-      updates << "updated_at = $#{param_idx}"
-      params << Time.utc
-      param_idx += 1
+      return Result.new(success: true, client: client) unless has_changes
 
-      params << id
+      client.updated_at = Time.utc
+      client.update!
 
-      return Result.new(success: true, client: client) if updates.size == 1 # Only updated_at
-
-      AuthorityDB.exec_query do |conn|
-        conn.exec("BEGIN")
-        begin
-          conn.exec(
-            "UPDATE oauth_clients SET #{updates.join(", ")} WHERE id = $#{param_idx}::uuid",
-            args: params
-          )
-          conn.exec("COMMIT")
-        rescue e
-          conn.exec("ROLLBACK")
-          raise e
-        end
-      end
-
-      # Fetch updated client
-      updated_client = get(id)
+      updated_client = client
 
       # Invalidate cache for this client
       if updated_client
@@ -357,24 +276,14 @@ module Authority
       client_name = client.name
       client_uuid = client.id
 
-      AuthorityDB.exec_query do |conn|
-        conn.exec("BEGIN")
-        begin
-          # Delete associated tokens
-          conn.exec("DELETE FROM oauth_opaque_tokens WHERE client_id = $1", client_id_value)
+      # Delete associated tokens
+      OpaqueToken.where(client_id: client_id_value).delete_all
 
-          # Delete associated consents
-          conn.exec("DELETE FROM oauth_consents WHERE client_id = $1", client_id_value)
+      # Delete associated consents
+      Consent.where(client_id: client_id_value).delete_all
 
-          # Delete client
-          conn.exec("DELETE FROM oauth_clients WHERE id = $1::uuid", id)
-
-          conn.exec("COMMIT")
-        rescue e
-          conn.exec("ROLLBACK")
-          raise e
-        end
-      end
+      # Delete client
+      client.delete!
 
       # Invalidate cache for this client
       ClientCacheService.invalidate(client_id_value)
@@ -406,21 +315,11 @@ module Authority
       plain_secret = ClientSecretService.generate
       hashed_secret = ClientSecretService.hash(plain_secret)
 
-      AuthorityDB.exec_query do |conn|
-        conn.exec("BEGIN")
-        begin
-          conn.exec(
-            "UPDATE oauth_clients SET client_secret = $1, updated_at = $2 WHERE id = $3::uuid",
-            hashed_secret, Time.utc, id
-          )
-          conn.exec("COMMIT")
-        rescue e
-          conn.exec("ROLLBACK")
-          raise e
-        end
-      end
+      client.client_secret = hashed_secret
+      client.updated_at = Time.utc
+      client.update!
 
-      updated_client = get(id)
+      updated_client = client
 
       # Invalidate cache for this client
       if updated_client
@@ -446,35 +345,7 @@ module Authority
 
     # Find client by client_id (UUID string used in OAuth flows)
     private def self.find_by_client_id(client_id : String) : Client?
-      client = nil
-
-      AuthorityDB.exec_query do |conn|
-        conn.query_one?(
-          "SELECT id, client_id, client_secret, name, description, logo, redirect_uri, scopes, " \
-          "policy_url, tos_url, owner_id, is_confidential, created_at, updated_at " \
-          "FROM oauth_clients WHERE client_id = $1::uuid",
-          client_id
-        ) do |rs|
-          c = Client.new
-          c.id = rs.read(UUID)
-          c.client_id = rs.read(UUID).to_s
-          c.client_secret = rs.read(String)
-          c.name = rs.read(String)
-          c.description = rs.read(String?)
-          c.logo = rs.read(String?) || ""
-          c.redirect_uri = rs.read(String)
-          c.scopes = rs.read(String?) || ""
-          c.policy_url = rs.read(String?)
-          c.tos_url = rs.read(String?)
-          c.owner_id = rs.read(UUID?)
-          c.is_confidential = rs.read(Bool?) || true
-          c.created_at = rs.read(Time?)
-          c.updated_at = rs.read(Time?)
-          client = c
-        end
-      end
-
-      client
+      Client.find_by(client_id: client_id)
     end
   end
 end

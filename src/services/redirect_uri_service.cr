@@ -43,21 +43,12 @@ module Authority
       uris.empty? ? nil : uris
     end
 
-    # Find client's redirect URIs using direct SQL
+    # Find client's redirect URIs using Active Record
     private def self.find_client_uris(client_id : String) : Tuple(String, String?)?
-      result = nil
-      AuthorityDB.exec_query do |conn|
-        conn.query_one?(
-          "SELECT redirect_uri, redirect_uris FROM oauth_clients WHERE client_id = $1",
-          client_id
-        ) do |query_result|
-          primary = query_result.read(String)
-          additional = query_result.read(String?)
-          result = {primary, additional}
-        end
-      end
-      result
-    rescue PQ::PQError
+      client = Client.find_by(client_id: client_id)
+      return nil unless client
+      {client.redirect_uri, client.redirect_uris}
+    rescue
       nil
     end
 
@@ -91,15 +82,12 @@ module Authority
     end
 
     private def self.update_redirect_uris(client_id : String, uris : String) : Bool
-      AuthorityDB.exec_query do |conn|
-        conn.exec(
-          "UPDATE oauth_clients SET redirect_uris = $1 WHERE client_id = $2",
-          uris,
-          client_id
-        )
-      end
+      client = Client.find_by(client_id: client_id)
+      return false unless client
+      client.redirect_uris = uris
+      client.update!
       true
-    rescue PQ::PQError
+    rescue
       false
     end
   end

@@ -23,12 +23,23 @@ module Authority::Dashboard::AuditLogs
     )
     end
 
+    # Pre-calculate pagination display values
+    private def display_from : Int64
+      (@page - 1).to_i64 * @per_page + 1
+    end
+
+    private def display_to : Int64
+      [@page.to_i64 * @per_page, @total_count].min
+    end
+
     def render
       view TEMPLATE, {
         logs:                 @logs,
         page:                 @page,
         per_page:             @per_page,
         total_count:          @total_count,
+        display_from:         display_from,
+        display_to:           display_to,
         actors:               @actors,
         actions:              @actions,
         filter_actor_id:      @filter_actor_id,

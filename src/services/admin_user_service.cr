@@ -44,160 +44,79 @@ module Authority
     # List all users with pagination and filtering
     def self.list(options : ListOptions = ListOptions.new) : Array(User)
       offset = (options.page - 1) * options.per_page
-      results = [] of User
 
-      # Build WHERE conditions
-      conditions = [] of String
-      params = [] of String | Int32
-      param_idx = 1
+      query = User.query
 
-      # Search filter (username, email, first_name, last_name)
-      if search = options.search
-        if !search.empty?
-          conditions << "(username ILIKE $#{param_idx} OR email ILIKE $#{param_idx} OR first_name ILIKE $#{param_idx} OR last_name ILIKE $#{param_idx})"
-          params << "%#{search}%"
-          param_idx += 1
-        end
-      end
-
-      # Status filter
-      case options.status
-      when "active"
-        conditions << "locked_at IS NULL"
-      when "locked"
-        conditions << "locked_at IS NOT NULL"
-      end
-
-      # Role filter
+      # Role filter (can be done at DB level)
       if role = options.role
-        if !role.empty?
-          conditions << "role = $#{param_idx}"
-          params << role
-          param_idx += 1
-        end
+        query = query.where(role: role) unless role.empty?
       end
-
-      where_clause = conditions.empty? ? "" : "WHERE #{conditions.join(" AND ")}"
 
       # Validate sort column to prevent SQL injection
       valid_sort_columns = ["created_at", "updated_at", "username", "email", "last_login_at"]
       sort_column = valid_sort_columns.includes?(options.sort_by) ? options.sort_by : "created_at"
-      sort_direction = options.sort_dir.upcase == "ASC" ? "ASC" : "DESC"
+      sort_direction = options.sort_dir.upcase == "ASC" ? :asc : :desc
 
-      params << options.per_page
-      params << offset
+      # Apply ordering based on validated column
+      case sort_column
+      when "created_at"
+        query = query.order(created_at: sort_direction)
+      when "updated_at"
+        query = query.order(updated_at: sort_direction)
+      when "username"
+        query = query.order(username: sort_direction)
+      when "email"
+        query = query.order(email: sort_direction)
+      when "last_login_at"
+        query = query.order(last_login_at: sort_direction)
+      end
 
-      query = "SELECT id::text, username, email, first_name, last_name, email_verified, scope, " \
-              "encrypted_password, role, locked_at, lock_reason, failed_login_attempts, " \
-              "last_login_at, last_login_ip::TEXT, created_at, updated_at " \
-              "FROM oauth_owners #{where_clause} " \
-              "ORDER BY #{sort_column} #{sort_direction} " \
-              "LIMIT $#{param_idx} OFFSET $#{param_idx + 1}"
+      # Fetch all matching users, then apply in-memory filters
+      results = query.all
 
-      AuthorityDB.exec_query do |conn|
-        conn.query(query, args: params) do |rs|
-          rs.each do
-            user = User.new
-            user.id = rs.read(String)
-            user.username = rs.read(String)
-            user.email = rs.read(String)
-            user.first_name = rs.read(String)
-            user.last_name = rs.read(String)
-            user.email_verified = rs.read(Bool?) || false
-            user.scope = rs.read(String?) || ""
-            user.encrypted_password = rs.read(String)
-            user.role = rs.read(String?) || "user"
-            user.locked_at = rs.read(Time?)
-            user.lock_reason = rs.read(String?)
-            user.failed_login_attempts = rs.read(Int32?) || 0
-            user.last_login_at = rs.read(Time?)
-            user.last_login_ip = rs.read(String?)
-            user.created_at = rs.read(Time?)
-            user.updated_at = rs.read(Time?)
-            results << user
+      # Apply search filter in memory (block DSL doesn't work outside model context)
+      if search = options.search
+        if !search.empty?
+          pattern = search.downcase
+          results = results.select do |user|
+            user.username.downcase.includes?(pattern) ||
+              user.email.downcase.includes?(pattern) ||
+              user.first_name.downcase.includes?(pattern) ||
+              user.last_name.downcase.includes?(pattern)
           end
         end
       end
 
-      results
+      # Apply status filter in memory
+      case options.status
+      when "active"
+        results = results.select { |user| user.locked_at.nil? }
+      when "locked"
+        results = results.select { |user| !user.locked_at.nil? }
+      end
+
+      # Apply pagination in memory
+      results.skip(offset).first(options.per_page)
     end
 
     # Count total users with filters
     def self.count(options : ListOptions = ListOptions.new) : Int64
-      conditions = [] of String
-      params = [] of String
-      param_idx = 1
-
-      if search = options.search
-        if !search.empty?
-          conditions << "(username ILIKE $#{param_idx} OR email ILIKE $#{param_idx} OR first_name ILIKE $#{param_idx} OR last_name ILIKE $#{param_idx})"
-          params << "%#{search}%"
-          param_idx += 1
-        end
-      end
-
-      case options.status
-      when "active"
-        conditions << "locked_at IS NULL"
-      when "locked"
-        conditions << "locked_at IS NOT NULL"
-      end
-
-      if role = options.role
-        if !role.empty?
-          conditions << "role = $#{param_idx}"
-          params << role
-        end
-      end
-
-      where_clause = conditions.empty? ? "" : "WHERE #{conditions.join(" AND ")}"
-      query = "SELECT COUNT(*) FROM oauth_owners #{where_clause}"
-
-      count = 0_i64
-      AuthorityDB.exec_query do |conn|
-        if params.empty?
-          count = conn.scalar(query).as(Int64)
-        else
-          count = conn.scalar(query, args: params).as(Int64)
-        end
-      end
-      count
+      # Use list with a large limit and count results for filtered queries
+      # This ensures consistent filtering behavior between list and count
+      list(ListOptions.new(
+        page: 1,
+        per_page: Int32::MAX,
+        search: options.search,
+        status: options.status,
+        role: options.role
+      )).size.to_i64
     end
 
     # Get a single user by ID
     def self.get(id : String) : User?
-      user = nil
-
-      AuthorityDB.exec_query do |conn|
-        conn.query_one?(
-          "SELECT id::text, username, email, first_name, last_name, email_verified, scope, " \
-          "encrypted_password, role, locked_at, lock_reason, failed_login_attempts, " \
-          "last_login_at, last_login_ip::TEXT, created_at, updated_at " \
-          "FROM oauth_owners WHERE id = $1::uuid",
-          id
-        ) do |rs|
-          u = User.new
-          u.id = rs.read(String)
-          u.username = rs.read(String)
-          u.email = rs.read(String)
-          u.first_name = rs.read(String)
-          u.last_name = rs.read(String)
-          u.email_verified = rs.read(Bool?) || false
-          u.scope = rs.read(String?) || ""
-          u.encrypted_password = rs.read(String)
-          u.role = rs.read(String?) || "user"
-          u.locked_at = rs.read(Time?)
-          u.lock_reason = rs.read(String?)
-          u.failed_login_attempts = rs.read(Int32?) || 0
-          u.last_login_at = rs.read(Time?)
-          u.last_login_ip = rs.read(String?)
-          u.created_at = rs.read(Time?)
-          u.updated_at = rs.read(Time?)
-          user = u
-        end
-      end
-
-      user
+      User.find_by(id: id)
+    rescue
+      nil
     end
 
     # Create a new user
@@ -228,30 +147,24 @@ module Authority
         return Result.new(success: false, error: "Email already exists", error_code: "duplicate_email")
       end
 
-      # Hash password
-      encrypted_password = Crypto::Bcrypt::Password.create(password).to_s
       now = Time.utc
-      id = UUID.random.to_s
 
-      AuthorityDB.exec_query do |conn|
-        conn.exec("BEGIN")
-        begin
-          conn.exec(
-            "INSERT INTO oauth_owners (id, username, email, first_name, last_name, " \
-            "email_verified, scope, encrypted_password, role, failed_login_attempts, " \
-            "created_at, updated_at) " \
-            "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 0, $10, $11)",
-            id, username, email, first_name, last_name,
-            email_verified, scope, encrypted_password, role, now, now
-          )
-          conn.exec("COMMIT")
-        rescue e
-          conn.exec("ROLLBACK")
-          raise e
-        end
-      end
+      user = User.new
+      user.id = UUID.random
+      user.username = username
+      user.email = email
+      user.first_name = first_name
+      user.last_name = last_name
+      user.email_verified = email_verified
+      user.scope = scope
+      user.password = password
+      user.role = role
+      user.failed_login_attempts = 0
+      user.created_at = now
+      user.updated_at = now
+      user.save!
 
-      created_user = get(id)
+      created_user = user
 
       # Log audit trail
       if created_user && actor
@@ -259,7 +172,7 @@ module Authority
           actor: actor,
           action: AuditLog::Actions::CREATE,
           resource_type: AuditLog::ResourceTypes::USER,
-          resource_id: created_user.id,
+          resource_id: created_user.id.to_s,
           resource_name: created_user.username,
           ip_address: ip_address
         )
@@ -307,76 +220,50 @@ module Authority
         return Result.new(success: false, error: "Email already exists", error_code: "duplicate_email")
       end
 
-      # Build update query dynamically
-      updates = [] of String
-      params = [] of String | Time | Bool | Nil
-      param_idx = 1
+      # Update fields if provided
+      has_changes = false
 
       if username && !username.empty?
-        updates << "username = $#{param_idx}"
-        params << username
-        param_idx += 1
+        user.username = username
+        has_changes = true
       end
 
       if email && !email.empty?
-        updates << "email = $#{param_idx}"
-        params << email
-        param_idx += 1
+        user.email = email
+        has_changes = true
       end
 
       if first_name
-        updates << "first_name = $#{param_idx}"
-        params << first_name
-        param_idx += 1
+        user.first_name = first_name
+        has_changes = true
       end
 
       if last_name
-        updates << "last_name = $#{param_idx}"
-        params << last_name
-        param_idx += 1
+        user.last_name = last_name
+        has_changes = true
       end
 
       if role
-        updates << "role = $#{param_idx}"
-        params << role
-        param_idx += 1
+        user.role = role
+        has_changes = true
       end
 
       if scope
-        updates << "scope = $#{param_idx}"
-        params << scope
-        param_idx += 1
+        user.scope = scope
+        has_changes = true
       end
 
       unless email_verified.nil?
-        updates << "email_verified = $#{param_idx}"
-        params << email_verified
-        param_idx += 1
+        user.email_verified = email_verified
+        has_changes = true
       end
 
-      updates << "updated_at = $#{param_idx}"
-      params << Time.utc
-      param_idx += 1
+      return Result.new(success: true, user: user) unless has_changes
 
-      params << id
+      user.updated_at = Time.utc
+      user.update!
 
-      return Result.new(success: true, user: user) if updates.size == 1 # Only updated_at
-
-      AuthorityDB.exec_query do |conn|
-        conn.exec("BEGIN")
-        begin
-          conn.exec(
-            "UPDATE oauth_owners SET #{updates.join(", ")} WHERE id = $#{param_idx}::uuid",
-            args: params
-          )
-          conn.exec("COMMIT")
-        rescue e
-          conn.exec("ROLLBACK")
-          raise e
-        end
-      end
-
-      updated_user = get(id)
+      updated_user = user
 
       # Log audit trail with changes
       if updated_user && actor
@@ -396,7 +283,7 @@ module Authority
           actor: actor,
           action: AuditLog::Actions::UPDATE,
           resource_type: AuditLog::ResourceTypes::USER,
-          resource_id: updated_user.id,
+          resource_id: updated_user.id.to_s,
           resource_name: updated_user.username,
           changes: changes,
           ip_address: ip_address
@@ -430,26 +317,16 @@ module Authority
 
       now = Time.utc
 
-      AuthorityDB.exec_query do |conn|
-        conn.exec("BEGIN")
-        begin
-          # Lock the user
-          conn.exec(
-            "UPDATE oauth_owners SET locked_at = $1, lock_reason = $2, updated_at = $3 WHERE id = $4::uuid",
-            now, reason, now, id
-          )
+      # Lock the user
+      user.locked_at = now
+      user.lock_reason = reason
+      user.updated_at = now
+      user.update!
 
-          # Note: Sessions are managed in-memory/cookies, not database
-          # The locked user will be blocked on next request when locked_at is checked
+      # Note: Sessions are managed in-memory/cookies, not database
+      # The locked user will be blocked on next request when locked_at is checked
 
-          conn.exec("COMMIT")
-        rescue e
-          conn.exec("ROLLBACK")
-          raise e
-        end
-      end
-
-      locked_user = get(id)
+      locked_user = user
 
       # Log audit trail
       if locked_user
@@ -457,7 +334,7 @@ module Authority
           actor: actor,
           action: AuditLog::Actions::LOCK,
           resource_type: AuditLog::ResourceTypes::USER,
-          resource_id: locked_user.id,
+          resource_id: locked_user.id.to_s,
           resource_name: locked_user.username,
           changes: {"reason" => [nil.as(String?), reason.as(String?)]},
           ip_address: ip_address
@@ -484,22 +361,13 @@ module Authority
 
       now = Time.utc
 
-      AuthorityDB.exec_query do |conn|
-        conn.exec("BEGIN")
-        begin
-          conn.exec(
-            "UPDATE oauth_owners SET locked_at = NULL, lock_reason = NULL, " \
-            "failed_login_attempts = 0, updated_at = $1 WHERE id = $2::uuid",
-            now, id
-          )
-          conn.exec("COMMIT")
-        rescue e
-          conn.exec("ROLLBACK")
-          raise e
-        end
-      end
+      user.locked_at = nil
+      user.lock_reason = nil
+      user.failed_login_attempts = 0
+      user.updated_at = now
+      user.update!
 
-      unlocked_user = get(id)
+      unlocked_user = user
 
       # Log audit trail
       if unlocked_user
@@ -507,7 +375,7 @@ module Authority
           actor: actor,
           action: AuditLog::Actions::UNLOCK,
           resource_type: AuditLog::ResourceTypes::USER,
-          resource_id: unlocked_user.id,
+          resource_id: unlocked_user.id.to_s,
           resource_name: unlocked_user.username,
           ip_address: ip_address
         )
@@ -530,24 +398,13 @@ module Authority
 
       return Result.new(success: false, error: "Password is required", error_code: "validation_error") if password.empty?
 
-      encrypted_password = Crypto::Bcrypt::Password.create(password).to_s
       now = Time.utc
 
-      AuthorityDB.exec_query do |conn|
-        conn.exec("BEGIN")
-        begin
-          conn.exec(
-            "UPDATE oauth_owners SET encrypted_password = $1, updated_at = $2 WHERE id = $3::uuid",
-            encrypted_password, now, id
-          )
-          conn.exec("COMMIT")
-        rescue e
-          conn.exec("ROLLBACK")
-          raise e
-        end
-      end
+      user.password = password
+      user.updated_at = now
+      user.update!
 
-      updated_user = get(id)
+      updated_user = user
 
       # Log audit trail (do not log password value!)
       if updated_user
@@ -555,7 +412,7 @@ module Authority
           actor: actor,
           action: AuditLog::Actions::RESET_PASS,
           resource_type: AuditLog::ResourceTypes::USER,
-          resource_id: updated_user.id,
+          resource_id: updated_user.id.to_s,
           resource_name: updated_user.username,
           ip_address: ip_address
         )
@@ -587,28 +444,18 @@ module Authority
 
       # Capture user info for audit before deletion
       user_username = user.username
-      user_uuid = user.id
+      user_uuid = user.id.to_s
 
-      AuthorityDB.exec_query do |conn|
-        conn.exec("BEGIN")
-        begin
-          # Delete associated tokens (user_id is TEXT type)
-          conn.exec("DELETE FROM oauth_opaque_tokens WHERE user_id = $1", id)
+      # Delete associated tokens
+      OpaqueToken.where(user_id: id).delete_all
 
-          # Delete associated consents (user_id is TEXT type)
-          conn.exec("DELETE FROM oauth_consents WHERE user_id = $1", id)
+      # Delete associated consents
+      Consent.where(user_id: id).delete_all
 
-          # Note: Sessions are managed in-memory/cookies, not database
+      # Note: Sessions are managed in-memory/cookies, not database
 
-          # Delete user
-          conn.exec("DELETE FROM oauth_owners WHERE id = $1::uuid", id)
-
-          conn.exec("COMMIT")
-        rescue e
-          conn.exec("ROLLBACK")
-          raise e
-        end
-      end
+      # Delete user
+      user.delete!
 
       # Log audit trail
       AuditService.log(
@@ -627,17 +474,16 @@ module Authority
 
     # Record a successful login
     def self.record_login(id : String, ip_address : String) : Result
-      now = Time.utc
-
-      AuthorityDB.exec_query do |conn|
-        conn.exec(
-          "UPDATE oauth_owners SET last_login_at = $1, last_login_ip = $2, " \
-          "failed_login_attempts = 0, updated_at = $3 WHERE id = $4::uuid",
-          now, ip_address, now, id
-        )
-      end
-
       user = get(id)
+      return Result.new(success: false, error: "User not found", error_code: "not_found") unless user
+
+      now = Time.utc
+      user.last_login_at = now
+      user.last_login_ip = ip_address
+      user.failed_login_attempts = 0
+      user.updated_at = now
+      user.update!
+
       Result.new(success: true, user: user)
     rescue e
       Result.new(success: false, error: e.message, error_code: "record_login_failed")
@@ -645,15 +491,13 @@ module Authority
 
     # Record a failed login attempt
     def self.record_failed_login(id : String) : Result
-      AuthorityDB.exec_query do |conn|
-        conn.exec(
-          "UPDATE oauth_owners SET failed_login_attempts = failed_login_attempts + 1, " \
-          "updated_at = $1 WHERE id = $2::uuid",
-          Time.utc, id
-        )
-      end
-
       user = get(id)
+      return Result.new(success: false, error: "User not found", error_code: "not_found") unless user
+
+      user.failed_login_attempts = user.failed_login_attempts + 1
+      user.updated_at = Time.utc
+      user.update!
+
       Result.new(success: true, user: user)
     rescue e
       Result.new(success: false, error: e.message, error_code: "record_failed_login_failed")
@@ -661,20 +505,12 @@ module Authority
 
     # Check if username exists
     private def self.exists_by_username?(username : String) : Bool
-      count = 0_i64
-      AuthorityDB.exec_query do |conn|
-        count = conn.scalar("SELECT COUNT(*) FROM oauth_owners WHERE username = $1", username).as(Int64)
-      end
-      count > 0
+      User.exists?(username: username)
     end
 
     # Check if email exists
     private def self.exists_by_email?(email : String) : Bool
-      count = 0_i64
-      AuthorityDB.exec_query do |conn|
-        count = conn.scalar("SELECT COUNT(*) FROM oauth_owners WHERE email = $1", email).as(Int64)
-      end
-      count > 0
+      User.exists?(email: email)
     end
   end
 end

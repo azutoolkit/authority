@@ -173,7 +173,9 @@ module Authority
 
     # Cleanup expired tokens (for maintenance)
     def self.cleanup_expired!
-      OpaqueToken.where("expires_at < ?", Time.utc).delete_all
+      OpaqueToken
+        .where { oauth_opaque_tokens.expires_at < Time.utc }
+        .delete_all
     end
 
     # Check if a token string looks like an opaque token (vs JWT)

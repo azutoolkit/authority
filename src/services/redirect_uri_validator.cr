@@ -21,20 +21,10 @@ module Authority
       compare_uris(registered_uri, redirect_uri)
     end
 
-    # Find client's registered redirect_uri by client_id using direct SQL
+    # Find client's registered redirect_uri by client_id using Active Record
     private def self.find_client_redirect_uri(client_id : String) : String?
-      uri = nil
-      AuthorityDB.exec_query do |conn|
-        conn.query_one?(
-          "SELECT redirect_uri FROM oauth_clients WHERE client_id = $1",
-          client_id
-        ) do |result|
-          uri = result.read(String)
-        end
-      end
-      uri
-    rescue PQ::PQError
-      # Invalid UUID format - treat as client not found
+      Client.find_by(client_id: client_id).try(&.redirect_uri)
+    rescue
       nil
     end
 
