@@ -133,7 +133,7 @@ module Authority
           actor: actor,
           action: AuditLog::Actions::CREATE,
           resource_type: AuditLog::ResourceTypes::CLIENT,
-          resource_id: created_client.id,
+          resource_id: created_client.id.to_s,
           resource_name: created_client.name,
           ip_address: ip_address
         )
@@ -190,7 +190,7 @@ module Authority
           actor: actor,
           action: AuditLog::Actions::CREATE,
           resource_type: AuditLog::ResourceTypes::CLIENT,
-          resource_id: created_client.id,
+          resource_id: created_client.id.to_s,
           resource_name: created_client.name,
           ip_address: ip_address
         )
@@ -330,7 +330,7 @@ module Authority
           actor: actor,
           action: AuditLog::Actions::UPDATE,
           resource_type: AuditLog::ResourceTypes::CLIENT,
-          resource_id: updated_client.id,
+          resource_id: updated_client.id.to_s,
           resource_name: updated_client.name,
           changes: changes,
           ip_address: ip_address
@@ -384,7 +384,7 @@ module Authority
         actor: actor,
         action: AuditLog::Actions::DELETE,
         resource_type: AuditLog::ResourceTypes::CLIENT,
-        resource_id: client_uuid,
+        resource_id: client_uuid.to_s,
         resource_name: client_name,
         ip_address: ip_address
       )
@@ -433,7 +433,7 @@ module Authority
           actor: actor,
           action: AuditLog::Actions::REGEN_SECRET,
           resource_type: AuditLog::ResourceTypes::CLIENT,
-          resource_id: updated_client.id,
+          resource_id: updated_client.id.to_s,
           resource_name: updated_client.name,
           ip_address: ip_address
         )

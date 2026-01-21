@@ -87,7 +87,7 @@ module Authority
       params << options.per_page
       params << offset
 
-      query = "SELECT id, username, email, first_name, last_name, email_verified, scope, " \
+      query = "SELECT id::text, username, email, first_name, last_name, email_verified, scope, " \
               "encrypted_password, role, locked_at, lock_reason, failed_login_attempts, " \
               "last_login_at, last_login_ip::TEXT, created_at, updated_at " \
               "FROM oauth_owners #{where_clause} " \
@@ -98,7 +98,7 @@ module Authority
         conn.query(query, args: params) do |rs|
           rs.each do
             user = User.new
-            user.id = rs.read(UUID)
+            user.id = rs.read(String)
             user.username = rs.read(String)
             user.email = rs.read(String)
             user.first_name = rs.read(String)
@@ -170,14 +170,14 @@ module Authority
 
       AuthorityDB.exec_query do |conn|
         conn.query_one?(
-          "SELECT id, username, email, first_name, last_name, email_verified, scope, " \
+          "SELECT id::text, username, email, first_name, last_name, email_verified, scope, " \
           "encrypted_password, role, locked_at, lock_reason, failed_login_attempts, " \
           "last_login_at, last_login_ip::TEXT, created_at, updated_at " \
           "FROM oauth_owners WHERE id = $1::uuid",
           id
         ) do |rs|
           u = User.new
-          u.id = rs.read(UUID)
+          u.id = rs.read(String)
           u.username = rs.read(String)
           u.email = rs.read(String)
           u.first_name = rs.read(String)

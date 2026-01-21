@@ -190,7 +190,7 @@ module Authority
           actor: actor,
           action: AuditLog::Actions::CREATE,
           resource_type: AuditLog::ResourceTypes::SCOPE,
-          resource_id: created_scope.id,
+          resource_id: created_scope.id.to_s,
           resource_name: created_scope.name,
           ip_address: ip_address
         )
@@ -305,7 +305,7 @@ module Authority
           actor: actor,
           action: AuditLog::Actions::UPDATE,
           resource_type: AuditLog::ResourceTypes::SCOPE,
-          resource_id: updated_scope.id,
+          resource_id: updated_scope.id.to_s,
           resource_name: updated_scope.name,
           changes: changes,
           ip_address: ip_address
@@ -351,7 +351,7 @@ module Authority
         actor: actor,
         action: AuditLog::Actions::DELETE,
         resource_type: AuditLog::ResourceTypes::SCOPE,
-        resource_id: scope_uuid,
+        resource_id: scope_uuid.to_s,
         resource_name: scope_name,
         ip_address: ip_address
       )

@@ -1,6 +1,8 @@
 module Authority
+  @[Crinja::Attributes(expose: [id, name, client_id, client_secret, description, logo, scopes, redirect_uri, policy_url, tos_url, owner_id, is_confidential?, created_at, updated_at])]
   class Client
     include CQL::ActiveRecord::Model(UUID)
+    include Crinja::Object::Auto
     db_context AuthorityDB, :oauth_clients
 
     property name : String = ""

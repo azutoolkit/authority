@@ -29,7 +29,8 @@ module Authority
         return nil unless authenticated?
 
         begin
-          user = User.find!(current_session.user_id)
+          user = OwnerRepo.find_by_id(current_session.user_id)
+          return nil unless user
           RBACService.admin?(user) ? user : nil
         rescue
           nil

@@ -9,11 +9,12 @@ module Authority
     end
 
     def id_token(user_id : String) : Hash(String, Int64 | String)
-      User.find!(user_id).try &.claims
+      user = OwnerRepo.find_by_id(user_id)
+      user.try(&.claims) || {} of String => Int64 | String
     end
 
     def find!(username : String)
-      User.find_by!(username: username)
+      OwnerRepo.find!(username)
     end
 
     def create!(req : Owner::NewRequest)

@@ -20,7 +20,8 @@ module Authority::Profile
       return redirect_to_signin unless authenticated?
 
       # Get the current user
-      user = User.find!(current_session.user_id)
+      user = OwnerRepo.find_by_id(current_session.user_id)
+      return redirect_to_signin unless user
 
       # Get connected applications (grants)
       connected_apps = [] of ConnectedApp

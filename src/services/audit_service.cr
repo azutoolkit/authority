@@ -10,7 +10,7 @@ module Authority
       property actor : User
       property action : String
       property resource_type : String
-      property resource_id : UUID?
+      property resource_id : String?
       property resource_name : String?
       property changes : Hash(String, Array(String?))?
       property ip_address : String?
@@ -20,7 +20,7 @@ module Authority
         @actor : User,
         @action : String,
         @resource_type : String,
-        @resource_id : UUID? = nil,
+        @resource_id : String? = nil,
         @resource_name : String? = nil,
         @changes : Hash(String, Array(String?))? = nil,
         @ip_address : String? = nil,
@@ -69,7 +69,7 @@ module Authority
       actor : User,
       action : String,
       resource_type : String,
-      resource_id : UUID? = nil,
+      resource_id : String? = nil,
       resource_name : String? = nil,
       changes : Hash(String, Array(String?))? = nil,
       ip_address : String? = nil,

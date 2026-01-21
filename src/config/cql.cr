@@ -10,7 +10,7 @@ AuthorityDB = CQL::Schema.define(
   CQL::Adapter::Postgres
 ) do
   table :oauth_owners do
-    primary :id, UUID
+    primary :id, String
     text :username, null: false, index: true, unique: true
     text :encrypted_password, null: false
     text :first_name, null: false

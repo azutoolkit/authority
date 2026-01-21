@@ -1,6 +1,8 @@
 module Authority
+  @[Crinja::Attributes(expose: [id, username, email, first_name, last_name, role, email_verified, locked_at, last_login_at, created_at, updated_at, locked?])]
   class User
-    include CQL::ActiveRecord::Model(UUID)
+    include CQL::ActiveRecord::Model(String)
+    include Crinja::Object::Auto
     db_context AuthorityDB, :oauth_owners
 
     property username : String = ""

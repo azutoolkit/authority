@@ -1,6 +1,8 @@
 module Authority
+  @[Crinja::Attributes(expose: [id, actor_id, actor_email, action, resource_type, resource_id, resource_name, ip_address, user_agent, created_at, action_badge_class, action_label])]
   class AuditLog
     include CQL::ActiveRecord::Model(UUID)
+    include Crinja::Object::Auto
     db_context AuthorityDB, :oauth_audit_logs
 
     property actor_id : UUID?
