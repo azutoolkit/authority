@@ -10,8 +10,9 @@ module Authority
       User.find!(user_id).try &.id_token
     end
 
-    def self.find!(username : String)
-      User.find_by!(username: username)
+    def self.find!(username_or_email : String)
+      # Try finding by username first, then by email
+      User.find_by(username: username_or_email) || User.find_by!(email: username_or_email)
     end
 
     def self.create!(req : Owner::NewRequest)

@@ -170,4 +170,10 @@ AppSchema = CQL::Schema.define(
     timestamps
   end
 
+  table :seed_versions do
+    primary :id, Int32
+    text :seed_name
+    timestamp :executed_at, default: "CURRENT_TIMESTAMP"
+  end
+
 end

@@ -87,4 +87,30 @@ AuthorityDB = CQL::Schema.define(
     timestamp :used_at, null: true
     timestamps
   end
+
+  # OAuth Scopes Table - manages OAuth scopes with metadata
+  table :oauth_scopes do
+    primary :id, UUID
+    text :name, null: false, index: true, unique: true
+    text :display_name, null: false
+    text :description, null: true
+    boolean :is_default, null: false, default: false, index: true
+    boolean :is_system, null: false, default: false
+    timestamps
+  end
+
+  # Audit Logs Table - tracks admin actions
+  table :oauth_audit_logs do
+    primary :id, UUID
+    column :actor_id, UUID, null: false, index: true
+    text :actor_email, null: false
+    text :action, null: false, index: true
+    text :resource_type, null: false
+    column :resource_id, UUID, null: true
+    text :resource_name, null: true
+    text :changes, null: true
+    text :ip_address, null: true
+    text :user_agent, null: true
+    timestamp :created_at, null: true, index: true
+  end
 end

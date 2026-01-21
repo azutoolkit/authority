@@ -307,6 +307,11 @@ module Authority
       # Fetch updated client
       updated_client = get(id)
 
+      # Invalidate cache for this client
+      if updated_client
+        ClientCacheService.invalidate(updated_client.client_id)
+      end
+
       # Log audit trail with changes
       if updated_client && actor
         new_values = {
@@ -371,6 +376,9 @@ module Authority
         end
       end
 
+      # Invalidate cache for this client
+      ClientCacheService.invalidate(client_id_value)
+
       # Log audit trail
       AuditService.log(
         actor: actor,
@@ -413,6 +421,11 @@ module Authority
       end
 
       updated_client = get(id)
+
+      # Invalidate cache for this client
+      if updated_client
+        ClientCacheService.invalidate(updated_client.client_id)
+      end
 
       # Log audit trail
       if updated_client

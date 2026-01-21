@@ -41,9 +41,10 @@ def create_test_client(name : String = "Test Client") : Authority::Client
 end
 
 describe Authority::AdminClientService do
-  Spec.before_each do
+  before_each do
     AuthorityDB.exec_query { |conn| conn.exec("TRUNCATE TABLE oauth_clients CASCADE") }
     AuthorityDB.exec_query { |conn| conn.exec("TRUNCATE TABLE oauth_owners CASCADE") }
+    Authority::ClientCacheService.reset
   end
 
   describe ".list" do

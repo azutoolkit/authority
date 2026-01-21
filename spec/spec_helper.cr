@@ -46,4 +46,6 @@ Spec.before_each do
     AuthorityDB.exec_query { |conn| conn.exec("TRUNCATE TABLE oauth_consents CASCADE") }
   rescue
   end
+  # Reset client cache to ensure test isolation
+  Authority::ClientCacheService.reset
 end

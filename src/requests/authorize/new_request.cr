@@ -25,7 +25,7 @@ module Authority::Authorize
     validate consent_action
 
     def client
-      Client.find_by!(client_id: client_id)
+      ClientRepo.find_by!(client_id)
     end
 
     def consent_denied? : Bool

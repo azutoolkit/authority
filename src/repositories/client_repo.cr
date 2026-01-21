@@ -5,7 +5,16 @@ module Authority
     end
 
     def self.find_by!(other_client_id : String) : Client
+      # Try cache first
+      if client = ClientCacheService.get(other_client_id)
+        return client
+      end
+      # Fall back to direct DB lookup if not in cache
       Client.find_by!(client_id: other_client_id)
+    end
+
+    def self.find_by(other_client_id : String) : Client?
+      ClientCacheService.get(other_client_id)
     end
 
     def self.valid_redirect?(client_id : String, redirect_uri : String) : Bool
