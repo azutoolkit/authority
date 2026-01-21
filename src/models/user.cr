@@ -10,10 +10,21 @@ module Authority
     property email_verified : Bool = false
     property scope : String = ""
     property encrypted_password : String = ""
+    property role : String = "user"
+    property locked_at : Time?
+    property lock_reason : String?
+    property failed_login_attempts : Int32 = 0
+    property last_login_at : Time?
+    property last_login_ip : String?
     property created_at : Time?
     property updated_at : Time?
 
     def initialize
+    end
+
+    # Check if user account is locked
+    def locked? : Bool
+      !locked_at.nil?
     end
 
     def password=(plain_text : String)

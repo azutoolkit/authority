@@ -4,6 +4,7 @@ module Authority::Dashboard::Clients
   class RegenerateSecretEndpoint
     include SessionHelper
     include SecurityHeadersHelper
+    include AdminAuthHelper
     include Endpoint(RegenerateSecretRequest, SecretResponse | Response)
 
     get "/dashboard/clients/:id/regenerate-secret"
@@ -14,18 +15,17 @@ module Authority::Dashboard::Clients
       header "Cache-Control", "no-store"
       header "Pragma", "no-cache"
 
-      # Check if user is authenticated
-      return redirect_to_signin unless authenticated?
+      # Check admin authorization
+      if auth_error = require_admin!
+        return auth_error
+      end
 
-      # Get current user
-      user = User.find!(current_session.user_id)
-
-      # TODO: Add admin check once RBACService is implemented
-      # return forbidden_response unless RBACService.admin?(user)
+      user = current_admin_user
+      return forbidden_response("Admin access required") unless user
 
       # Regenerate the secret
       result, plain_secret = AdminClientService.regenerate_secret(
-        id: params.id,
+        id: regenerate_secret_request.id,
         actor: user
       )
 

@@ -1,13 +1,13 @@
-# Endpoint for Admin Client Show page
-# GET /dashboard/clients/:id - Display client details
-module Authority::Dashboard::Clients
+# Endpoint for Admin User Show page
+# GET /dashboard/users/:id - Display user details
+module Authority::Dashboard::Users
   class ShowEndpoint
     include SessionHelper
     include SecurityHeadersHelper
     include AdminAuthHelper
     include Endpoint(ShowRequest, ShowResponse | Response)
 
-    get "/dashboard/clients/:id"
+    get "/dashboard/users/:id"
 
     def call : ShowResponse | Response
       set_security_headers!
@@ -20,19 +20,19 @@ module Authority::Dashboard::Clients
         return auth_error
       end
 
-      user = current_admin_user
-      return forbidden_response("Admin access required") unless user
+      admin_user = current_admin_user
+      return forbidden_response("Admin access required") unless admin_user
 
-      # Get the client
-      client = AdminClientService.get(show_request.id)
+      # Get the user
+      target_user = AdminUserService.get(show_request.id)
 
-      unless client
-        return redirect to: "/dashboard/clients", status: 302
+      unless target_user
+        return redirect to: "/dashboard/users", status: 302
       end
 
       ShowResponse.new(
-        client: client,
-        username: user.username
+        user: target_user,
+        username: admin_user.username
       )
     end
   end

@@ -10,7 +10,8 @@ module Authority::Sessions
     def call : FormResponse | Response
       return request_error unless create_request.valid?
 
-      if AuthenticationService.auth?(create_request)
+      ip_address = get_client_ip
+      if AuthenticationService.auth?(create_request, ip_address)
         header "Content-Type", "application/json; charset=UTF-8"
         header "Cache-Control", "no-store"
         header "Pragma", "no-cache"
@@ -34,6 +35,28 @@ module Authority::Sessions
 
     private def unauthorized_error
       error "Invalid client", 400, ["Invalid credentials"]
+    end
+
+    # Get client IP from request
+    private def get_client_ip : String
+      # Check X-Forwarded-For header first (for reverse proxy setups)
+      forwarded = context.request.headers["X-Forwarded-For"]?
+      if forwarded
+        return forwarded.split(",").first.strip
+      end
+
+      # Check X-Real-IP header
+      real_ip = context.request.headers["X-Real-IP"]?
+      return real_ip.strip if real_ip
+
+      # Fall back to remote address
+      remote = context.request.remote_address
+      case remote
+      when Socket::IPAddress
+        remote.address
+      else
+        "127.0.0.1"
+      end
     end
   end
 end

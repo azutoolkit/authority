@@ -1,0 +1,197 @@
+{% extends "admin/layout.html" %}
+{% set title = "Manage Users" %}
+{% set active_page = "users" %}
+
+{% block body %}
+<main class="min-h-screen py-8 px-4 lg:px-8">
+    <!-- Page Header -->
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-base-content">Users</h1>
+        <p class="mt-2 text-base-content/60">Manage user accounts and permissions</p>
+      </div>
+      <a href="/dashboard/users/new" class="btn btn-primary gap-2">
+        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+        New User
+      </a>
+    </div>
+
+    {% include "errors.html" %}
+
+    <!-- Filters -->
+    <div class="card bg-base-100 shadow-xl mb-6">
+      <div class="card-body p-4">
+        <form action="/dashboard/users" method="GET" class="flex flex-wrap gap-4 items-end">
+          <div class="form-control flex-1 min-w-[200px]">
+            <label class="label">
+              <span class="label-text">Search</span>
+            </label>
+            <input type="text" name="search" value="{{search}}" placeholder="Username, email, or name..."
+                   class="input input-bordered input-sm w-full" />
+          </div>
+          <div class="form-control w-32">
+            <label class="label">
+              <span class="label-text">Status</span>
+            </label>
+            <select name="status" class="select select-bordered select-sm w-full">
+              <option value="">All</option>
+              <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+              <option value="locked" {% if status == 'locked' %}selected{% endif %}>Locked</option>
+            </select>
+          </div>
+          <div class="form-control w-32">
+            <label class="label">
+              <span class="label-text">Role</span>
+            </label>
+            <select name="role" class="select select-bordered select-sm w-full">
+              <option value="">All</option>
+              <option value="user" {% if role == 'user' %}selected{% endif %}>User</option>
+              <option value="admin" {% if role == 'admin' %}selected{% endif %}>Admin</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+          <a href="/dashboard/users" class="btn btn-sm btn-ghost">Clear</a>
+        </form>
+      </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body p-0">
+        {% if users|length > 0 %}
+        <div class="overflow-x-auto">
+          <table class="table table-zebra">
+            <thead>
+              <tr class="bg-base-200">
+                <th>User</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Last Login</th>
+                <th>Created</th>
+                <th class="text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for user in users %}
+              <tr class="hover">
+                <td>
+                  <div class="flex items-center gap-3">
+                    <div class="avatar placeholder">
+                      <div class="bg-neutral text-neutral-content w-10 rounded-full">
+                        <span class="text-lg">{{user.first_name[0]|upper}}{{user.last_name[0]|upper}}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="font-bold">{{user.username}}</div>
+                      <div class="text-sm text-base-content/60">{{user.first_name}} {{user.last_name}}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="text-sm">{{user.email}}</span>
+                  {% if user.email_verified %}
+                  <span class="badge badge-success badge-xs ml-1" title="Verified">✓</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <span class="badge {% if user.role == 'admin' %}badge-primary{% else %}badge-ghost{% endif %}">
+                    {{user.role}}
+                  </span>
+                </td>
+                <td>
+                  {% if user.locked_at %}
+                  <span class="badge badge-error gap-1">
+                    <svg class="h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                    </svg>
+                    Locked
+                  </span>
+                  {% else %}
+                  <span class="badge badge-success">Active</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if user.last_login_at %}
+                  <span class="text-sm text-base-content/60">{{user.last_login_at|date('%Y-%m-%d %H:%M')}}</span>
+                  {% else %}
+                  <span class="text-sm text-base-content/40">Never</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <span class="text-sm text-base-content/60">{{user.created_at|date('%Y-%m-%d')}}</span>
+                </td>
+                <td class="text-right">
+                  <div class="flex justify-end gap-1">
+                    <a href="/dashboard/users/{{user.id}}" class="btn btn-ghost btn-sm" title="View Details">
+                      <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.64 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.64 0-8.573-3.007-9.963-7.178z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    </a>
+                    <a href="/dashboard/users/{{user.id}}/edit" class="btn btn-ghost btn-sm" title="Edit">
+                      <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                      </svg>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if users|length >= per_page %}
+        <div class="flex justify-center p-4 border-t border-base-200">
+          <div class="join">
+            {% if page > 1 %}
+            <a href="/dashboard/users?page={{page - 1}}&search={{search}}&status={{status}}&role={{role}}" class="join-item btn btn-sm">Previous</a>
+            {% endif %}
+            <span class="join-item btn btn-sm btn-disabled">Page {{page}}</span>
+            <a href="/dashboard/users?page={{page + 1}}&search={{search}}&status={{status}}&role={{role}}" class="join-item btn btn-sm">Next</a>
+          </div>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <!-- Empty State -->
+        <div class="flex flex-col items-center justify-center py-16 px-4">
+          <div class="avatar placeholder mb-4">
+            <div class="bg-base-200 text-base-content w-16 rounded-full">
+              <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+              </svg>
+            </div>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">No users found</h3>
+          <p class="text-base-content/60 text-center mb-6 max-w-sm">
+            {% if search or status or role %}
+            No users match your filter criteria. Try adjusting your filters.
+            {% else %}
+            Create your first user to get started.
+            {% endif %}
+          </p>
+          {% if not search and not status and not role %}
+          <a href="/dashboard/users/new" class="btn btn-primary">Create First User</a>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Back to Dashboard -->
+    <div class="mt-6">
+      <a href="/dashboard" class="btn btn-ghost gap-2">
+        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+        </svg>
+        Back to Dashboard
+      </a>
+    </div>
+  </div>
+</main>
+{% endblock %}

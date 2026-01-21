@@ -18,6 +18,12 @@ AuthorityDB = CQL::Schema.define(
     text :email, null: false
     boolean :email_verified, null: false, default: false
     text :scope, null: false
+    text :role, null: false, default: "user", index: true
+    timestamp :locked_at, null: true, index: true
+    text :lock_reason, null: true
+    integer :failed_login_attempts, null: false, default: 0
+    timestamp :last_login_at, null: true
+    text :last_login_ip, null: true
     timestamps
   end
 

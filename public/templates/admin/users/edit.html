@@ -1,0 +1,116 @@
+{% extends "admin/layout.html" %}
+{% set title = "Edit " ~ user.username %}
+{% set active_page = "users" %}
+
+{% block body %}
+<main class="min-h-screen py-12 px-4">
+  <div class="max-w-2xl mx-auto">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-base-content">Edit User</h1>
+      <p class="mt-2 text-base-content/60">Update {{user.username}}</p>
+    </div>
+
+    {% include "errors.html" %}
+
+    <!-- User Form -->
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <form action="/dashboard/users/{{user.id}}" method="POST" class="space-y-6">
+          <!-- Username -->
+          <div class="form-control">
+            <label class="label" for="username">
+              <span class="label-text font-medium">Username <span class="text-error">*</span></span>
+            </label>
+            <input type="text" id="username" name="username" value="{{user.username}}"
+                   class="input input-bordered w-full" placeholder="johndoe"
+                   required pattern="[a-zA-Z0-9_-]+" />
+          </div>
+
+          <!-- Email -->
+          <div class="form-control">
+            <label class="label" for="email">
+              <span class="label-text font-medium">Email <span class="text-error">*</span></span>
+            </label>
+            <input type="email" id="email" name="email" value="{{user.email}}"
+                   class="input input-bordered w-full" placeholder="john@example.com"
+                   required />
+          </div>
+
+          <div class="divider">Personal Information</div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- First Name -->
+            <div class="form-control">
+              <label class="label" for="first_name">
+                <span class="label-text font-medium">First Name <span class="text-error">*</span></span>
+              </label>
+              <input type="text" id="first_name" name="first_name" value="{{user.first_name}}"
+                     class="input input-bordered w-full" placeholder="John"
+                     required />
+            </div>
+
+            <!-- Last Name -->
+            <div class="form-control">
+              <label class="label" for="last_name">
+                <span class="label-text font-medium">Last Name <span class="text-error">*</span></span>
+              </label>
+              <input type="text" id="last_name" name="last_name" value="{{user.last_name}}"
+                     class="input input-bordered w-full" placeholder="Doe"
+                     required />
+            </div>
+          </div>
+
+          <div class="divider">Permissions</div>
+
+          <!-- Role -->
+          <div class="form-control">
+            <label class="label" for="role">
+              <span class="label-text font-medium">Role</span>
+            </label>
+            <select id="role" name="role" class="select select-bordered w-full">
+              <option value="user" {% if user.role == 'user' %}selected{% endif %}>User</option>
+              <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+            </select>
+            <label class="label">
+              <span class="label-text-alt text-base-content/60">Admins can manage clients, users, and scopes</span>
+            </label>
+          </div>
+
+          <!-- Scopes -->
+          <div class="form-control">
+            <label class="label" for="scope">
+              <span class="label-text font-medium">Scopes</span>
+            </label>
+            <input type="text" id="scope" name="scope" value="{{user.scope}}"
+                   class="input input-bordered w-full" placeholder="read write profile" />
+            <label class="label">
+              <span class="label-text-alt text-base-content/60">Space-separated list of scopes</span>
+            </label>
+          </div>
+
+          <!-- Email Verified -->
+          <div class="form-control">
+            <label class="label cursor-pointer justify-start gap-4">
+              <input type="checkbox" name="email_verified" value="true"
+                     class="checkbox checkbox-primary" {% if user.email_verified %}checked{% endif %} />
+              <div>
+                <span class="label-text font-medium">Email Verified</span>
+                <p class="text-sm text-base-content/60">
+                  Mark this email as verified
+                </p>
+              </div>
+            </label>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="flex justify-end gap-4 pt-4">
+            <a href="/dashboard/users/{{user.id}}" class="btn btn-ghost">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}

@@ -1,13 +1,13 @@
-# Endpoint for Admin Client Edit page
-# GET /dashboard/clients/:id/edit - Display client edit form
-module Authority::Dashboard::Clients
+# Endpoint for Admin User Edit page
+# GET /dashboard/users/:id/edit - Display user edit form
+module Authority::Dashboard::Users
   class EditEndpoint
     include SessionHelper
     include SecurityHeadersHelper
     include AdminAuthHelper
     include Endpoint(EditRequest, EditResponse | Response)
 
-    get "/dashboard/clients/:id/edit"
+    get "/dashboard/users/:id/edit"
 
     def call : EditResponse | Response
       set_security_headers!
@@ -20,19 +20,19 @@ module Authority::Dashboard::Clients
         return auth_error
       end
 
-      user = current_admin_user
-      return forbidden_response("Admin access required") unless user
+      admin_user = current_admin_user
+      return forbidden_response("Admin access required") unless admin_user
 
-      # Get the client
-      client = AdminClientService.get(edit_request.id)
+      # Get the user
+      target_user = AdminUserService.get(edit_request.id)
 
-      unless client
-        return redirect to: "/dashboard/clients", status: 302
+      unless target_user
+        return redirect to: "/dashboard/users", status: 302
       end
 
       EditResponse.new(
-        client: client,
-        username: user.username
+        user: target_user,
+        username: admin_user.username
       )
     end
   end

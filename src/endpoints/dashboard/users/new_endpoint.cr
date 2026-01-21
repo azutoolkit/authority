@@ -1,13 +1,13 @@
-# Endpoint for Admin Client New page
-# GET /dashboard/clients/new - Display new client form
-module Authority::Dashboard::Clients
+# Endpoint for Admin User New page
+# GET /dashboard/users/new - Display user creation form
+module Authority::Dashboard::Users
   class NewEndpoint
     include SessionHelper
     include SecurityHeadersHelper
     include AdminAuthHelper
     include Endpoint(NewRequest, NewResponse | Response)
 
-    get "/dashboard/clients/new"
+    get "/dashboard/users/new"
 
     def call : NewResponse | Response
       set_security_headers!

@@ -4,6 +4,7 @@ module Authority::Dashboard::Clients
   class DeleteEndpoint
     include SessionHelper
     include SecurityHeadersHelper
+    include AdminAuthHelper
     include Endpoint(DeleteRequest, Response)
 
     post "/dashboard/clients/:id/delete"
@@ -11,18 +12,17 @@ module Authority::Dashboard::Clients
     def call : Response
       set_security_headers!
 
-      # Check if user is authenticated
-      return redirect_to_signin unless authenticated?
+      # Check admin authorization
+      if auth_error = require_admin!
+        return auth_error
+      end
 
-      # Get current user
-      user = User.find!(current_session.user_id)
-
-      # TODO: Add admin check once RBACService is implemented
-      # return forbidden_response unless RBACService.admin?(user)
+      user = current_admin_user
+      return forbidden_response("Admin access required") unless user
 
       # Delete the client
       result = AdminClientService.delete(
-        id: params.id,
+        id: delete_request.id,
         actor: user
       )
 

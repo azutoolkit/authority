@@ -4,6 +4,7 @@ module Authority::Dashboard::Clients
   class UpdateEndpoint
     include SessionHelper
     include SecurityHeadersHelper
+    include AdminAuthHelper
     include Endpoint(UpdateRequest, EditResponse | Response)
 
     post "/dashboard/clients/:id"
@@ -14,17 +15,16 @@ module Authority::Dashboard::Clients
       header "Cache-Control", "no-store"
       header "Pragma", "no-cache"
 
-      # Check if user is authenticated
-      return redirect_to_signin unless authenticated?
+      # Check admin authorization
+      if auth_error = require_admin!
+        return auth_error
+      end
 
-      # Get current user
-      user = User.find!(current_session.user_id)
-
-      # TODO: Add admin check once RBACService is implemented
-      # return forbidden_response unless RBACService.admin?(user)
+      user = current_admin_user
+      return forbidden_response("Admin access required") unless user
 
       # Get existing client
-      client = AdminClientService.get(params.id)
+      client = AdminClientService.get(update_request.id)
 
       unless client
         return redirect to: "/dashboard/clients", status: 302
@@ -32,19 +32,19 @@ module Authority::Dashboard::Clients
 
       # Validate required fields
       errors = [] of String
-      errors << "Name is required" if params.name.empty?
-      errors << "Redirect URI is required" if params.redirect_uri.empty?
+      errors << "Name is required" if update_request.name.empty?
+      errors << "Redirect URI is required" if update_request.redirect_uri.empty?
 
       unless errors.empty?
         # Update client object with submitted values for re-display
-        client.name = params.name
-        client.redirect_uri = params.redirect_uri
-        client.description = params.description.empty? ? nil : params.description
-        client.logo = params.logo
-        client.scopes = params.scopes
-        client.policy_url = params.policy_url.empty? ? nil : params.policy_url
-        client.tos_url = params.tos_url.empty? ? nil : params.tos_url
-        client.is_confidential = params.is_confidential == "true"
+        client.name = update_request.name
+        client.redirect_uri = update_request.redirect_uri
+        client.description = update_request.description.empty? ? nil : update_request.description
+        client.logo = update_request.logo
+        client.scopes = update_request.scopes
+        client.policy_url = update_request.policy_url.empty? ? nil : update_request.policy_url
+        client.tos_url = update_request.tos_url.empty? ? nil : update_request.tos_url
+        client.is_confidential = update_request.is_confidential == "true"
 
         return EditResponse.new(
           client: client,
@@ -55,15 +55,15 @@ module Authority::Dashboard::Clients
 
       # Update the client
       result = AdminClientService.update(
-        id: params.id,
-        name: params.name,
-        redirect_uri: params.redirect_uri,
-        description: params.description.empty? ? nil : params.description,
-        logo: params.logo.empty? ? nil : params.logo,
-        scopes: params.scopes.empty? ? nil : params.scopes,
-        policy_url: params.policy_url.empty? ? nil : params.policy_url,
-        tos_url: params.tos_url.empty? ? nil : params.tos_url,
-        is_confidential: params.is_confidential == "true",
+        id: update_request.id,
+        name: update_request.name,
+        redirect_uri: update_request.redirect_uri,
+        description: update_request.description.empty? ? nil : update_request.description,
+        logo: update_request.logo.empty? ? nil : update_request.logo,
+        scopes: update_request.scopes.empty? ? nil : update_request.scopes,
+        policy_url: update_request.policy_url.empty? ? nil : update_request.policy_url,
+        tos_url: update_request.tos_url.empty? ? nil : update_request.tos_url,
+        is_confidential: update_request.is_confidential == "true",
         actor: user
       )
 
@@ -76,7 +76,7 @@ module Authority::Dashboard::Clients
       end
 
       # Redirect to show page on success
-      redirect to: "/dashboard/clients/#{params.id}", status: 302
+      redirect to: "/dashboard/clients/#{update_request.id}", status: 302
     end
   end
 end

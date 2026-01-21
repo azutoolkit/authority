@@ -4,6 +4,7 @@ module Authority::Dashboard::Clients
   class IndexEndpoint
     include SessionHelper
     include SecurityHeadersHelper
+    include AdminAuthHelper
     include Endpoint(IndexRequest, IndexResponse | Response)
 
     get "/dashboard/clients"
@@ -14,17 +15,16 @@ module Authority::Dashboard::Clients
       header "Cache-Control", "no-store"
       header "Pragma", "no-cache"
 
-      # Check if user is authenticated
-      return redirect_to_signin unless authenticated?
+      # Check admin authorization (IP allowlist + auth + RBAC)
+      if auth_error = require_admin!
+        return auth_error
+      end
 
-      # Get current user
-      user = User.find!(current_session.user_id)
-
-      # TODO: Add admin check once RBACService is implemented
-      # return forbidden_response unless RBACService.admin?(user)
+      user = current_admin_user
+      return forbidden_response("Admin access required") unless user
 
       # Get pagination params
-      page = params.page > 0 ? params.page : 1
+      page = index_request.page > 0 ? index_request.page : 1
 
       # Fetch clients using the admin service
       clients = AdminClientService.list(page: page, per_page: 20)

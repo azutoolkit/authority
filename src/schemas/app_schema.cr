@@ -82,6 +82,12 @@ AppSchema = CQL::Schema.define(
     text :email
     boolean :email_verified, default: "false"
     text :scope
+    text :role, default: "'user'::text"
+    timestamp :locked_at, null: true
+    text :lock_reason, null: true
+    integer :failed_login_attempts, null: true, default: "0"
+    timestamp :last_login_at, null: true
+    text :last_login_ip, null: true
     timestamps
   end
 

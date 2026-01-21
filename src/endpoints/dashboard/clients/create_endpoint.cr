@@ -4,6 +4,7 @@ module Authority::Dashboard::Clients
   class CreateEndpoint
     include SessionHelper
     include SecurityHeadersHelper
+    include AdminAuthHelper
     include Endpoint(CreateRequest, SecretResponse | NewResponse | Response)
 
     post "/dashboard/clients"
@@ -14,45 +15,44 @@ module Authority::Dashboard::Clients
       header "Cache-Control", "no-store"
       header "Pragma", "no-cache"
 
-      # Check if user is authenticated
-      return redirect_to_signin unless authenticated?
+      # Check admin authorization
+      if auth_error = require_admin!
+        return auth_error
+      end
 
-      # Get current user
-      user = User.find!(current_session.user_id)
-
-      # TODO: Add admin check once RBACService is implemented
-      # return forbidden_response unless RBACService.admin?(user)
+      user = current_admin_user
+      return forbidden_response("Admin access required") unless user
 
       # Validate required fields
       errors = [] of String
-      errors << "Name is required" if params.name.empty?
-      errors << "Redirect URI is required" if params.redirect_uri.empty?
+      errors << "Name is required" if create_request.name.empty?
+      errors << "Redirect URI is required" if create_request.redirect_uri.empty?
 
       unless errors.empty?
         return NewResponse.new(
           username: user.username,
           errors: errors,
-          name: params.name,
-          redirect_uri: params.redirect_uri,
-          description: params.description,
-          logo: params.logo,
-          scopes: params.scopes,
-          policy_url: params.policy_url,
-          tos_url: params.tos_url,
-          is_confidential: params.is_confidential == "true"
+          name: create_request.name,
+          redirect_uri: create_request.redirect_uri,
+          description: create_request.description,
+          logo: create_request.logo,
+          scopes: create_request.scopes,
+          policy_url: create_request.policy_url,
+          tos_url: create_request.tos_url,
+          is_confidential: create_request.is_confidential == "true"
         )
       end
 
       # Create the client
       result, plain_secret = AdminClientService.create_with_secret(
-        name: params.name,
-        redirect_uri: params.redirect_uri,
-        description: params.description.empty? ? nil : params.description,
-        logo: params.logo,
-        scopes: params.scopes.empty? ? "read" : params.scopes,
-        policy_url: params.policy_url.empty? ? nil : params.policy_url,
-        tos_url: params.tos_url.empty? ? nil : params.tos_url,
-        is_confidential: params.is_confidential == "true",
+        name: create_request.name,
+        redirect_uri: create_request.redirect_uri,
+        description: create_request.description.empty? ? nil : create_request.description,
+        logo: create_request.logo,
+        scopes: create_request.scopes.empty? ? "read" : create_request.scopes,
+        policy_url: create_request.policy_url.empty? ? nil : create_request.policy_url,
+        tos_url: create_request.tos_url.empty? ? nil : create_request.tos_url,
+        is_confidential: create_request.is_confidential == "true",
         actor: user
       )
 
@@ -60,14 +60,14 @@ module Authority::Dashboard::Clients
         return NewResponse.new(
           username: user.username,
           errors: [result.error || "Failed to create client"],
-          name: params.name,
-          redirect_uri: params.redirect_uri,
-          description: params.description,
-          logo: params.logo,
-          scopes: params.scopes,
-          policy_url: params.policy_url,
-          tos_url: params.tos_url,
-          is_confidential: params.is_confidential == "true"
+          name: create_request.name,
+          redirect_uri: create_request.redirect_uri,
+          description: create_request.description,
+          logo: create_request.logo,
+          scopes: create_request.scopes,
+          policy_url: create_request.policy_url,
+          tos_url: create_request.tos_url,
+          is_confidential: create_request.is_confidential == "true"
         )
       end
 
@@ -84,14 +84,14 @@ module Authority::Dashboard::Clients
         NewResponse.new(
           username: user.username,
           errors: ["Failed to create client"],
-          name: params.name,
-          redirect_uri: params.redirect_uri,
-          description: params.description,
-          logo: params.logo,
-          scopes: params.scopes,
-          policy_url: params.policy_url,
-          tos_url: params.tos_url,
-          is_confidential: params.is_confidential == "true"
+          name: create_request.name,
+          redirect_uri: create_request.redirect_uri,
+          description: create_request.description,
+          logo: create_request.logo,
+          scopes: create_request.scopes,
+          policy_url: create_request.policy_url,
+          tos_url: create_request.tos_url,
+          is_confidential: create_request.is_confidential == "true"
         )
       end
     end
