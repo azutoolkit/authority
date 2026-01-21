@@ -1,0 +1,238 @@
+{% extends "admin/layout.html" %}
+{% set title = "Audit Logs" %}
+{% set active_page = "audit_logs" %}
+
+{% block body %}
+<main class="min-h-screen py-8 px-4 lg:px-8">
+    <!-- Page Header -->
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-base-content">Audit Logs</h1>
+        <p class="mt-2 text-base-content/60">View administrative action history</p>
+      </div>
+    </div>
+
+    {% include "errors.html" %}
+
+    <!-- Filters -->
+    <div class="card bg-base-100 shadow-xl mb-6">
+      <div class="card-body">
+        <form action="/dashboard/audit-logs" method="GET" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Actor Filter -->
+            <div class="form-control">
+              <label class="label" for="actor_id">
+                <span class="label-text">Actor</span>
+              </label>
+              <select id="actor_id" name="actor_id" class="select select-bordered w-full">
+                <option value="">All Actors</option>
+                {% for actor in actors %}
+                <option value="{{actor.id}}" {% if filter_actor_id == actor.id %}selected{% endif %}>
+                  {{actor.email}}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Action Filter -->
+            <div class="form-control">
+              <label class="label" for="action">
+                <span class="label-text">Action</span>
+              </label>
+              <select id="action" name="action" class="select select-bordered w-full">
+                <option value="">All Actions</option>
+                {% for act in actions %}
+                <option value="{{act}}" {% if filter_action == act %}selected{% endif %}>
+                  {{act|capitalize}}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Resource Type Filter -->
+            <div class="form-control">
+              <label class="label" for="resource_type">
+                <span class="label-text">Resource Type</span>
+              </label>
+              <select id="resource_type" name="resource_type" class="select select-bordered w-full">
+                <option value="">All Types</option>
+                <option value="Client" {% if filter_resource_type == "Client" %}selected{% endif %}>Client</option>
+                <option value="User" {% if filter_resource_type == "User" %}selected{% endif %}>User</option>
+                <option value="Scope" {% if filter_resource_type == "Scope" %}selected{% endif %}>Scope</option>
+              </select>
+            </div>
+
+            <!-- Date Range -->
+            <div class="form-control">
+              <label class="label" for="start_date">
+                <span class="label-text">Date Range</span>
+              </label>
+              <div class="flex gap-2">
+                <input type="date" id="start_date" name="start_date" value="{{filter_start_date}}"
+                       class="input input-bordered w-full" placeholder="Start" />
+                <input type="date" id="end_date" name="end_date" value="{{filter_end_date}}"
+                       class="input input-bordered w-full" placeholder="End" />
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-2">
+            <a href="/dashboard/audit-logs" class="btn btn-ghost">Clear</a>
+            <button type="submit" class="btn btn-primary">Filter</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Audit Logs Table -->
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body p-0">
+        {% if logs|length > 0 %}
+        <div class="overflow-x-auto">
+          <table class="table table-zebra">
+            <thead>
+              <tr class="bg-base-200">
+                <th>Timestamp</th>
+                <th>Actor</th>
+                <th>Action</th>
+                <th>Resource</th>
+                <th>IP Address</th>
+                <th class="text-right">Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for log in logs %}
+              <tr class="hover">
+                <td>
+                  <span class="text-sm">{{log.created_at|date('%Y-%m-%d %H:%M:%S')}}</span>
+                </td>
+                <td>
+                  <span class="font-medium">{{log.actor_email}}</span>
+                </td>
+                <td>
+                  <span class="badge {{log.action_badge_class}}">{{log.action_label}}</span>
+                </td>
+                <td>
+                  <div class="flex flex-col">
+                    <span class="badge badge-outline badge-sm mb-1">{{log.resource_type}}</span>
+                    {% if log.resource_name %}
+                    <span class="text-sm text-base-content/70">{{log.resource_name}}</span>
+                    {% endif %}
+                  </div>
+                </td>
+                <td>
+                  <span class="text-sm font-mono text-base-content/60">
+                    {% if log.ip_address %}{{log.ip_address}}{% else %}-{% endif %}
+                  </span>
+                </td>
+                <td class="text-right">
+                  {% if log.changes %}
+                  <button type="button" class="btn btn-ghost btn-sm"
+                          onclick="showChanges('{{log.id}}', '{{log.changes|escape}}')"
+                          title="View Changes">
+                    <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.64 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.64 0-8.573-3.007-9.963-7.178z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </button>
+                  {% else %}
+                  <span class="text-base-content/40">-</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if total_count > per_page %}
+        <div class="flex justify-between items-center p-4 border-t border-base-200">
+          <div class="text-sm text-base-content/60">
+            Showing {{(page - 1) * per_page + 1}} to {{[page * per_page, total_count]|min}} of {{total_count}} entries
+          </div>
+          <div class="join">
+            {% if page > 1 %}
+            <a href="/dashboard/audit-logs?page={{page - 1}}{% if filter_actor_id %}&actor_id={{filter_actor_id}}{% endif %}{% if filter_action %}&action={{filter_action}}{% endif %}{% if filter_resource_type %}&resource_type={{filter_resource_type}}{% endif %}{% if filter_start_date %}&start_date={{filter_start_date}}{% endif %}{% if filter_end_date %}&end_date={{filter_end_date}}{% endif %}"
+               class="join-item btn btn-sm">Previous</a>
+            {% endif %}
+            <span class="join-item btn btn-sm btn-disabled">Page {{page}}</span>
+            {% if page * per_page < total_count %}
+            <a href="/dashboard/audit-logs?page={{page + 1}}{% if filter_actor_id %}&actor_id={{filter_actor_id}}{% endif %}{% if filter_action %}&action={{filter_action}}{% endif %}{% if filter_resource_type %}&resource_type={{filter_resource_type}}{% endif %}{% if filter_start_date %}&start_date={{filter_start_date}}{% endif %}{% if filter_end_date %}&end_date={{filter_end_date}}{% endif %}"
+               class="join-item btn btn-sm">Next</a>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <!-- Empty State -->
+        <div class="flex flex-col items-center justify-center py-16 px-4">
+          <div class="avatar placeholder mb-4">
+            <div class="bg-base-200 text-base-content w-16 rounded-full">
+              <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+              </svg>
+            </div>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">No audit logs yet</h3>
+          <p class="text-base-content/60 text-center mb-6 max-w-sm">
+            Audit logs will appear here when admin actions are performed.
+          </p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Back to Dashboard -->
+    <div class="mt-6">
+      <a href="/dashboard" class="btn btn-ghost gap-2">
+        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+        </svg>
+        Back to Dashboard
+      </a>
+    </div>
+  </div>
+</main>
+
+<!-- Changes Modal -->
+<dialog id="changes_modal" class="modal">
+  <div class="modal-box max-w-2xl">
+    <h3 class="font-bold text-lg mb-4">Changes Details</h3>
+    <div id="changes_content" class="bg-base-200 rounded-lg p-4 overflow-x-auto">
+      <pre class="text-sm font-mono"></pre>
+    </div>
+    <div class="modal-action">
+      <form method="dialog">
+        <button class="btn">Close</button>
+      </form>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>
+
+<script>
+function showChanges(logId, changesJson) {
+  try {
+    const changes = JSON.parse(changesJson);
+    let html = '<table class="table table-sm"><thead><tr><th>Field</th><th>Old Value</th><th>New Value</th></tr></thead><tbody>';
+
+    for (const [field, values] of Object.entries(changes)) {
+      const oldVal = values[0] || '<span class="text-base-content/40">null</span>';
+      const newVal = values[1] || '<span class="text-base-content/40">null</span>';
+      html += `<tr><td class="font-medium">${field}</td><td class="text-error">${oldVal}</td><td class="text-success">${newVal}</td></tr>`;
+    }
+
+    html += '</tbody></table>';
+    document.getElementById('changes_content').innerHTML = html;
+  } catch (e) {
+    document.getElementById('changes_content').innerHTML = '<pre class="text-sm font-mono">' + changesJson + '</pre>';
+  }
+
+  document.getElementById('changes_modal').showModal();
+}
+</script>
+{% endblock %}

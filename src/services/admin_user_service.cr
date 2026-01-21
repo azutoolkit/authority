@@ -252,6 +252,19 @@ module Authority
       end
 
       created_user = get(id)
+
+      # Log audit trail
+      if created_user && actor
+        AuditService.log(
+          actor: actor,
+          action: AuditLog::Actions::CREATE,
+          resource_type: AuditLog::ResourceTypes::USER,
+          resource_id: created_user.id,
+          resource_name: created_user.username,
+          ip_address: ip_address
+        )
+      end
+
       Result.new(success: true, user: created_user)
     rescue e
       Result.new(success: false, error: e.message, error_code: "create_failed")
@@ -272,6 +285,17 @@ module Authority
     ) : Result
       user = get(id)
       return Result.new(success: false, error: "User not found", error_code: "not_found") unless user
+
+      # Capture old values for audit diff
+      old_values = {
+        "username"       => user.username,
+        "email"          => user.email,
+        "first_name"     => user.first_name,
+        "last_name"      => user.last_name,
+        "role"           => user.role,
+        "scope"          => user.scope,
+        "email_verified" => user.email_verified.to_s,
+      } of String => String?
 
       # Check for duplicate username if changing
       if username && username != user.username && exists_by_username?(username)
@@ -353,6 +377,32 @@ module Authority
       end
 
       updated_user = get(id)
+
+      # Log audit trail with changes
+      if updated_user && actor
+        new_values = {
+          "username"       => updated_user.username,
+          "email"          => updated_user.email,
+          "first_name"     => updated_user.first_name,
+          "last_name"      => updated_user.last_name,
+          "role"           => updated_user.role,
+          "scope"          => updated_user.scope,
+          "email_verified" => updated_user.email_verified.to_s,
+        } of String => String?
+
+        changes = AuditService.diff(old_values, new_values)
+
+        AuditService.log(
+          actor: actor,
+          action: AuditLog::Actions::UPDATE,
+          resource_type: AuditLog::ResourceTypes::USER,
+          resource_id: updated_user.id,
+          resource_name: updated_user.username,
+          changes: changes,
+          ip_address: ip_address
+        )
+      end
+
       Result.new(success: true, user: updated_user)
     rescue e
       Result.new(success: false, error: e.message, error_code: "update_failed")
@@ -400,6 +450,20 @@ module Authority
       end
 
       locked_user = get(id)
+
+      # Log audit trail
+      if locked_user
+        AuditService.log(
+          actor: actor,
+          action: AuditLog::Actions::LOCK,
+          resource_type: AuditLog::ResourceTypes::USER,
+          resource_id: locked_user.id,
+          resource_name: locked_user.username,
+          changes: {"reason" => [nil.as(String?), reason.as(String?)]},
+          ip_address: ip_address
+        )
+      end
+
       Result.new(success: true, user: locked_user)
     rescue e
       Result.new(success: false, error: e.message, error_code: "lock_failed")
@@ -436,6 +500,19 @@ module Authority
       end
 
       unlocked_user = get(id)
+
+      # Log audit trail
+      if unlocked_user
+        AuditService.log(
+          actor: actor,
+          action: AuditLog::Actions::UNLOCK,
+          resource_type: AuditLog::ResourceTypes::USER,
+          resource_id: unlocked_user.id,
+          resource_name: unlocked_user.username,
+          ip_address: ip_address
+        )
+      end
+
       Result.new(success: true, user: unlocked_user)
     rescue e
       Result.new(success: false, error: e.message, error_code: "unlock_failed")
@@ -471,6 +548,19 @@ module Authority
       end
 
       updated_user = get(id)
+
+      # Log audit trail (do not log password value!)
+      if updated_user
+        AuditService.log(
+          actor: actor,
+          action: AuditLog::Actions::RESET_PASS,
+          resource_type: AuditLog::ResourceTypes::USER,
+          resource_id: updated_user.id,
+          resource_name: updated_user.username,
+          ip_address: ip_address
+        )
+      end
+
       Result.new(success: true, user: updated_user)
     rescue e
       Result.new(success: false, error: e.message, error_code: "password_reset_failed")
@@ -495,6 +585,10 @@ module Authority
         return Result.new(success: false, error: "Cannot delete admin users", error_code: "admin_delete_forbidden")
       end
 
+      # Capture user info for audit before deletion
+      user_username = user.username
+      user_uuid = user.id
+
       AuthorityDB.exec_query do |conn|
         conn.exec("BEGIN")
         begin
@@ -515,6 +609,16 @@ module Authority
           raise e
         end
       end
+
+      # Log audit trail
+      AuditService.log(
+        actor: actor,
+        action: AuditLog::Actions::DELETE,
+        resource_type: AuditLog::ResourceTypes::USER,
+        resource_id: user_uuid,
+        resource_name: user_username,
+        ip_address: ip_address
+      )
 
       Result.new(success: true)
     rescue e

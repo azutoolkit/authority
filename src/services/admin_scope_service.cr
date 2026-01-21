@@ -183,6 +183,19 @@ module Authority
       end
 
       created_scope = get(id)
+
+      # Log audit trail
+      if created_scope && actor
+        AuditService.log(
+          actor: actor,
+          action: AuditLog::Actions::CREATE,
+          resource_type: AuditLog::ResourceTypes::SCOPE,
+          resource_id: created_scope.id,
+          resource_name: created_scope.name,
+          ip_address: ip_address
+        )
+      end
+
       Result.new(success: true, scope: created_scope)
     rescue e
       Result.new(success: false, error: e.message, error_code: "create_failed")
@@ -205,6 +218,14 @@ module Authority
       if scope.is_system?
         return Result.new(success: false, error: "System scopes cannot be modified", error_code: "system_scope_protected")
       end
+
+      # Capture old values for audit diff
+      old_values = {
+        "name"         => scope.name,
+        "display_name" => scope.display_name,
+        "description"  => scope.description,
+        "is_default"   => scope.is_default?.to_s,
+      } of String => String?
 
       # Validate name format if changing
       if name && !name.empty? && !name.matches?(/\A[a-z0-9_:]+\z/)
@@ -268,6 +289,29 @@ module Authority
       end
 
       updated_scope = get(id)
+
+      # Log audit trail with changes
+      if updated_scope && actor
+        new_values = {
+          "name"         => updated_scope.name,
+          "display_name" => updated_scope.display_name,
+          "description"  => updated_scope.description,
+          "is_default"   => updated_scope.is_default?.to_s,
+        } of String => String?
+
+        changes = AuditService.diff(old_values, new_values)
+
+        AuditService.log(
+          actor: actor,
+          action: AuditLog::Actions::UPDATE,
+          resource_type: AuditLog::ResourceTypes::SCOPE,
+          resource_id: updated_scope.id,
+          resource_name: updated_scope.name,
+          changes: changes,
+          ip_address: ip_address
+        )
+      end
+
       Result.new(success: true, scope: updated_scope)
     rescue e
       Result.new(success: false, error: e.message, error_code: "update_failed")
@@ -287,6 +331,10 @@ module Authority
         return Result.new(success: false, error: "System scopes cannot be deleted", error_code: "system_scope_protected")
       end
 
+      # Capture scope info for audit before deletion
+      scope_name = scope.name
+      scope_uuid = scope.id
+
       AuthorityDB.exec_query do |conn|
         conn.exec("BEGIN")
         begin
@@ -297,6 +345,16 @@ module Authority
           raise e
         end
       end
+
+      # Log audit trail
+      AuditService.log(
+        actor: actor,
+        action: AuditLog::Actions::DELETE,
+        resource_type: AuditLog::ResourceTypes::SCOPE,
+        resource_id: scope_uuid,
+        resource_name: scope_name,
+        ip_address: ip_address
+      )
 
       Result.new(success: true)
     rescue e

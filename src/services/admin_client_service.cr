@@ -126,6 +126,19 @@ module Authority
 
       # Fetch the created client
       created_client = find_by_client_id(client_id)
+
+      # Log audit trail
+      if created_client && actor
+        AuditService.log(
+          actor: actor,
+          action: AuditLog::Actions::CREATE,
+          resource_type: AuditLog::ResourceTypes::CLIENT,
+          resource_id: created_client.id,
+          resource_name: created_client.name,
+          ip_address: ip_address
+        )
+      end
+
       Result.new(success: true, client: created_client)
     rescue e
       Result.new(success: false, error: e.message, error_code: "create_failed")
@@ -170,6 +183,19 @@ module Authority
 
       # Fetch the created client
       created_client = find_by_client_id(client_id)
+
+      # Log audit trail
+      if created_client && actor
+        AuditService.log(
+          actor: actor,
+          action: AuditLog::Actions::CREATE,
+          resource_type: AuditLog::ResourceTypes::CLIENT,
+          resource_id: created_client.id,
+          resource_name: created_client.name,
+          ip_address: ip_address
+        )
+      end
+
       {Result.new(success: true, client: created_client), plain_secret}
     rescue e
       {Result.new(success: false, error: e.message, error_code: "create_failed"), nil}
@@ -191,6 +217,17 @@ module Authority
     ) : Result
       client = get(id)
       return Result.new(success: false, error: "Client not found", error_code: "not_found") unless client
+
+      # Capture old values for audit diff
+      old_values = {
+        "name"            => client.name,
+        "description"     => client.description,
+        "redirect_uri"    => client.redirect_uri,
+        "scopes"          => client.scopes,
+        "policy_url"      => client.policy_url,
+        "tos_url"         => client.tos_url,
+        "is_confidential" => client.is_confidential?.to_s,
+      } of String => String?
 
       # Build update query dynamically
       updates = [] of String
@@ -269,6 +306,32 @@ module Authority
 
       # Fetch updated client
       updated_client = get(id)
+
+      # Log audit trail with changes
+      if updated_client && actor
+        new_values = {
+          "name"            => updated_client.name,
+          "description"     => updated_client.description,
+          "redirect_uri"    => updated_client.redirect_uri,
+          "scopes"          => updated_client.scopes,
+          "policy_url"      => updated_client.policy_url,
+          "tos_url"         => updated_client.tos_url,
+          "is_confidential" => updated_client.is_confidential?.to_s,
+        } of String => String?
+
+        changes = AuditService.diff(old_values, new_values)
+
+        AuditService.log(
+          actor: actor,
+          action: AuditLog::Actions::UPDATE,
+          resource_type: AuditLog::ResourceTypes::CLIENT,
+          resource_id: updated_client.id,
+          resource_name: updated_client.name,
+          changes: changes,
+          ip_address: ip_address
+        )
+      end
+
       Result.new(success: true, client: updated_client)
     rescue e
       Result.new(success: false, error: e.message, error_code: "update_failed")
@@ -284,6 +347,10 @@ module Authority
       return Result.new(success: false, error: "Client not found", error_code: "not_found") unless client
 
       client_id_value = client.client_id
+
+      # Capture client info for audit before deletion
+      client_name = client.name
+      client_uuid = client.id
 
       AuthorityDB.exec_query do |conn|
         conn.exec("BEGIN")
@@ -303,6 +370,16 @@ module Authority
           raise e
         end
       end
+
+      # Log audit trail
+      AuditService.log(
+        actor: actor,
+        action: AuditLog::Actions::DELETE,
+        resource_type: AuditLog::ResourceTypes::CLIENT,
+        resource_id: client_uuid,
+        resource_name: client_name,
+        ip_address: ip_address
+      )
 
       Result.new(success: true)
     rescue e
@@ -336,6 +413,19 @@ module Authority
       end
 
       updated_client = get(id)
+
+      # Log audit trail
+      if updated_client
+        AuditService.log(
+          actor: actor,
+          action: AuditLog::Actions::REGEN_SECRET,
+          resource_type: AuditLog::ResourceTypes::CLIENT,
+          resource_id: updated_client.id,
+          resource_name: updated_client.name,
+          ip_address: ip_address
+        )
+      end
+
       {Result.new(success: true, client: updated_client), plain_secret}
     rescue e
       {Result.new(success: false, error: e.message, error_code: "regenerate_failed"), nil}

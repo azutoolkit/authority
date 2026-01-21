@@ -21,6 +21,20 @@ AppSchema = CQL::Schema.define(
     timestamps
   end
 
+  table :oauth_audit_logs do
+    primary :id, String
+    text :actor_id
+    text :actor_email
+    text :action
+    text :resource_type
+    text :resource_id, null: true
+    text :resource_name, null: true
+    json :changes, null: true
+    text :ip_address, null: true
+    text :user_agent, null: true
+    timestamp :created_at, null: true, default: "CURRENT_TIMESTAMP"
+  end
+
   table :oauth_clients do
     primary :id, String
     text :client_id
