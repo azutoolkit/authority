@@ -1,10 +1,22 @@
 module Authority
   module OwnerRepo
     def self.authenticate?(username : String, password : String)
-      user = find!(username)
-      return false unless user
-      user.verify?(password)
-    rescue
+      Log.info { "Attempting authentication for user: #{username}" }
+
+      user = find_by_username_or_email(username)
+      unless user
+        Log.info { "User not found: #{username}" }
+        return false
+      end
+
+      result = user.verify?(password)
+      Log.info { "Password verification for #{username}: #{result ? "success" : "failed"}" }
+      result
+    rescue ex : Crypto::Bcrypt::Error
+      Log.error(exception: ex) { "Bcrypt error during authentication for #{username}" }
+      false
+    rescue ex
+      Log.error(exception: ex) { "Unexpected error during authentication for #{username}" }
       false
     end
 
@@ -29,8 +41,10 @@ module Authority
     end
 
     def self.find_by_id(user_id : String) : User?
+      Log.debug { "Looking up user by ID: #{user_id}" }
       User.find_by(id: user_id)
-    rescue
+    rescue ex
+      Log.error(exception: ex) { "Error finding user by ID: #{user_id}" }
       nil
     end
 

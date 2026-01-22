@@ -3,6 +3,40 @@
 
 require "cql"
 
+# PostgreSQL UUID compatibility for CQL ActiveRecord
+# CQL stores UUIDs as String internally, but PostgreSQL returns native UUID objects.
+# This converter handles both cases by patching PG::ResultSet.
+class ::PG::ResultSet
+  # Override read for String to handle UUID conversion from PostgreSQL
+  def read(type : String.class) : String
+    val = read
+    case val
+    when UUID
+      val.to_s
+    when String
+      val
+    when Nil
+      raise DB::Error.new("Cannot convert nil to String")
+    else
+      val.to_s
+    end
+  end
+
+  def read(type : String?.class) : String?
+    val = read
+    case val
+    when UUID
+      val.to_s
+    when String
+      val
+    when Nil
+      nil
+    else
+      val.to_s
+    end
+  end
+end
+
 module CQL::Performance
   # Null object profiler that returns safe defaults
   class NullQueryProfiler
