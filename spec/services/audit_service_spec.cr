@@ -7,7 +7,7 @@ module AuditTestHelpers
     user.email = "#{user.username}@example.com"
     user.first_name = "Audit"
     user.last_name = "Admin"
-    user.password = "password123"
+    user.password = "Password123!"
     user.role = "admin"
     user.scope = "authority:admin"
     user.save!

@@ -262,7 +262,7 @@ describe Authority::AdminScopeService do
       actor_result = Authority::AdminUserService.create(
         username: "scopedeleter_#{UUID.random.to_s[0..7]}",
         email: "scopedeleter_#{UUID.random.to_s[0..7]}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Scope",
         last_name: "Deleter",
         role: "admin"
@@ -295,7 +295,7 @@ describe Authority::AdminScopeService do
       actor_result = Authority::AdminUserService.create(
         username: "sysdeleter_#{UUID.random.to_s[0..7]}",
         email: "sysdeleter_#{UUID.random.to_s[0..7]}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "System",
         last_name: "Deleter",
         role: "admin"
@@ -323,7 +323,7 @@ describe Authority::AdminScopeService do
       actor_result = Authority::AdminUserService.create(
         username: "ghostdeleter_#{UUID.random.to_s[0..7]}",
         email: "ghostdeleter_#{UUID.random.to_s[0..7]}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Ghost",
         last_name: "Deleter",
         role: "admin"

@@ -11,7 +11,7 @@ def create_rbac_test_user(
   user.email = "#{username}@example.com"
   user.first_name = "Test"
   user.last_name = "User"
-  user.password = "password123"
+  user.password = "Password123!"
   user.role = role
   user.scope = scope
   user.save!

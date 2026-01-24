@@ -19,7 +19,7 @@ describe Authority::AdminUserService do
       Authority::AdminUserService.create(
         username: unique_name,
         email: "#{unique_name}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Search",
         last_name: "Test"
       )
@@ -36,7 +36,7 @@ describe Authority::AdminUserService do
       Authority::AdminUserService.create(
         username: admin_username,
         email: "#{admin_username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Admin",
         last_name: "Test",
         role: "admin"
@@ -80,7 +80,7 @@ describe Authority::AdminUserService do
       create_result = Authority::AdminUserService.create(
         username: username,
         email: "#{username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Get",
         last_name: "Test"
       )
@@ -108,7 +108,7 @@ describe Authority::AdminUserService do
       result = Authority::AdminUserService.create(
         username: username,
         email: "#{username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Create",
         last_name: "Test"
       )
@@ -123,7 +123,7 @@ describe Authority::AdminUserService do
       result = Authority::AdminUserService.create(
         username: username,
         email: "#{username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Hash",
         last_name: "Test"
       )
@@ -131,8 +131,8 @@ describe Authority::AdminUserService do
       result.success?.should be_true
       result.user.should_not be_nil
       if user = result.user
-        user.encrypted_password.should_not eq "password123"
-        user.verify?("password123").should be_true
+        user.encrypted_password.should_not eq "Password123!"
+        user.verify?("Password123!").should be_true
       end
     end
 
@@ -141,7 +141,7 @@ describe Authority::AdminUserService do
       result = Authority::AdminUserService.create(
         username: username,
         email: "#{username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Role",
         last_name: "Test"
       )
@@ -155,7 +155,7 @@ describe Authority::AdminUserService do
       result = Authority::AdminUserService.create(
         username: username,
         email: "#{username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Admin",
         last_name: "Create",
         role: "admin"
@@ -169,7 +169,7 @@ describe Authority::AdminUserService do
       result = Authority::AdminUserService.create(
         username: "",
         email: "empty@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Empty",
         last_name: "User"
       )
@@ -183,7 +183,7 @@ describe Authority::AdminUserService do
       Authority::AdminUserService.create(
         username: username,
         email: "#{username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Dup",
         last_name: "Test"
       )
@@ -191,7 +191,7 @@ describe Authority::AdminUserService do
       result = Authority::AdminUserService.create(
         username: username,
         email: "#{username}2@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Dup",
         last_name: "Again"
       )
@@ -205,7 +205,7 @@ describe Authority::AdminUserService do
       Authority::AdminUserService.create(
         username: "dup1_#{UUID.random.to_s[0..7]}",
         email: unique_email,
-        password: "password123",
+        password: "Password123!",
         first_name: "Dup",
         last_name: "Email"
       )
@@ -213,7 +213,7 @@ describe Authority::AdminUserService do
       result = Authority::AdminUserService.create(
         username: "dup2_#{UUID.random.to_s[0..7]}",
         email: unique_email,
-        password: "password123",
+        password: "Password123!",
         first_name: "Dup",
         last_name: "Again"
       )
@@ -229,7 +229,7 @@ describe Authority::AdminUserService do
       create_result = Authority::AdminUserService.create(
         username: username,
         email: "#{username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Update",
         last_name: "Test"
       )
@@ -253,7 +253,7 @@ describe Authority::AdminUserService do
       create_result = Authority::AdminUserService.create(
         username: username,
         email: "#{username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Role",
         last_name: "Change"
       )
@@ -287,7 +287,7 @@ describe Authority::AdminUserService do
       Authority::AdminUserService.create(
         username: username1,
         email: "#{username1}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "User",
         last_name: "One"
       )
@@ -295,7 +295,7 @@ describe Authority::AdminUserService do
       create_result = Authority::AdminUserService.create(
         username: username2,
         email: "#{username2}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "User",
         last_name: "Two"
       )
@@ -320,7 +320,7 @@ describe Authority::AdminUserService do
       actor_result = Authority::AdminUserService.create(
         username: actor_username,
         email: "#{actor_username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Actor",
         last_name: "Admin",
         role: "admin"
@@ -332,7 +332,7 @@ describe Authority::AdminUserService do
       target_result = Authority::AdminUserService.create(
         username: target_username,
         email: "#{target_username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Target",
         last_name: "User"
       )
@@ -358,7 +358,7 @@ describe Authority::AdminUserService do
       actor_result = Authority::AdminUserService.create(
         username: actor_username,
         email: "#{actor_username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Self",
         last_name: "Lock",
         role: "admin"
@@ -383,7 +383,7 @@ describe Authority::AdminUserService do
       actor_result = Authority::AdminUserService.create(
         username: actor_username,
         email: "#{actor_username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Regular",
         last_name: "Admin",
         role: "admin"
@@ -395,7 +395,7 @@ describe Authority::AdminUserService do
       target_result = Authority::AdminUserService.create(
         username: target_username,
         email: "#{target_username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Other",
         last_name: "Admin",
         role: "admin"
@@ -424,7 +424,7 @@ describe Authority::AdminUserService do
       actor_result = Authority::AdminUserService.create(
         username: actor_username,
         email: "#{actor_username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Unlocker",
         last_name: "Admin",
         role: "admin"
@@ -436,7 +436,7 @@ describe Authority::AdminUserService do
       target_result = Authority::AdminUserService.create(
         username: target_username,
         email: "#{target_username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Locked",
         last_name: "User"
       )
@@ -467,7 +467,7 @@ describe Authority::AdminUserService do
       actor_result = Authority::AdminUserService.create(
         username: actor_username,
         email: "#{actor_username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Unlocker",
         last_name: "Admin",
         role: "admin"
@@ -478,7 +478,7 @@ describe Authority::AdminUserService do
       target_result = Authority::AdminUserService.create(
         username: target_username,
         email: "#{target_username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Not",
         last_name: "Locked"
       )
@@ -504,7 +504,7 @@ describe Authority::AdminUserService do
       actor_result = Authority::AdminUserService.create(
         username: actor_username,
         email: "#{actor_username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Password",
         last_name: "Actor",
         role: "admin"
@@ -545,7 +545,7 @@ describe Authority::AdminUserService do
       actor_result = Authority::AdminUserService.create(
         username: actor_username,
         email: "#{actor_username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Empty",
         last_name: "Actor",
         role: "admin"
@@ -556,7 +556,7 @@ describe Authority::AdminUserService do
       target_result = Authority::AdminUserService.create(
         username: target_username,
         email: "#{target_username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Empty",
         last_name: "Target"
       )
@@ -583,7 +583,7 @@ describe Authority::AdminUserService do
       actor_result = Authority::AdminUserService.create(
         username: actor_username,
         email: "#{actor_username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Delete",
         last_name: "Actor",
         role: "admin"
@@ -594,7 +594,7 @@ describe Authority::AdminUserService do
       target_result = Authority::AdminUserService.create(
         username: target_username,
         email: "#{target_username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Delete",
         last_name: "Target"
       )
@@ -618,7 +618,7 @@ describe Authority::AdminUserService do
       actor_result = Authority::AdminUserService.create(
         username: actor_username,
         email: "#{actor_username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Self",
         last_name: "Delete",
         role: "admin"
@@ -641,7 +641,7 @@ describe Authority::AdminUserService do
       actor_result = Authority::AdminUserService.create(
         username: actor_username,
         email: "#{actor_username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Regular",
         last_name: "Admin",
         role: "admin"
@@ -652,7 +652,7 @@ describe Authority::AdminUserService do
       target_result = Authority::AdminUserService.create(
         username: target_username,
         email: "#{target_username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Other",
         last_name: "Admin",
         role: "admin"
@@ -679,7 +679,7 @@ describe Authority::AdminUserService do
       create_result = Authority::AdminUserService.create(
         username: username,
         email: "#{username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Login",
         last_name: "Test"
       )
@@ -709,7 +709,7 @@ describe Authority::AdminUserService do
       create_result = Authority::AdminUserService.create(
         username: username,
         email: "#{username}@test.com",
-        password: "password123",
+        password: "Password123!",
         first_name: "Failed",
         last_name: "Login"
       )
