@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Your Email</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #1f2937; background-color: #f3f4f6; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .card { background: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); overflow: hidden; }
+    .header { background: linear-gradient(135deg, #059669 0%, #047857 100%); color: #ffffff; padding: 32px; text-align: center; }
+    .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+    .header .icon { font-size: 48px; margin-bottom: 12px; }
+    .content { padding: 32px; }
+    .content p { margin: 0 0 16px 0; color: #4b5563; }
+    .button { display: inline-block; background: linear-gradient(135deg, #059669 0%, #047857 100%); color: #ffffff !important; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 16px 0; }
+    .link-box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; margin: 16px 0; word-break: break-all; font-family: monospace; font-size: 14px; color: #6b7280; }
+    .warning { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 12px 16px; margin: 16px 0; border-radius: 0 8px 8px 0; }
+    .warning p { margin: 0; color: #92400e; font-size: 14px; }
+    .footer { text-align: center; padding: 24px; color: #9ca3af; font-size: 14px; }
+    .footer a { color: #6b7280; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <div class="icon">&#9989;</div>
+        <h1>Verify Your Email</h1>
+      </div>
+      <div class="content">
+        <p>Hi {{name}},</p>
+        <p>Thanks for signing up for {{app_name}}! Please verify your email address by clicking the button below:</p>
+
+        <p style="text-align: center;">
+          <a href="{{verify_url}}" class="button">Verify Email Address</a>
+        </p>
+
+        <p>Or copy and paste this link into your browser:</p>
+        <div class="link-box">{{verify_url}}</div>
+
+        <div class="warning">
+          <p><strong>This link will expire in {{expires_in}}.</strong></p>
+        </div>
+
+        <p>If you didn't create an account with us, you can safely ignore this email.</p>
+
+        <p>Thanks,<br>The {{app_name}} Team</p>
+      </div>
+      <div class="footer">
+        <p>Need help? Contact us at <a href="mailto:{{support_email}}">{{support_email}}</a></p>
+        <p>&copy; 2024 {{app_name}}. All rights reserved.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

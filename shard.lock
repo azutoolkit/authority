@@ -41,6 +41,10 @@ shards:
     git: https://github.com/spider-gazelle/ed25519.git
     version: 1.1.0
 
+  email:
+    git: https://github.com/arcage/crystal-email.git
+    version: 0.7.1
+
   exception_page:
     git: https://github.com/crystal-loot/exception_page.git
     version: 0.5.0

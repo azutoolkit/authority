@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Locked</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #1f2937; background-color: #f3f4f6; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .card { background: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); overflow: hidden; }
+    .header { background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: #ffffff; padding: 32px; text-align: center; }
+    .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+    .header .icon { font-size: 48px; margin-bottom: 12px; }
+    .content { padding: 32px; }
+    .content p { margin: 0 0 16px 0; color: #4b5563; }
+    .alert { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 16px; margin: 16px 0; }
+    .alert p { margin: 0; color: #991b1b; }
+    .info-box { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 16px; margin: 16px 0; }
+    .info-box p { margin: 0; color: #0369a1; }
+    .footer { text-align: center; padding: 24px; color: #9ca3af; font-size: 14px; }
+    .footer a { color: #6b7280; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <div class="icon">&#128274;</div>
+        <h1>Account Locked</h1>
+      </div>
+      <div class="content">
+        <p>Hi {{name}},</p>
+        <p>Your {{app_name}} account has been temporarily locked for security reasons.</p>
+
+        <div class="alert">
+          <p><strong>Reason:</strong> {{reason}}</p>
+        </div>
+
+        <div class="info-box">
+          <p>{{unlock_info}}</p>
+        </div>
+
+        <p>If you believe this is an error or you need immediate access, please contact our support team.</p>
+
+        <p>For your security, we recommend:</p>
+        <ul style="color: #4b5563;">
+          <li>Using a strong, unique password</li>
+          <li>Enabling two-factor authentication if available</li>
+          <li>Never sharing your credentials with others</li>
+        </ul>
+
+        <p>Thanks,<br>The {{app_name}} Team</p>
+      </div>
+      <div class="footer">
+        <p>Need help? Contact us at <a href="mailto:{{support_email}}">{{support_email}}</a></p>
+        <p>&copy; 2024 {{app_name}}. All rights reserved.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

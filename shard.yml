@@ -22,6 +22,9 @@ dependencies:
     version: 1.2.0
   datadog:
     github: jgaskins/datadog
+  email:
+    github: arcage/crystal-email
+    version: ~> 0.7.0
 development_dependencies:
   faker:
     github: askn/faker
