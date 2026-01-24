@@ -12,7 +12,14 @@ module Authority::Sessions
       header "Cache-Control", "no-store"
       header "Pragma", "no-cache"
 
-      FormResponse.new create_request.forward_url
+      FormResponse.new(
+        forward_url: create_request.forward_url,
+        google_enabled: SocialOAuthService.provider_enabled?("google"),
+        github_enabled: SocialOAuthService.provider_enabled?("github"),
+        facebook_enabled: SocialOAuthService.provider_enabled?("facebook"),
+        apple_enabled: SocialOAuthService.provider_enabled?("apple"),
+        linkedin_enabled: SocialOAuthService.provider_enabled?("linkedin")
+      )
     end
   end
 end

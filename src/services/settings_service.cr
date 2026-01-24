@@ -150,6 +150,33 @@ module Authority
         {Setting::Keys::APP_LOGO_URL, "", Setting::Categories::BRANDING, "URL to logo image"},
         {Setting::Keys::PRIMARY_COLOR, "#570df8", Setting::Categories::BRANDING, "Primary brand color (hex)"},
         {Setting::Keys::SUPPORT_EMAIL, "", Setting::Categories::BRANDING, "Support contact email"},
+
+        # Social Login defaults - Google
+        {Setting::Keys::GOOGLE_OAUTH_ENABLED, "false", Setting::Categories::SOCIAL, "Enable Google OAuth login"},
+        {Setting::Keys::GOOGLE_CLIENT_ID, "", Setting::Categories::SOCIAL, "Google OAuth Client ID"},
+        {Setting::Keys::GOOGLE_CLIENT_SECRET, "", Setting::Categories::SOCIAL, "Google OAuth Client Secret"},
+
+        # Social Login defaults - Facebook
+        {Setting::Keys::FACEBOOK_OAUTH_ENABLED, "false", Setting::Categories::SOCIAL, "Enable Facebook OAuth login"},
+        {Setting::Keys::FACEBOOK_CLIENT_ID, "", Setting::Categories::SOCIAL, "Facebook OAuth App ID"},
+        {Setting::Keys::FACEBOOK_CLIENT_SECRET, "", Setting::Categories::SOCIAL, "Facebook OAuth App Secret"},
+
+        # Social Login defaults - Apple
+        {Setting::Keys::APPLE_OAUTH_ENABLED, "false", Setting::Categories::SOCIAL, "Enable Sign in with Apple"},
+        {Setting::Keys::APPLE_CLIENT_ID, "", Setting::Categories::SOCIAL, "Apple Service ID"},
+        {Setting::Keys::APPLE_TEAM_ID, "", Setting::Categories::SOCIAL, "Apple Team ID"},
+        {Setting::Keys::APPLE_KEY_ID, "", Setting::Categories::SOCIAL, "Apple Key ID"},
+        {Setting::Keys::APPLE_PRIVATE_KEY, "", Setting::Categories::SOCIAL, "Apple Private Key (.p8 contents)"},
+
+        # Social Login defaults - LinkedIn
+        {Setting::Keys::LINKEDIN_OAUTH_ENABLED, "false", Setting::Categories::SOCIAL, "Enable LinkedIn OAuth login"},
+        {Setting::Keys::LINKEDIN_CLIENT_ID, "", Setting::Categories::SOCIAL, "LinkedIn OAuth Client ID"},
+        {Setting::Keys::LINKEDIN_CLIENT_SECRET, "", Setting::Categories::SOCIAL, "LinkedIn OAuth Client Secret"},
+
+        # Social Login defaults - GitHub
+        {Setting::Keys::GITHUB_OAUTH_ENABLED, "false", Setting::Categories::SOCIAL, "Enable GitHub OAuth login"},
+        {Setting::Keys::GITHUB_CLIENT_ID, "", Setting::Categories::SOCIAL, "GitHub OAuth Client ID"},
+        {Setting::Keys::GITHUB_CLIENT_SECRET, "", Setting::Categories::SOCIAL, "GitHub OAuth Client Secret"},
       }
 
       defaults.each do |key, value, category, description|
@@ -169,6 +196,7 @@ module Authority
         "email"    => {} of String => String?,
         "audit"    => {} of String => String?,
         "branding" => {} of String => String?,
+        "social"   => {} of String => String?,
       }
 
       # Security
@@ -200,6 +228,33 @@ module Authority
       result["branding"][Setting::Keys::APP_LOGO_URL] = get(Setting::Keys::APP_LOGO_URL, "")
       result["branding"][Setting::Keys::PRIMARY_COLOR] = get(Setting::Keys::PRIMARY_COLOR, "#570df8")
       result["branding"][Setting::Keys::SUPPORT_EMAIL] = get(Setting::Keys::SUPPORT_EMAIL, "")
+
+      # Social Login - Google
+      result["social"][Setting::Keys::GOOGLE_OAUTH_ENABLED] = get(Setting::Keys::GOOGLE_OAUTH_ENABLED, "false")
+      result["social"][Setting::Keys::GOOGLE_CLIENT_ID] = get(Setting::Keys::GOOGLE_CLIENT_ID, "")
+      result["social"][Setting::Keys::GOOGLE_CLIENT_SECRET] = get(Setting::Keys::GOOGLE_CLIENT_SECRET, "")
+
+      # Social Login - Facebook
+      result["social"][Setting::Keys::FACEBOOK_OAUTH_ENABLED] = get(Setting::Keys::FACEBOOK_OAUTH_ENABLED, "false")
+      result["social"][Setting::Keys::FACEBOOK_CLIENT_ID] = get(Setting::Keys::FACEBOOK_CLIENT_ID, "")
+      result["social"][Setting::Keys::FACEBOOK_CLIENT_SECRET] = get(Setting::Keys::FACEBOOK_CLIENT_SECRET, "")
+
+      # Social Login - Apple
+      result["social"][Setting::Keys::APPLE_OAUTH_ENABLED] = get(Setting::Keys::APPLE_OAUTH_ENABLED, "false")
+      result["social"][Setting::Keys::APPLE_CLIENT_ID] = get(Setting::Keys::APPLE_CLIENT_ID, "")
+      result["social"][Setting::Keys::APPLE_TEAM_ID] = get(Setting::Keys::APPLE_TEAM_ID, "")
+      result["social"][Setting::Keys::APPLE_KEY_ID] = get(Setting::Keys::APPLE_KEY_ID, "")
+      result["social"][Setting::Keys::APPLE_PRIVATE_KEY] = get(Setting::Keys::APPLE_PRIVATE_KEY, "")
+
+      # Social Login - LinkedIn
+      result["social"][Setting::Keys::LINKEDIN_OAUTH_ENABLED] = get(Setting::Keys::LINKEDIN_OAUTH_ENABLED, "false")
+      result["social"][Setting::Keys::LINKEDIN_CLIENT_ID] = get(Setting::Keys::LINKEDIN_CLIENT_ID, "")
+      result["social"][Setting::Keys::LINKEDIN_CLIENT_SECRET] = get(Setting::Keys::LINKEDIN_CLIENT_SECRET, "")
+
+      # Social Login - GitHub
+      result["social"][Setting::Keys::GITHUB_OAUTH_ENABLED] = get(Setting::Keys::GITHUB_OAUTH_ENABLED, "false")
+      result["social"][Setting::Keys::GITHUB_CLIENT_ID] = get(Setting::Keys::GITHUB_CLIENT_ID, "")
+      result["social"][Setting::Keys::GITHUB_CLIENT_SECRET] = get(Setting::Keys::GITHUB_CLIENT_SECRET, "")
 
       result
     end

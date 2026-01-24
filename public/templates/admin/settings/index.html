@@ -28,6 +28,7 @@
       <a href="/dashboard/settings?tab=email" class="tab {% if active_tab == 'email' %}tab-active{% endif %}">Email</a>
       <a href="/dashboard/settings?tab=audit" class="tab {% if active_tab == 'audit' %}tab-active{% endif %}">Audit</a>
       <a href="/dashboard/settings?tab=branding" class="tab {% if active_tab == 'branding' %}tab-active{% endif %}">Branding</a>
+      <a href="/dashboard/settings?tab=social" class="tab {% if active_tab == 'social' %}tab-active{% endif %}">Social Login</a>
     </div>
 
     <form action="/dashboard/settings" method="POST">
@@ -306,6 +307,255 @@
             </div>
           </div>
           {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Social Login Settings -->
+      {% if active_tab == 'social' %}
+      <div class="space-y-6">
+        <!-- Google -->
+        <div class="card bg-base-100 shadow-xl">
+          <div class="card-body">
+            <div class="flex items-center gap-3 mb-4">
+              <svg class="h-8 w-8" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+              </svg>
+              <h2 class="card-title text-lg">Google</h2>
+            </div>
+
+            <div class="form-control mb-4">
+              <label class="label cursor-pointer justify-start gap-4">
+                <input type="checkbox" name="google_oauth_enabled" class="toggle toggle-primary"
+                       {% if settings.social.google_oauth_enabled == 'true' %}checked{% endif %}>
+                <span class="label-text">Enable Google Sign-In</span>
+              </label>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">Client ID</span>
+                </label>
+                <input type="text" name="google_client_id" value="{{settings.social.google_client_id}}"
+                       class="input input-bordered" placeholder="xxxx.apps.googleusercontent.com">
+              </div>
+
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">Client Secret</span>
+                </label>
+                <input type="password" name="google_client_secret" value="{{settings.social.google_client_secret}}"
+                       class="input input-bordered" placeholder="GOCSPX-...">
+              </div>
+            </div>
+
+            <div class="alert alert-info mt-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span>Configure at <a href="https://console.cloud.google.com/apis/credentials" target="_blank" class="link">Google Cloud Console</a>. Redirect URI: <code class="bg-base-200 px-1 rounded">{host}/auth/google/callback</code></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- GitHub -->
+        <div class="card bg-base-100 shadow-xl">
+          <div class="card-body">
+            <div class="flex items-center gap-3 mb-4">
+              <svg class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+              </svg>
+              <h2 class="card-title text-lg">GitHub</h2>
+            </div>
+
+            <div class="form-control mb-4">
+              <label class="label cursor-pointer justify-start gap-4">
+                <input type="checkbox" name="github_oauth_enabled" class="toggle toggle-primary"
+                       {% if settings.social.github_oauth_enabled == 'true' %}checked{% endif %}>
+                <span class="label-text">Enable GitHub Sign-In</span>
+              </label>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">Client ID</span>
+                </label>
+                <input type="text" name="github_client_id" value="{{settings.social.github_client_id}}"
+                       class="input input-bordered" placeholder="Iv1.xxxxx">
+              </div>
+
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">Client Secret</span>
+                </label>
+                <input type="password" name="github_client_secret" value="{{settings.social.github_client_secret}}"
+                       class="input input-bordered" placeholder="xxxxx">
+              </div>
+            </div>
+
+            <div class="alert alert-info mt-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span>Configure at <a href="https://github.com/settings/developers" target="_blank" class="link">GitHub Developer Settings</a>. Redirect URI: <code class="bg-base-200 px-1 rounded">{host}/auth/github/callback</code></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Facebook -->
+        <div class="card bg-base-100 shadow-xl">
+          <div class="card-body">
+            <div class="flex items-center gap-3 mb-4">
+              <svg class="h-8 w-8" fill="#1877F2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
+              <h2 class="card-title text-lg">Facebook</h2>
+            </div>
+
+            <div class="form-control mb-4">
+              <label class="label cursor-pointer justify-start gap-4">
+                <input type="checkbox" name="facebook_oauth_enabled" class="toggle toggle-primary"
+                       {% if settings.social.facebook_oauth_enabled == 'true' %}checked{% endif %}>
+                <span class="label-text">Enable Facebook Sign-In</span>
+              </label>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">App ID</span>
+                </label>
+                <input type="text" name="facebook_client_id" value="{{settings.social.facebook_client_id}}"
+                       class="input input-bordered" placeholder="123456789">
+              </div>
+
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">App Secret</span>
+                </label>
+                <input type="password" name="facebook_client_secret" value="{{settings.social.facebook_client_secret}}"
+                       class="input input-bordered" placeholder="xxxxx">
+              </div>
+            </div>
+
+            <div class="alert alert-info mt-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span>Configure at <a href="https://developers.facebook.com/apps/" target="_blank" class="link">Facebook Developers</a>. Redirect URI: <code class="bg-base-200 px-1 rounded">{host}/auth/facebook/callback</code></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Apple -->
+        <div class="card bg-base-100 shadow-xl">
+          <div class="card-body">
+            <div class="flex items-center gap-3 mb-4">
+              <svg class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+              </svg>
+              <h2 class="card-title text-lg">Apple</h2>
+            </div>
+
+            <div class="form-control mb-4">
+              <label class="label cursor-pointer justify-start gap-4">
+                <input type="checkbox" name="apple_oauth_enabled" class="toggle toggle-primary"
+                       {% if settings.social.apple_oauth_enabled == 'true' %}checked{% endif %}>
+                <span class="label-text">Enable Sign in with Apple</span>
+              </label>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">Service ID (Client ID)</span>
+                </label>
+                <input type="text" name="apple_client_id" value="{{settings.social.apple_client_id}}"
+                       class="input input-bordered" placeholder="com.example.auth">
+              </div>
+
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">Team ID</span>
+                </label>
+                <input type="text" name="apple_team_id" value="{{settings.social.apple_team_id}}"
+                       class="input input-bordered" placeholder="XXXXXXXXXX">
+              </div>
+
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">Key ID</span>
+                </label>
+                <input type="text" name="apple_key_id" value="{{settings.social.apple_key_id}}"
+                       class="input input-bordered" placeholder="XXXXXXXXXX">
+              </div>
+
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">Private Key (.p8 contents)</span>
+                </label>
+                <textarea name="apple_private_key" rows="3"
+                          class="textarea textarea-bordered" placeholder="-----BEGIN PRIVATE KEY-----...">{{settings.social.apple_private_key}}</textarea>
+              </div>
+            </div>
+
+            <div class="alert alert-info mt-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span>Configure at <a href="https://developer.apple.com/account/resources/identifiers/" target="_blank" class="link">Apple Developer Portal</a>. Redirect URI: <code class="bg-base-200 px-1 rounded">{host}/auth/apple/callback</code></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- LinkedIn -->
+        <div class="card bg-base-100 shadow-xl">
+          <div class="card-body">
+            <div class="flex items-center gap-3 mb-4">
+              <svg class="h-8 w-8" fill="#0A66C2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+              </svg>
+              <h2 class="card-title text-lg">LinkedIn</h2>
+            </div>
+
+            <div class="form-control mb-4">
+              <label class="label cursor-pointer justify-start gap-4">
+                <input type="checkbox" name="linkedin_oauth_enabled" class="toggle toggle-primary"
+                       {% if settings.social.linkedin_oauth_enabled == 'true' %}checked{% endif %}>
+                <span class="label-text">Enable LinkedIn Sign-In</span>
+              </label>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">Client ID</span>
+                </label>
+                <input type="text" name="linkedin_client_id" value="{{settings.social.linkedin_client_id}}"
+                       class="input input-bordered" placeholder="xxxxx">
+              </div>
+
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">Client Secret</span>
+                </label>
+                <input type="password" name="linkedin_client_secret" value="{{settings.social.linkedin_client_secret}}"
+                       class="input input-bordered" placeholder="xxxxx">
+              </div>
+            </div>
+
+            <div class="alert alert-info mt-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span>Configure at <a href="https://www.linkedin.com/developers/apps" target="_blank" class="link">LinkedIn Developer Portal</a>. Redirect URI: <code class="bg-base-200 px-1 rounded">{host}/auth/linkedin/callback</code></span>
+            </div>
+          </div>
         </div>
       </div>
       {% endif %}

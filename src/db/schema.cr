@@ -138,4 +138,20 @@ AuthorityDB = CQL::Schema.define(
     text :client_id, null: false, index: true
     timestamp :used_at, null: true
   end
+
+  # Social Connections Table - stores social login provider connections
+  table :social_connections do
+    primary :id, UUID
+    column :user_id, UUID, null: false, index: true
+    text :provider, null: false, index: true
+    text :provider_user_id, null: false
+    text :email, null: true
+    text :name, null: true
+    text :avatar_url, null: true
+    text :access_token, null: true
+    text :refresh_token, null: true
+    timestamp :token_expires_at, null: true
+    text :raw_info, null: true
+    timestamps
+  end
 end

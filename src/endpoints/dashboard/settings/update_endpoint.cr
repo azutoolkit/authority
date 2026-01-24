@@ -40,6 +40,8 @@ module Authority::Dashboard::Settings
         update_audit_settings(admin_user.username, errors)
       when "branding"
         update_branding_settings(admin_user.username, errors)
+      when "social"
+        update_social_settings(admin_user.username, errors)
       end
 
       # Log audit
@@ -103,6 +105,35 @@ module Authority::Dashboard::Settings
       SettingsService.set(Setting::Keys::APP_LOGO_URL, update_request.app_logo_url, Setting::Categories::BRANDING, nil, updated_by)
       set_if_present(Setting::Keys::PRIMARY_COLOR, update_request.primary_color, Setting::Categories::BRANDING, updated_by, errors)
       SettingsService.set(Setting::Keys::SUPPORT_EMAIL, update_request.support_email, Setting::Categories::BRANDING, nil, updated_by)
+    end
+
+    private def update_social_settings(updated_by : String, errors : Array(String))
+      # Google
+      set_checkbox(Setting::Keys::GOOGLE_OAUTH_ENABLED, update_request.google_oauth_enabled, Setting::Categories::SOCIAL, updated_by)
+      SettingsService.set(Setting::Keys::GOOGLE_CLIENT_ID, update_request.google_client_id, Setting::Categories::SOCIAL, nil, updated_by)
+      SettingsService.set(Setting::Keys::GOOGLE_CLIENT_SECRET, update_request.google_client_secret, Setting::Categories::SOCIAL, nil, updated_by)
+
+      # Facebook
+      set_checkbox(Setting::Keys::FACEBOOK_OAUTH_ENABLED, update_request.facebook_oauth_enabled, Setting::Categories::SOCIAL, updated_by)
+      SettingsService.set(Setting::Keys::FACEBOOK_CLIENT_ID, update_request.facebook_client_id, Setting::Categories::SOCIAL, nil, updated_by)
+      SettingsService.set(Setting::Keys::FACEBOOK_CLIENT_SECRET, update_request.facebook_client_secret, Setting::Categories::SOCIAL, nil, updated_by)
+
+      # Apple
+      set_checkbox(Setting::Keys::APPLE_OAUTH_ENABLED, update_request.apple_oauth_enabled, Setting::Categories::SOCIAL, updated_by)
+      SettingsService.set(Setting::Keys::APPLE_CLIENT_ID, update_request.apple_client_id, Setting::Categories::SOCIAL, nil, updated_by)
+      SettingsService.set(Setting::Keys::APPLE_TEAM_ID, update_request.apple_team_id, Setting::Categories::SOCIAL, nil, updated_by)
+      SettingsService.set(Setting::Keys::APPLE_KEY_ID, update_request.apple_key_id, Setting::Categories::SOCIAL, nil, updated_by)
+      SettingsService.set(Setting::Keys::APPLE_PRIVATE_KEY, update_request.apple_private_key, Setting::Categories::SOCIAL, nil, updated_by)
+
+      # LinkedIn
+      set_checkbox(Setting::Keys::LINKEDIN_OAUTH_ENABLED, update_request.linkedin_oauth_enabled, Setting::Categories::SOCIAL, updated_by)
+      SettingsService.set(Setting::Keys::LINKEDIN_CLIENT_ID, update_request.linkedin_client_id, Setting::Categories::SOCIAL, nil, updated_by)
+      SettingsService.set(Setting::Keys::LINKEDIN_CLIENT_SECRET, update_request.linkedin_client_secret, Setting::Categories::SOCIAL, nil, updated_by)
+
+      # GitHub
+      set_checkbox(Setting::Keys::GITHUB_OAUTH_ENABLED, update_request.github_oauth_enabled, Setting::Categories::SOCIAL, updated_by)
+      SettingsService.set(Setting::Keys::GITHUB_CLIENT_ID, update_request.github_client_id, Setting::Categories::SOCIAL, nil, updated_by)
+      SettingsService.set(Setting::Keys::GITHUB_CLIENT_SECRET, update_request.github_client_secret, Setting::Categories::SOCIAL, nil, updated_by)
     end
 
     private def set_if_present(key : String, value : String, category : String, updated_by : String, errors : Array(String))

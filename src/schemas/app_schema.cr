@@ -1,7 +1,7 @@
 AppSchema = CQL::Schema.define(
   :app_schema,
   adapter: CQL::Adapter::Postgres,
-  uri: "postgres://eperez:@localhost:5432/authority_db?initial_pool_size=10&checkout_timeout=3") do
+  uri: "postgres://localhost/authority_db") do
   table :clients do
     primary :id, String
     text :client_id, null: true, default: "uuid_generate_v4()"
@@ -202,6 +202,22 @@ AppSchema = CQL::Schema.define(
     text :description, null: true
     timestamp :updated_at, default: "CURRENT_TIMESTAMP"
     text :updated_by, null: true
+  end
+
+  table :social_connections do
+    primary :id, String
+    text :user_id
+    text :provider
+    text :provider_user_id
+    text :email, null: true
+    text :name, null: true
+    text :avatar_url, null: true
+    text :access_token, null: true
+    text :refresh_token, null: true
+    timestamp :token_expires_at, null: true
+    text :raw_info, null: true
+    timestamps
+    foreign_key [:user_id], references: :oauth_owners, references_columns: [:id], on_delete: :cascade
   end
 
 end

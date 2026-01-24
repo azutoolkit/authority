@@ -20,6 +20,7 @@ module Authority
       EMAIL     = "email"
       AUDIT     = "audit"
       BRANDING  = "branding"
+      SOCIAL    = "social"
     end
 
     # Setting key constants
@@ -53,6 +54,33 @@ module Authority
       APP_LOGO_URL                = "app_logo_url"
       PRIMARY_COLOR               = "primary_color"
       SUPPORT_EMAIL               = "support_email"
+
+      # Social Login - Google
+      GOOGLE_OAUTH_ENABLED        = "google_oauth_enabled"
+      GOOGLE_CLIENT_ID            = "google_client_id"
+      GOOGLE_CLIENT_SECRET        = "google_client_secret"
+
+      # Social Login - Facebook
+      FACEBOOK_OAUTH_ENABLED      = "facebook_oauth_enabled"
+      FACEBOOK_CLIENT_ID          = "facebook_client_id"
+      FACEBOOK_CLIENT_SECRET      = "facebook_client_secret"
+
+      # Social Login - Apple
+      APPLE_OAUTH_ENABLED         = "apple_oauth_enabled"
+      APPLE_CLIENT_ID             = "apple_client_id"
+      APPLE_TEAM_ID               = "apple_team_id"
+      APPLE_KEY_ID                = "apple_key_id"
+      APPLE_PRIVATE_KEY           = "apple_private_key"
+
+      # Social Login - LinkedIn
+      LINKEDIN_OAUTH_ENABLED      = "linkedin_oauth_enabled"
+      LINKEDIN_CLIENT_ID          = "linkedin_client_id"
+      LINKEDIN_CLIENT_SECRET      = "linkedin_client_secret"
+
+      # Social Login - GitHub
+      GITHUB_OAUTH_ENABLED        = "github_oauth_enabled"
+      GITHUB_CLIENT_ID            = "github_client_id"
+      GITHUB_CLIENT_SECRET        = "github_client_secret"
     end
 
     def initialize
