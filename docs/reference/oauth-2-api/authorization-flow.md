@@ -1,12 +1,43 @@
 ---
 description: >-
-  The authorization code grant should be very familiar if you’ve ever signed
+  The authorization code grant should be very familiar if you've ever signed
   into an application using your Facebook or Google account.
 ---
 
 # Authorization Flow
 
 The authorization code grant is used when an application exchanges an authorization code for an access token. After the user returns to the application via the redirect URL, the application will get the authorization code from the URL and use it to request an access token. This request will be made to the token endpoint.
+
+## Flow Overview
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant C as Client App
+    participant A as Authority
+
+    rect rgb(240, 240, 255)
+        Note over U,A: Part 1: Authorization Request
+        U->>C: 1. Click "Login"
+        C->>A: 2. GET /authorize?response_type=code&client_id=...
+        A->>U: 3. Show login form
+        U->>A: 4. Enter credentials
+        A->>U: 5. Show consent screen
+        U->>A: 6. Approve scopes
+        A->>C: 7. Redirect with code
+    end
+
+    rect rgb(240, 255, 240)
+        Note over C,A: Part 2: Token Exchange
+        C->>A: 8. POST /token (code + client_secret)
+        A->>C: 9. Access token + Refresh token
+    end
+
+    rect rgb(255, 240, 240)
+        Note over U,C: Part 3: Access Resources
+        C->>U: 10. User logged in!
+    end
+```
 
 ### The Flow (Part One) <a href="#the-flow-part-one" id="the-flow-part-one"></a>
 

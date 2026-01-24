@@ -1,12 +1,54 @@
 ---
 description: >-
-  The OAuth 2.0 “Device Flow” extension enables OAuth on devices that have an
-  Internet connection but don’t have a browser or an easy way to enter text.
+  The OAuth 2.0 "Device Flow" extension enables OAuth on devices that have an
+  Internet connection but don't have a browser or an easy way to enter text.
 ---
 
 # Device Flow
 
-This flow is seen on devices such as smart TVs, media consoles, picture frames, printers, or hardware video encoders. In this flow, the device instructs the user to open a URL on a secondary device such as a smartphone or computer in order to complete the authorization. There is no communication channel required between the user’s two devices.
+This flow is seen on devices such as smart TVs, media consoles, picture frames, printers, or hardware video encoders. In this flow, the device instructs the user to open a URL on a secondary device such as a smartphone or computer in order to complete the authorization. There is no communication channel required between the user's two devices.
+
+## Flow Overview
+
+```mermaid
+sequenceDiagram
+    participant D as Device/CLI
+    participant A as Authority
+    participant U as User
+    participant B as Browser
+
+    rect rgb(240, 240, 255)
+        Note over D,A: Step 1: Request Device Code
+        D->>A: POST /device (client_id, scope)
+        A->>D: device_code, user_code, verification_uri
+    end
+
+    rect rgb(255, 250, 240)
+        Note over D,U: Step 2: Display to User
+        D->>U: Show: "Go to {url} and enter {code}"
+    end
+
+    rect rgb(240, 255, 240)
+        Note over U,A: Step 3: User Authorization
+        U->>B: Open verification_uri
+        B->>A: GET /activate
+        A->>B: Show code entry form
+        U->>B: Enter user_code
+        B->>A: Submit code
+        A->>B: Show consent screen
+        U->>B: Approve
+        B->>A: Confirm authorization
+        A->>B: Success message
+    end
+
+    rect rgb(255, 240, 240)
+        Note over D,A: Step 4: Poll for Token
+        loop Every 5 seconds
+            D->>A: POST /token (device_code)
+            A->>D: authorization_pending / access_token
+        end
+    end
+```
 
 ### Authorization Request
 
