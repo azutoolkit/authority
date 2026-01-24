@@ -47,23 +47,41 @@ graph TB
 
 ## Screenshots
 
+### Landing Page
+
+The landing page showcases Authority's capabilities with a quick start guide:
+
+![Landing Page](../screenshots/landing-page.gif)
+
 ### Sign In Page
 
 The sign in page provides a clean, modern login experience:
 
-![](<../.gitbook/assets/Authority - Signin.png>)
+![Sign In](../screenshots/signin.gif)
 
-### OAuth Authorization
+### Admin Dashboard - OAuth Clients
 
-Users see a clear consent screen showing requested permissions:
+Register and manage OAuth applications:
 
-![](<../.gitbook/assets/Authority - Authorize.png>)
+![OAuth Clients](../screenshots/admin-clients.gif)
 
-### Device Activation
+### Admin Dashboard - User Management
 
-For device flow authorization, users enter the code displayed on their device:
+Create, edit, and manage user accounts:
 
-![](<../.gitbook/assets/Authority - Device Activation.png>)
+![User Management](../screenshots/admin-users.gif)
+
+### Admin Dashboard - Audit Logs
+
+Track all administrative actions:
+
+![Audit Logs](../screenshots/admin-audit-logs.gif)
+
+### User Profile
+
+Self-service profile management with MFA setup:
+
+![User Profile](../screenshots/user-profile.gif)
 
 ## Template Customization
 

@@ -159,15 +159,13 @@ graph TB
 
 ## Screenshots
 
-### Sign In & Authorization
+### Landing Page
 
-| Sign In | OAuth Authorization |
-|:-------:|:-------------------:|
-| ![Sign In](docs/.gitbook/assets/Authority%20-%20Signin.png) | ![Authorization](docs/.gitbook/assets/Authority%20-%20Authorize.png) |
+![Landing Page](docs/screenshots/landing-page.gif)
 
-### Device Code Flow
+### Sign In
 
-![Device Activation](docs/.gitbook/assets/Authority%20-%20Device%20Activation.png)
+![Sign In](docs/screenshots/signin.gif)
 
 ---
 
@@ -175,40 +173,41 @@ graph TB
 
 Authority includes a powerful, modern admin dashboard with a beautiful dark theme for managing your OAuth infrastructure.
 
-```mermaid
-graph LR
-    subgraph "Admin Dashboard"
-        A[OAuth Clients] --> B[Users]
-        B --> C[Scopes]
-        C --> D[Audit Logs]
-        D --> E[Settings]
-    end
+### OAuth Clients Management
 
-    subgraph "Features"
-        A --> A1[Register clients<br/>Manage secrets<br/>Configure redirects]
-        B --> B1[Create users<br/>Lock/unlock<br/>Assign roles]
-        C --> C1[System scopes<br/>Custom scopes<br/>Descriptions]
-        D --> D1[Action history<br/>Filter & search<br/>CSV export]
-        E --> E1[Security policies<br/>Password rules<br/>Email config]
-    end
+![OAuth Clients](docs/screenshots/admin-clients.gif)
 
-    style A fill:#7c3aed,stroke:#5b21b6,color:#fff
-    style B fill:#7c3aed,stroke:#5b21b6,color:#fff
-    style C fill:#7c3aed,stroke:#5b21b6,color:#fff
-    style D fill:#7c3aed,stroke:#5b21b6,color:#fff
-    style E fill:#7c3aed,stroke:#5b21b6,color:#fff
-```
+Register and manage OAuth applications with redirect URIs, client secrets, and scope assignments.
 
-### Dashboard Features
+### User Management
 
-| Feature | Description |
-|---------|-------------|
-| **OAuth Clients** | Register and manage OAuth applications with redirect URIs, secrets, and scopes |
-| **User Management** | Create, edit, lock/unlock accounts, assign admin/user roles, reset passwords |
-| **Scope Management** | Define system and custom OAuth scopes with descriptions |
-| **Audit Logs** | Track all actions with filtering by actor, action type, and date range |
-| **System Settings** | Configure account lockout, password policies, session duration, email, and branding |
-| **User Profile** | Self-service profile management, MFA setup, password changes, active sessions |
+![User Management](docs/screenshots/admin-users.gif)
+
+Create, edit, lock/unlock accounts, assign admin/user roles, and manage passwords.
+
+### Scope Management
+
+![Scope Management](docs/screenshots/admin-scopes.gif)
+
+Define system and custom OAuth scopes with descriptions.
+
+### Audit Logs
+
+![Audit Logs](docs/screenshots/admin-audit-logs.gif)
+
+Track all administrative actions with filtering by actor, action type, and date range. Export to CSV.
+
+### System Settings
+
+![System Settings](docs/screenshots/admin-settings.gif)
+
+Configure account lockout, password policies, session duration, email, and branding.
+
+### User Profile
+
+![User Profile](docs/screenshots/user-profile.gif)
+
+Self-service profile management, MFA setup, password changes, and active sessions
 
 ---
 
