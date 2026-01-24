@@ -22,6 +22,7 @@ module Authority::Profile
       @email : String,
       @username : String,
       @email_verified : Bool = false,
+      @mfa_enabled : Bool = false,
       @created_at : String = "",
       @last_login : String = "",
       @connected_apps : Array(ConnectedApp) = [] of ConnectedApp,
@@ -36,6 +37,7 @@ module Authority::Profile
         email:          @email,
         username:       @username,
         email_verified: @email_verified,
+        mfa_enabled:    @mfa_enabled,
         created_at:     @created_at,
         last_login:     @last_login,
         connected_apps: @connected_apps.map { |app|

@@ -94,7 +94,7 @@
             <div>
               <span class="text-sm text-base-content/60">Scopes</span>
               <div class="flex flex-wrap gap-1 mt-1">
-                {% for scope in client.scopes.split(' ') %}
+                {% for scope in client.scopes_list %}
                 <span class="badge badge-outline">{{scope}}</span>
                 {% endfor %}
               </div>

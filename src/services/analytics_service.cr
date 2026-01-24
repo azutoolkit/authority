@@ -5,7 +5,10 @@ module Authority
     extend self
 
     # Dashboard statistics
+    @[Crinja::Attributes(expose: [total_users, total_clients, total_scopes, active_users, locked_users, failed_logins_24h, new_users_7d, new_clients_7d])]
     struct DashboardStats
+      include Crinja::Object::Auto
+
       getter total_users : Int64
       getter total_clients : Int64
       getter total_scopes : Int64
@@ -29,7 +32,10 @@ module Authority
     end
 
     # Login activity data point
+    @[Crinja::Attributes(expose: [date, successful, failed])]
     struct LoginActivity
+      include Crinja::Object::Auto
+
       getter date : String  # YYYY-MM-DD
       getter successful : Int32
       getter failed : Int32
@@ -39,7 +45,10 @@ module Authority
     end
 
     # Recent audit log entry for display
+    @[Crinja::Attributes(expose: [action, resource_type, resource_name, actor_email, created_at, action_badge_class])]
     struct RecentActivity
+      include Crinja::Object::Auto
+
       getter action : String
       getter resource_type : String
       getter resource_name : String

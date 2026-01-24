@@ -35,6 +35,7 @@ module Authority::Profile
         email: user.email,
         username: user.username,
         email_verified: user.email_verified,
+        mfa_enabled: user.mfa_enabled,
         created_at: user.created_at.try(&.to_s("%B %d, %Y")) || "",
         last_login: user.updated_at.try(&.to_s("%B %d, %Y %H:%M")) || "",
         connected_apps: connected_apps
