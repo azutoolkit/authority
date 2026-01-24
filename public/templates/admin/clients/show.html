@@ -103,8 +103,8 @@
             <div>
               <span class="text-sm text-base-content/60">Client Type</span>
               <p>
-                <span class="badge {% if client.is_confidential %}badge-primary{% else %}badge-secondary{% endif %}">
-                  {% if client.is_confidential %}Confidential{% else %}Public{% endif %}
+                <span class="badge {% if client.confidential %}badge-primary{% else %}badge-secondary{% endif %}">
+                  {% if client.confidential %}Confidential{% else %}Public{% endif %}
                 </span>
               </p>
             </div>

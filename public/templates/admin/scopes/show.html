@@ -10,16 +10,16 @@
       <div>
         <div class="flex items-center gap-2 mb-2">
           <h1 class="text-3xl font-bold text-base-content">{{scope.display_name}}</h1>
-          {% if scope.is_system %}
+          {% if scope.system_scope %}
           <span class="badge badge-primary">System</span>
           {% endif %}
-          {% if scope.is_default %}
+          {% if scope.default_scope %}
           <span class="badge badge-success">Default</span>
           {% endif %}
         </div>
         <code class="text-sm bg-base-200 px-2 py-1 rounded font-mono">{{scope.name}}</code>
       </div>
-      {% if not scope.is_system %}
+      {% if not scope.system_scope %}
       <div class="flex gap-2">
         <a href="/dashboard/scopes/{{scope.id_str}}/edit" class="btn btn-outline gap-2">
           <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -62,7 +62,7 @@
 
           <div class="flex justify-between items-center">
             <span class="text-base-content/60">Default Scope</span>
-            {% if scope.is_default %}
+            {% if scope.default_scope %}
             <span class="badge badge-success">Yes - Automatically requested</span>
             {% else %}
             <span class="text-base-content/40">No</span>
@@ -71,7 +71,7 @@
 
           <div class="flex justify-between items-center">
             <span class="text-base-content/60">Type</span>
-            {% if scope.is_system %}
+            {% if scope.system_scope %}
             <span class="badge badge-primary">System Scope</span>
             {% else %}
             <span class="badge badge-ghost">Custom Scope</span>
@@ -93,7 +93,7 @@
       </div>
     </div>
 
-    {% if scope.is_system %}
+    {% if scope.system_scope %}
     <!-- System Scope Notice -->
     <div class="alert alert-info mt-6">
       <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
