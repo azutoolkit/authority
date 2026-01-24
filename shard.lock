@@ -7,7 +7,7 @@ shards:
 
   authly:
     git: https://github.com/azutoolkit/authly.git
-    version: 1.2
+    version: 1.2.7
 
   azu: # Overridden
     git: https://github.com/azutoolkit/azu.git

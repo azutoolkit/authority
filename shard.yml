@@ -19,7 +19,7 @@ dependencies:
     branch: master
   authly:
     github: azutoolkit/authly
-    version: 1.2.0
+    version: ~> 1.2.7
   datadog:
     github: jgaskins/datadog
   email:
