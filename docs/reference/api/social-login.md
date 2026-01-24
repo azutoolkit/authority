@@ -127,23 +127,9 @@ Requires active session (session cookie).
 
 ### Response
 
-**Success (200)**
+**Success:** `302` redirect to `/profile` with success flash message.
 
-```json
-{
-  "success": true,
-  "message": "Google account unlinked successfully"
-}
-```
-
-**Error (400)**
-
-```json
-{
-  "error": "cannot_unlink",
-  "message": "Cannot unlink the only login method. Set a password first."
-}
-```
+**Error:** `302` redirect to `/profile` with error flash message.
 
 ### Errors
 

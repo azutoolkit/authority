@@ -8,9 +8,9 @@ Authority implements rate limiting to protect against abuse.
 |----------|-------|--------|
 | `/authorize` | 60 | 1 minute |
 | `/token` | 60 | 1 minute |
-| `/userinfo` | 120 | 1 minute |
+| `/oauth2/userinfo` | 120 | 1 minute |
 | `/register` | 10 | 1 minute |
-| `/sessions/login` | 10 | 1 minute |
+| `/signin` | 10 | 1 minute |
 | `/forgot-password` | 3 | 1 hour |
 
 ## Response Headers
