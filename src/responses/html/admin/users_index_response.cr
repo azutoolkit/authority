@@ -25,6 +25,7 @@ module Authority::Dashboard::Users
         page:        @page,
         per_page:    @per_page,
         total_count: @total_count,
+        total_pages: (@total_count.to_f / @per_page).ceil.to_i,
         search:      @search,
         status:      @status,
         role:        @role,

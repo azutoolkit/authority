@@ -8,6 +8,7 @@ module Authority::Dashboard::Users
 
     def initialize(
       @user : User,
+      @sessions : Array(PersistentSession) = [] of PersistentSession,
       @username : String = "",
       @errors : Array(String)? = nil
     )
@@ -16,6 +17,7 @@ module Authority::Dashboard::Users
     def render
       view TEMPLATE, {
         user:     @user,
+        sessions: @sessions,
         username: @username,
         errors:   @errors,
       }

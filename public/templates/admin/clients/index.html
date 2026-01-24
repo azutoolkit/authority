@@ -15,15 +15,44 @@
           {% endif %}
         </p>
       </div>
-      <a href="/dashboard/clients/new" class="btn btn-primary gap-2">
-        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-        </svg>
-        New Client
-      </a>
+      <div class="flex gap-2">
+        <a href="/dashboard/clients/export?search={{search}}&confidentiality={{confidentiality}}&scope={{scope_filter}}" class="btn btn-outline gap-2">
+          <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+          Export CSV
+        </a>
+        <a href="/dashboard/clients/new" class="btn btn-primary gap-2">
+          <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          New Client
+        </a>
+      </div>
     </div>
 
     {% include "errors.html" %}
+
+    <!-- Success/Error Messages from Query Params -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const params = new URLSearchParams(window.location.search);
+        const success = params.get('success');
+        const error = params.get('error');
+        if (success) {
+          const alert = document.createElement('div');
+          alert.className = 'alert alert-success mb-4';
+          alert.innerHTML = '<span>' + decodeURIComponent(success.replace(/\+/g, ' ')) + '</span>';
+          document.querySelector('main').insertBefore(alert, document.querySelector('main').children[1]);
+        }
+        if (error) {
+          const alert = document.createElement('div');
+          alert.className = 'alert alert-error mb-4';
+          alert.innerHTML = '<span>' + decodeURIComponent(error.replace(/\+/g, ' ')) + '</span>';
+          document.querySelector('main').insertBefore(alert, document.querySelector('main').children[1]);
+        }
+      });
+    </script>
 
     <!-- Search and Filter Section -->
     <div class="card bg-base-100 shadow-md mb-6">
@@ -136,156 +165,201 @@
     </div>
     {% endif %}
 
-    <!-- Clients Table -->
-    <div class="card bg-base-100 shadow-xl">
-      <div class="card-body p-0">
-        {% if clients|length > 0 %}
-        <div class="overflow-x-auto">
-          <table class="table table-zebra">
-            <thead>
-              <tr class="bg-base-200">
-                <th>Name</th>
-                <th>Client ID</th>
-                <th>Type</th>
-                <th>Redirect URI</th>
-                <th>Scopes</th>
-                <th>Created</th>
-                <th class="text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for client in clients %}
-              <tr class="hover">
-                <td>
-                  <div class="flex items-center gap-3">
-                    {% if client.logo %}
-                    <div class="avatar">
-                      <div class="w-10 h-10 rounded-full">
-                        <img src="{{client.logo}}" alt="{{client.name}}" />
+    <!-- Clients Table with Bulk Operations -->
+    <form id="bulkForm" action="/dashboard/clients/bulk" method="POST">
+      <!-- Bulk Actions Bar -->
+      <div id="bulkActionsBar" class="hidden card bg-base-200 shadow mb-4">
+        <div class="card-body p-3 flex flex-row items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-sm font-medium"><span id="selectedCount">0</span> clients selected</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="hidden" name="action" id="bulkAction" value="">
+            <button type="button" onclick="executeBulkAction('export')" class="btn btn-sm btn-info gap-1">
+              <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+              </svg>
+              Export
+            </button>
+            <button type="button" onclick="confirmBulkDelete()" class="btn btn-sm btn-error gap-1">
+              <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+              </svg>
+              Delete
+            </button>
+            <button type="button" onclick="clearSelection()" class="btn btn-sm btn-ghost">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body p-0">
+          {% if clients|length > 0 %}
+          <div class="overflow-x-auto">
+            <table class="table table-zebra">
+              <thead>
+                <tr class="bg-base-200">
+                  <th class="w-12">
+                    <label>
+                      <input type="checkbox" class="checkbox checkbox-sm" id="selectAll" onchange="toggleSelectAll(this)">
+                    </label>
+                  </th>
+                  <th>Name</th>
+                  <th>Client ID</th>
+                  <th>Type</th>
+                  <th>Redirect URI</th>
+                  <th>Scopes</th>
+                  <th>Created</th>
+                  <th class="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for client in clients %}
+                <tr class="hover">
+                  <td>
+                    <label>
+                      <input type="checkbox" class="checkbox checkbox-sm client-checkbox" name="ids[]" value="{{client.id_str}}" onchange="updateBulkUI()">
+                    </label>
+                  </td>
+                  <td>
+                    <div class="flex items-center gap-3">
+                      {% if client.logo %}
+                      <div class="avatar">
+                        <div class="w-10 h-10 rounded-full">
+                          <img src="{{client.logo}}" alt="{{client.name}}" />
+                        </div>
                       </div>
-                    </div>
-                    {% else %}
-                    <div class="avatar placeholder">
-                      <div class="bg-neutral text-neutral-content w-10 rounded-full">
-                        <span class="text-lg">{{client.name[0]|upper}}</span>
+                      {% else %}
+                      <div class="avatar placeholder">
+                        <div class="bg-neutral text-neutral-content w-10 rounded-full">
+                          <span class="text-lg">{{client.name[0]|upper}}</span>
+                        </div>
                       </div>
-                    </div>
-                    {% endif %}
-                    <div>
-                      <div class="font-bold">{{client.name}}</div>
-                      {% if client.description %}
-                      <div class="text-sm text-base-content/60 truncate max-w-xs">{{client.description}}</div>
                       {% endif %}
+                      <div>
+                        <div class="font-bold">{{client.name}}</div>
+                        {% if client.description %}
+                        <div class="text-sm text-base-content/60 truncate max-w-xs">{{client.description}}</div>
+                        {% endif %}
+                      </div>
                     </div>
-                  </div>
-                </td>
-                <td>
-                  <div class="flex items-center gap-2">
-                    <code class="text-xs bg-base-200 px-2 py-1 rounded font-mono">{{client.client_id|truncate(8, killwords=true, end="")}}...</code>
-                    <button class="btn btn-ghost btn-xs" onclick="navigator.clipboard.writeText('{{client.client_id}}')" title="Copy Client ID">
-                      <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
-                      </svg>
-                    </button>
-                  </div>
-                </td>
-                <td>
-                  {% if client.is_confidential %}
-                  <span class="badge badge-info badge-sm">Confidential</span>
-                  {% else %}
-                  <span class="badge badge-warning badge-sm">Public</span>
-                  {% endif %}
-                </td>
-                <td>
-                  <span class="text-sm truncate max-w-xs block">{{client.redirect_uri}}</span>
-                </td>
-                <td>
-                  <div class="flex flex-wrap gap-1">
-                    {% for scope in client.scopes_list %}
-                    <span class="badge badge-outline badge-sm">{{scope}}</span>
-                    {% endfor %}
-                  </div>
-                </td>
-                <td>
-                  <span class="text-sm text-base-content/60">{{client.created_at|date('%Y-%m-%d')}}</span>
-                </td>
-                <td class="text-right">
-                  <div class="flex justify-end gap-1">
-                    <a href="/dashboard/clients/{{client.id_str}}" class="btn btn-ghost btn-sm" title="View Details">
-                      <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.64 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.64 0-8.573-3.007-9.963-7.178z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                    </a>
-                    <a href="/dashboard/clients/{{client.id_str}}/edit" class="btn btn-ghost btn-sm" title="Edit">
-                      <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                      </svg>
-                    </a>
-                    <form action="/dashboard/clients/{{client.id_str}}/delete" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this client? This action cannot be undone.')">
-                      <button type="submit" class="btn btn-ghost btn-sm text-error" title="Delete">
+                  </td>
+                  <td>
+                    <div class="flex items-center gap-2">
+                      <code class="text-xs bg-base-200 px-2 py-1 rounded font-mono">{{client.client_id|truncate(8, killwords=true, end="")}}...</code>
+                      <button type="button" class="btn btn-ghost btn-xs" onclick="navigator.clipboard.writeText('{{client.client_id}}')" title="Copy Client ID">
                         <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
                         </svg>
                       </button>
-                    </form>
-                  </div>
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Pagination -->
-        {% if total_pages > 1 %}
-        <div class="flex justify-between items-center p-4 border-t border-base-200">
-          <div class="text-sm text-base-content/60">
-            Showing {{(page - 1) * per_page + 1}}-{{[page * per_page, total_count]|min}} of {{total_count}} clients
+                    </div>
+                  </td>
+                  <td>
+                    {% if client.is_confidential %}
+                    <span class="badge badge-info badge-sm">Confidential</span>
+                    {% else %}
+                    <span class="badge badge-warning badge-sm">Public</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <span class="text-sm truncate max-w-xs block">{{client.redirect_uri}}</span>
+                  </td>
+                  <td>
+                    <div class="flex flex-wrap gap-1">
+                      {% for scope in client.scopes_list %}
+                      <span class="badge badge-outline badge-sm">{{scope}}</span>
+                      {% endfor %}
+                    </div>
+                  </td>
+                  <td>
+                    <span class="text-sm text-base-content/60">{{client.created_at|date('%Y-%m-%d')}}</span>
+                  </td>
+                  <td class="text-right">
+                    <div class="flex justify-end gap-1">
+                      <a href="/dashboard/clients/{{client.id_str}}" class="btn btn-ghost btn-sm" title="View Details">
+                        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.64 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.64 0-8.573-3.007-9.963-7.178z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      </a>
+                      <a href="/dashboard/clients/{{client.id_str}}/edit" class="btn btn-ghost btn-sm" title="Edit">
+                        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                        </svg>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
           </div>
-          <div class="join">
-            {% if page > 1 %}
-            <a href="/dashboard/clients?page={{page - 1}}&search={{search}}&confidentiality={{confidentiality}}&scope={{scope_filter}}&sort_by={{sort_by}}&sort_dir={{sort_dir}}"
-               class="join-item btn btn-sm">Previous</a>
-            {% endif %}
-            <span class="join-item btn btn-sm btn-disabled">Page {{page}} of {{total_pages}}</span>
-            {% if page < total_pages %}
-            <a href="/dashboard/clients?page={{page + 1}}&search={{search}}&confidentiality={{confidentiality}}&scope={{scope_filter}}&sort_by={{sort_by}}&sort_dir={{sort_dir}}"
-               class="join-item btn btn-sm">Next</a>
-            {% endif %}
-          </div>
-        </div>
-        {% endif %}
 
-        {% else %}
-        <!-- Empty State -->
-        <div class="flex flex-col items-center justify-center py-16 px-4">
-          <div class="avatar placeholder mb-4">
-            <div class="bg-base-200 text-base-content w-16 rounded-full">
-              <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z" />
-              </svg>
+          <!-- Pagination -->
+          {% if total_pages > 1 %}
+          <div class="flex justify-between items-center p-4 border-t border-base-200">
+            <div class="text-sm text-base-content/60">
+              Showing {{(page - 1) * per_page + 1}}-{{[page * per_page, total_count]|min}} of {{total_count}} clients
+            </div>
+            <div class="join">
+              {% if page > 1 %}
+              <a href="/dashboard/clients?page={{page - 1}}&search={{search}}&confidentiality={{confidentiality}}&scope={{scope_filter}}&sort_by={{sort_by}}&sort_dir={{sort_dir}}"
+                 class="join-item btn btn-sm">Previous</a>
+              {% endif %}
+              <span class="join-item btn btn-sm btn-disabled">Page {{page}} of {{total_pages}}</span>
+              {% if page < total_pages %}
+              <a href="/dashboard/clients?page={{page + 1}}&search={{search}}&confidentiality={{confidentiality}}&scope={{scope_filter}}&sort_by={{sort_by}}&sort_dir={{sort_dir}}"
+                 class="join-item btn btn-sm">Next</a>
+              {% endif %}
             </div>
           </div>
-          {% if search or confidentiality or scope_filter %}
-          <h3 class="text-lg font-semibold mb-2">No clients found</h3>
-          <p class="text-base-content/60 text-center mb-6 max-w-sm">
-            No clients match your search criteria. Try adjusting your filters.
-          </p>
-          <a href="/dashboard/clients" class="btn btn-ghost">Clear Filters</a>
+          {% endif %}
+
           {% else %}
-          <h3 class="text-lg font-semibold mb-2">No clients yet</h3>
-          <p class="text-base-content/60 text-center mb-6 max-w-sm">
-            Create your first OAuth client to allow applications to authenticate with your server.
-          </p>
-          <a href="/dashboard/clients/new" class="btn btn-primary">
-            Create First Client
-          </a>
+          <!-- Empty State -->
+          <div class="flex flex-col items-center justify-center py-16 px-4">
+            <div class="avatar placeholder mb-4">
+              <div class="bg-base-200 text-base-content w-16 rounded-full">
+                <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z" />
+                </svg>
+              </div>
+            </div>
+            {% if search or confidentiality or scope_filter %}
+            <h3 class="text-lg font-semibold mb-2">No clients found</h3>
+            <p class="text-base-content/60 text-center mb-6 max-w-sm">
+              No clients match your search criteria. Try adjusting your filters.
+            </p>
+            <a href="/dashboard/clients" class="btn btn-ghost">Clear Filters</a>
+            {% else %}
+            <h3 class="text-lg font-semibold mb-2">No clients yet</h3>
+            <p class="text-base-content/60 text-center mb-6 max-w-sm">
+              Create your first OAuth client to allow applications to authenticate with your server.
+            </p>
+            <a href="/dashboard/clients/new" class="btn btn-primary">
+              Create First Client
+            </a>
+            {% endif %}
+          </div>
           {% endif %}
         </div>
-        {% endif %}
       </div>
-    </div>
+    </form>
+
+    <!-- Delete Confirmation Modal -->
+    <dialog id="deleteModal" class="modal">
+      <div class="modal-box">
+        <h3 class="font-bold text-lg text-error">Confirm Bulk Delete</h3>
+        <p class="py-4">Are you sure you want to delete <span id="deleteCount" class="font-bold">0</span> clients? This will revoke all associated tokens and consents. This action cannot be undone.</p>
+        <div class="modal-action">
+          <button type="button" class="btn" onclick="deleteModal.close()">Cancel</button>
+          <button type="button" class="btn btn-error" onclick="executeBulkAction('delete')">Delete Clients</button>
+        </div>
+      </div>
+      <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+      </form>
+    </dialog>
 
     <!-- Back to Dashboard -->
     <div class="mt-6">
@@ -297,4 +371,55 @@
       </a>
     </div>
 </main>
+
+<script>
+  function updateBulkUI() {
+    const checkboxes = document.querySelectorAll('.client-checkbox:checked');
+    const count = checkboxes.length;
+    const bar = document.getElementById('bulkActionsBar');
+    const countSpan = document.getElementById('selectedCount');
+
+    countSpan.textContent = count;
+
+    if (count > 0) {
+      bar.classList.remove('hidden');
+    } else {
+      bar.classList.add('hidden');
+    }
+
+    // Update select all checkbox state
+    const allCheckboxes = document.querySelectorAll('.client-checkbox');
+    const selectAll = document.getElementById('selectAll');
+    selectAll.checked = count === allCheckboxes.length && count > 0;
+    selectAll.indeterminate = count > 0 && count < allCheckboxes.length;
+  }
+
+  function toggleSelectAll(checkbox) {
+    const checkboxes = document.querySelectorAll('.client-checkbox');
+    checkboxes.forEach(cb => cb.checked = checkbox.checked);
+    updateBulkUI();
+  }
+
+  function clearSelection() {
+    const checkboxes = document.querySelectorAll('.client-checkbox');
+    checkboxes.forEach(cb => cb.checked = false);
+    document.getElementById('selectAll').checked = false;
+    updateBulkUI();
+  }
+
+  function executeBulkAction(action) {
+    if (action === 'delete') {
+      deleteModal.close();
+    }
+
+    document.getElementById('bulkAction').value = action;
+    document.getElementById('bulkForm').submit();
+  }
+
+  function confirmBulkDelete() {
+    const count = document.querySelectorAll('.client-checkbox:checked').length;
+    document.getElementById('deleteCount').textContent = count;
+    deleteModal.showModal();
+  }
+</script>
 {% endblock %}

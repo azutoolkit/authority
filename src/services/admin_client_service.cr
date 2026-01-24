@@ -425,6 +425,50 @@ module Authority
       {Result.new(success: false, error: e.message, error_code: "regenerate_failed"), nil}
     end
 
+    # Bulk result struct
+    struct BulkResult
+      getter? success : Bool
+      getter succeeded : Int32
+      getter failed : Int32
+      getter errors : Array(String)
+
+      def initialize(
+        @success : Bool,
+        @succeeded : Int32 = 0,
+        @failed : Int32 = 0,
+        @errors : Array(String) = [] of String
+      )
+      end
+    end
+
+    # Bulk delete multiple clients
+    def self.bulk_delete(
+      ids : Array(String),
+      actor : User,
+      ip_address : String? = nil
+    ) : BulkResult
+      succeeded = 0
+      failed = 0
+      errors = [] of String
+
+      ids.each do |id|
+        result = delete(id, actor, ip_address)
+        if result.success?
+          succeeded += 1
+        else
+          failed += 1
+          errors << "Client #{id}: #{result.error}"
+        end
+      end
+
+      BulkResult.new(
+        success: failed == 0,
+        succeeded: succeeded,
+        failed: failed,
+        errors: errors
+      )
+    end
+
     # Find client by client_id (UUID string used in OAuth flows)
     private def self.find_by_client_id(client_id : String) : Client?
       Client.find_by(client_id: client_id)

@@ -30,8 +30,12 @@ module Authority::Dashboard::Users
         return redirect to: "/dashboard/users", status: 302
       end
 
+      # Fetch active sessions for this user
+      sessions = SessionManagementService.list_for_user(target_user.id.to_s)
+
       ShowResponse.new(
         user: target_user,
+        sessions: sessions,
         username: admin_user.username
       )
     end
