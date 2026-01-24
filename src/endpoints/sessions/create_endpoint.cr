@@ -36,6 +36,11 @@ module Authority::Sessions
     end
 
     private def auth_error(result : AuthenticationService::AuthResult)
+      # Redirect to MFA if required
+      if result.mfa_required?
+        return redirect to: "/mfa/verify", status: 302
+      end
+
       # Set Retry-After header if account is locked
       if retry_after = result.retry_after
         header "Retry-After", retry_after.total_seconds.to_i.to_s

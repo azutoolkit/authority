@@ -19,16 +19,100 @@ module Authority
       end
     end
 
-    # List all clients with pagination
-    def self.list(page : Int32 = 1, per_page : Int32 = 20) : Array(Client)
-      offset = (page - 1) * per_page
-      results = [] of Client
+    # List options for filtering
+    struct ListOptions
+      property page : Int32 = 1
+      property per_page : Int32 = 20
+      property search : String?
+      property confidentiality : String?  # "confidential", "public", nil for all
+      property scope : String?            # Filter by specific scope
+      property sort_by : String = "created_at"
+      property sort_dir : String = "DESC"
 
-      Client.query.order(created_at: :desc).limit(per_page).offset(offset).each do |client|
-        results << client
+      def initialize(
+        @page : Int32 = 1,
+        @per_page : Int32 = 20,
+        @search : String? = nil,
+        @confidentiality : String? = nil,
+        @scope : String? = nil,
+        @sort_by : String = "created_at",
+        @sort_dir : String = "DESC"
+      )
+      end
+    end
+
+    # List all clients with pagination and filtering
+    def self.list(options : ListOptions = ListOptions.new) : Array(Client)
+      offset = (options.page - 1) * options.per_page
+
+      query = Client.query
+
+      # Validate sort column to prevent SQL injection
+      valid_sort_columns = ["created_at", "updated_at", "name"]
+      sort_column = valid_sort_columns.includes?(options.sort_by) ? options.sort_by : "created_at"
+      sort_direction = options.sort_dir.upcase == "ASC" ? :asc : :desc
+
+      # Apply ordering based on validated column
+      case sort_column
+      when "created_at"
+        query = query.order(created_at: sort_direction)
+      when "updated_at"
+        query = query.order(updated_at: sort_direction)
+      when "name"
+        query = query.order(name: sort_direction)
       end
 
-      results
+      # Fetch all matching clients, then apply in-memory filters
+      results = query.all
+
+      # Apply search filter in memory
+      if search = options.search
+        if !search.empty?
+          pattern = search.downcase
+          results = results.select do |client|
+            client.name.downcase.includes?(pattern) ||
+              client.client_id.downcase.includes?(pattern) ||
+              client.redirect_uri.downcase.includes?(pattern) ||
+              (client.description.try(&.downcase.includes?(pattern)) || false)
+          end
+        end
+      end
+
+      # Apply confidentiality filter
+      case options.confidentiality
+      when "confidential"
+        results = results.select(&.is_confidential)
+      when "public"
+        results = results.select { |c| !c.is_confidential }
+      end
+
+      # Apply scope filter
+      if scope = options.scope
+        if !scope.empty?
+          results = results.select do |client|
+            client.scopes_list.includes?(scope)
+          end
+        end
+      end
+
+      # Apply pagination in memory
+      results.skip(offset).first(options.per_page)
+    end
+
+    # Backwards-compatible list method
+    def self.list(page : Int32 = 1, per_page : Int32 = 20) : Array(Client)
+      list(ListOptions.new(page: page, per_page: per_page))
+    end
+
+    # Count total clients with filters
+    def self.count(options : ListOptions = ListOptions.new) : Int64
+      list(ListOptions.new(
+        page: 1,
+        per_page: Int32::MAX,
+        search: options.search,
+        confidentiality: options.confidentiality,
+        scope: options.scope
+      )).size.to_i64
     end
 
     # Get a single client by ID

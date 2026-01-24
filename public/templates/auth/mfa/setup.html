@@ -1,0 +1,126 @@
+{% extends "auth/layout.html" %}
+
+{% block body %}
+<div class="min-h-screen flex items-center justify-center py-12 px-4">
+  <div class="max-w-lg w-full">
+    <!-- Card -->
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <!-- Header -->
+        <div class="text-center mb-6">
+          <div class="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
+            <svg class="w-8 h-8 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+            </svg>
+          </div>
+          <h1 class="text-2xl font-bold">Set Up Two-Factor Authentication</h1>
+          <p class="text-base-content/60 mt-2">Secure your account with an authenticator app</p>
+        </div>
+
+        {% if errors %}
+        <div class="alert alert-error mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          <span>{% for error in errors %}{{ error }}{% endfor %}</span>
+        </div>
+        {% endif %}
+
+        <!-- Steps -->
+        <div class="space-y-6">
+          <!-- Step 1: QR Code -->
+          <div class="border border-base-300 rounded-lg p-4">
+            <div class="flex items-start gap-3">
+              <span class="flex-shrink-0 w-7 h-7 bg-primary text-primary-content rounded-full flex items-center justify-center text-sm font-bold">1</span>
+              <div class="flex-1">
+                <h3 class="font-semibold mb-2">Scan the QR Code</h3>
+                <p class="text-sm text-base-content/60 mb-4">Open your authenticator app (Google Authenticator, Authy, etc.) and scan this QR code:</p>
+
+                <div class="bg-white p-4 rounded-lg inline-block">
+                  <!-- QR Code placeholder - use a JS library to generate -->
+                  <div id="qrcode" class="w-48 h-48 mx-auto"></div>
+                </div>
+
+                <details class="mt-4">
+                  <summary class="cursor-pointer text-sm text-primary">Can't scan? Enter manually</summary>
+                  <div class="mt-2 p-3 bg-base-200 rounded-lg">
+                    <p class="text-xs text-base-content/60 mb-1">Secret Key:</p>
+                    <code class="text-sm font-mono break-all select-all">{{ secret }}</code>
+                  </div>
+                </details>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Backup Codes -->
+          <div class="border border-base-300 rounded-lg p-4">
+            <div class="flex items-start gap-3">
+              <span class="flex-shrink-0 w-7 h-7 bg-primary text-primary-content rounded-full flex items-center justify-center text-sm font-bold">2</span>
+              <div class="flex-1">
+                <h3 class="font-semibold mb-2">Save Your Backup Codes</h3>
+                <p class="text-sm text-base-content/60 mb-4">Store these codes safely. You can use them to access your account if you lose your device.</p>
+
+                <div class="grid grid-cols-2 gap-2 p-3 bg-base-200 rounded-lg font-mono text-sm">
+                  {% for code in backup_codes %}
+                  <div class="select-all">{{ code }}</div>
+                  {% endfor %}
+                </div>
+
+                <div class="alert alert-warning mt-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  <span class="text-sm">Each backup code can only be used once. Save them in a secure location.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Verify -->
+          <div class="border border-base-300 rounded-lg p-4">
+            <div class="flex items-start gap-3">
+              <span class="flex-shrink-0 w-7 h-7 bg-primary text-primary-content rounded-full flex items-center justify-center text-sm font-bold">3</span>
+              <div class="flex-1">
+                <h3 class="font-semibold mb-2">Verify Setup</h3>
+                <p class="text-sm text-base-content/60 mb-4">Enter the 6-digit code from your authenticator app to complete setup:</p>
+
+                <form action="/mfa/enable" method="POST">
+                  <input type="hidden" name="secret" value="{{ secret }}">
+                  <input type="hidden" name="backup_codes" value="{{ backup_codes | tojson }}">
+
+                  <div class="form-control">
+                    <input type="text" name="code" placeholder="000000"
+                           class="input input-bordered text-center text-2xl tracking-widest font-mono"
+                           maxlength="6" pattern="[0-9]{6}" autocomplete="one-time-code" inputmode="numeric" required>
+                  </div>
+
+                  <button type="submit" class="btn btn-primary btn-block mt-4">
+                    Enable Two-Factor Authentication
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cancel link -->
+        <div class="text-center mt-6">
+          <a href="/profile" class="btn btn-ghost btn-sm">Cancel</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QR Code generation -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script>
+  QRCode.toCanvas(document.getElementById('qrcode'), '{{ qr_uri }}', {
+    width: 192,
+    margin: 0,
+    color: { dark: '#000000', light: '#ffffff' }
+  }, function(error) {
+    if (error) console.error(error);
+  });
+</script>
+{% endblock %}

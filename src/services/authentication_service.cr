@@ -5,12 +5,16 @@ module Authority
     # Result struct for authentication with detailed status
     struct AuthResult
       getter? success : Bool
+      getter? mfa_required : Bool
+      getter user_id : String?
       getter error : String?
       getter error_code : String?
       getter retry_after : Time::Span?
 
       def initialize(
         @success : Bool,
+        @mfa_required : Bool = false,
+        @user_id : String? = nil,
         @error : String? = nil,
         @error_code : String? = nil,
         @retry_after : Time::Span? = nil
@@ -112,6 +116,21 @@ module Authority
         end
 
         return AuthResult.new(success: false, error: "Invalid credentials", error_code: "invalid_credentials")
+      end
+
+      # Check if MFA is required
+      if owner.mfa_enabled
+        Log.info { "MFA required for user: #{@req.username}" }
+        # Store pending MFA verification in session
+        current_session.mfa_pending_user_id = owner.id.to_s
+        current_session.mfa_forward_url = @req.forward_url
+
+        return AuthResult.new(
+          success: false,
+          mfa_required: true,
+          user_id: owner.id.to_s,
+          error_code: "mfa_required"
+        )
       end
 
       # Record successful login

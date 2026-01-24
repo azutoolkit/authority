@@ -15,15 +15,15 @@ module Authority::MFA
       header "Cache-Control", "no-store"
 
       # User must have pending MFA verification
-      pending_user_id = current_session.data["mfa_pending_user_id"]?
-      return redirect to: "/signin", status: 302 unless pending_user_id
+      pending_user_id = current_session.mfa_pending_user_id
+      return redirect to: "/signin", status: 302 if pending_user_id.empty?
 
       user = User.find_by(id: pending_user_id)
       return redirect to: "/signin", status: 302 unless user
 
       VerifyResponse.new(
         username: user.username,
-        forward_url: current_session.data["mfa_forward_url"]? || "",
+        forward_url: current_session.mfa_forward_url,
         backup_codes_remaining: TOTPService.backup_codes_remaining(user)
       )
     end
@@ -42,8 +42,8 @@ module Authority::MFA
       header "Cache-Control", "no-store"
 
       # User must have pending MFA verification
-      pending_user_id = current_session.data["mfa_pending_user_id"]?
-      return redirect to: "/signin", status: 302 unless pending_user_id
+      pending_user_id = current_session.mfa_pending_user_id
+      return redirect to: "/signin", status: 302 if pending_user_id.empty?
 
       user = User.find_by(id: pending_user_id)
       return redirect to: "/signin", status: 302 unless user
@@ -71,8 +71,8 @@ module Authority::MFA
       end
 
       # Clear MFA pending state and complete login
-      current_session.data.delete("mfa_pending_user_id")
-      current_session.data.delete("mfa_forward_url")
+      current_session.mfa_pending_user_id = ""
+      current_session.mfa_forward_url = ""
       current_session.user_id = user.id.to_s
       current_session.email = user.email
       current_session.authenticated = true

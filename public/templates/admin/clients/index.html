@@ -8,7 +8,12 @@
     <div class="flex justify-between items-center mb-8">
       <div>
         <h1 class="text-3xl font-bold text-base-content">OAuth Clients</h1>
-        <p class="mt-2 text-base-content/60">Manage registered OAuth applications</p>
+        <p class="mt-2 text-base-content/60">
+          Manage registered OAuth applications
+          {% if total_count > 0 %}
+          <span class="badge badge-ghost ml-2">{{total_count}} total</span>
+          {% endif %}
+        </p>
       </div>
       <a href="/dashboard/clients/new" class="btn btn-primary gap-2">
         <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -20,6 +25,117 @@
 
     {% include "errors.html" %}
 
+    <!-- Search and Filter Section -->
+    <div class="card bg-base-100 shadow-md mb-6">
+      <div class="card-body p-4">
+        <form action="/dashboard/clients" method="GET" class="flex flex-wrap gap-4 items-end">
+          <!-- Search Input -->
+          <div class="form-control flex-1 min-w-[200px]">
+            <label class="label py-1">
+              <span class="label-text text-sm">Search</span>
+            </label>
+            <input type="text" name="search" value="{{search}}" placeholder="Search by name, client ID, or redirect URI..."
+                   class="input input-bordered input-sm w-full" />
+          </div>
+
+          <!-- Confidentiality Filter -->
+          <div class="form-control w-40">
+            <label class="label py-1">
+              <span class="label-text text-sm">Type</span>
+            </label>
+            <select name="confidentiality" class="select select-bordered select-sm w-full">
+              <option value="">All Types</option>
+              <option value="confidential" {% if confidentiality == "confidential" %}selected{% endif %}>Confidential</option>
+              <option value="public" {% if confidentiality == "public" %}selected{% endif %}>Public</option>
+            </select>
+          </div>
+
+          <!-- Scope Filter -->
+          <div class="form-control w-40">
+            <label class="label py-1">
+              <span class="label-text text-sm">Scope</span>
+            </label>
+            <select name="scope" class="select select-bordered select-sm w-full">
+              <option value="">All Scopes</option>
+              {% for available_scope in available_scopes %}
+              <option value="{{available_scope}}" {% if scope_filter == available_scope %}selected{% endif %}>{{available_scope}}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Sort Options -->
+          <div class="form-control w-36">
+            <label class="label py-1">
+              <span class="label-text text-sm">Sort By</span>
+            </label>
+            <select name="sort_by" class="select select-bordered select-sm w-full">
+              <option value="created_at" {% if sort_by == "created_at" %}selected{% endif %}>Created</option>
+              <option value="updated_at" {% if sort_by == "updated_at" %}selected{% endif %}>Updated</option>
+              <option value="name" {% if sort_by == "name" %}selected{% endif %}>Name</option>
+            </select>
+          </div>
+
+          <!-- Sort Direction -->
+          <div class="form-control w-28">
+            <label class="label py-1">
+              <span class="label-text text-sm">Order</span>
+            </label>
+            <select name="sort_dir" class="select select-bordered select-sm w-full">
+              <option value="DESC" {% if sort_dir == "DESC" %}selected{% endif %}>Newest</option>
+              <option value="ASC" {% if sort_dir == "ASC" %}selected{% endif %}>Oldest</option>
+            </select>
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex gap-2">
+            <button type="submit" class="btn btn-primary btn-sm">
+              <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+              </svg>
+              Search
+            </button>
+            {% if search or confidentiality or scope_filter %}
+            <a href="/dashboard/clients" class="btn btn-ghost btn-sm">Clear</a>
+            {% endif %}
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Active Filters Display -->
+    {% if search or confidentiality or scope_filter %}
+    <div class="flex flex-wrap gap-2 mb-4">
+      <span class="text-sm text-base-content/60">Active filters:</span>
+      {% if search %}
+      <a href="/dashboard/clients?confidentiality={{confidentiality}}&scope={{scope_filter}}&sort_by={{sort_by}}&sort_dir={{sort_dir}}"
+         class="badge badge-primary gap-1">
+        Search: {{search}}
+        <svg class="h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </a>
+      {% endif %}
+      {% if confidentiality %}
+      <a href="/dashboard/clients?search={{search}}&scope={{scope_filter}}&sort_by={{sort_by}}&sort_dir={{sort_dir}}"
+         class="badge badge-secondary gap-1">
+        Type: {{confidentiality}}
+        <svg class="h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </a>
+      {% endif %}
+      {% if scope_filter %}
+      <a href="/dashboard/clients?search={{search}}&confidentiality={{confidentiality}}&sort_by={{sort_by}}&sort_dir={{sort_dir}}"
+         class="badge badge-accent gap-1">
+        Scope: {{scope_filter}}
+        <svg class="h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </a>
+      {% endif %}
+    </div>
+    {% endif %}
+
     <!-- Clients Table -->
     <div class="card bg-base-100 shadow-xl">
       <div class="card-body p-0">
@@ -30,6 +146,7 @@
               <tr class="bg-base-200">
                 <th>Name</th>
                 <th>Client ID</th>
+                <th>Type</th>
                 <th>Redirect URI</th>
                 <th>Scopes</th>
                 <th>Created</th>
@@ -73,6 +190,13 @@
                   </div>
                 </td>
                 <td>
+                  {% if client.is_confidential %}
+                  <span class="badge badge-info badge-sm">Confidential</span>
+                  {% else %}
+                  <span class="badge badge-warning badge-sm">Public</span>
+                  {% endif %}
+                </td>
+                <td>
                   <span class="text-sm truncate max-w-xs block">{{client.redirect_uri}}</span>
                 </td>
                 <td>
@@ -114,14 +238,21 @@
         </div>
 
         <!-- Pagination -->
-        {% if clients|length >= per_page %}
-        <div class="flex justify-center p-4 border-t border-base-200">
+        {% if total_pages > 1 %}
+        <div class="flex justify-between items-center p-4 border-t border-base-200">
+          <div class="text-sm text-base-content/60">
+            Showing {{(page - 1) * per_page + 1}}-{{[page * per_page, total_count]|min}} of {{total_count}} clients
+          </div>
           <div class="join">
             {% if page > 1 %}
-            <a href="/dashboard/clients?page={{page - 1}}" class="join-item btn btn-sm">Previous</a>
+            <a href="/dashboard/clients?page={{page - 1}}&search={{search}}&confidentiality={{confidentiality}}&scope={{scope_filter}}&sort_by={{sort_by}}&sort_dir={{sort_dir}}"
+               class="join-item btn btn-sm">Previous</a>
             {% endif %}
-            <span class="join-item btn btn-sm btn-disabled">Page {{page}}</span>
-            <a href="/dashboard/clients?page={{page + 1}}" class="join-item btn btn-sm">Next</a>
+            <span class="join-item btn btn-sm btn-disabled">Page {{page}} of {{total_pages}}</span>
+            {% if page < total_pages %}
+            <a href="/dashboard/clients?page={{page + 1}}&search={{search}}&confidentiality={{confidentiality}}&scope={{scope_filter}}&sort_by={{sort_by}}&sort_dir={{sort_dir}}"
+               class="join-item btn btn-sm">Next</a>
+            {% endif %}
           </div>
         </div>
         {% endif %}
@@ -136,6 +267,13 @@
               </svg>
             </div>
           </div>
+          {% if search or confidentiality or scope_filter %}
+          <h3 class="text-lg font-semibold mb-2">No clients found</h3>
+          <p class="text-base-content/60 text-center mb-6 max-w-sm">
+            No clients match your search criteria. Try adjusting your filters.
+          </p>
+          <a href="/dashboard/clients" class="btn btn-ghost">Clear Filters</a>
+          {% else %}
           <h3 class="text-lg font-semibold mb-2">No clients yet</h3>
           <p class="text-base-content/60 text-center mb-6 max-w-sm">
             Create your first OAuth client to allow applications to authenticate with your server.
@@ -143,6 +281,7 @@
           <a href="/dashboard/clients/new" class="btn btn-primary">
             Create First Client
           </a>
+          {% endif %}
         </div>
         {% endif %}
       </div>

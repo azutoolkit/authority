@@ -1,0 +1,66 @@
+{% extends "auth/layout.html" %}
+
+{% block body %}
+<div class="min-h-screen flex items-center justify-center py-12 px-4">
+  <div class="max-w-md w-full">
+    <!-- Card -->
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <!-- Header -->
+        <div class="text-center mb-6">
+          <div class="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
+            <svg class="w-8 h-8 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+            </svg>
+          </div>
+          <h1 class="text-2xl font-bold">Two-Factor Authentication</h1>
+          <p class="text-base-content/60 mt-2">Enter the code from your authenticator app</p>
+        </div>
+
+        {% if errors %}
+        <div class="alert alert-error mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          <span>{% for error in errors %}{{ error }}{% endfor %}</span>
+        </div>
+        {% endif %}
+
+        <form action="/mfa/verify" method="POST">
+          <input type="hidden" name="forward_url" value="{{ forward_url }}">
+
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">Authentication Code</span>
+            </label>
+            <input type="text" name="code" placeholder="000000"
+                   class="input input-bordered text-center text-2xl tracking-widest font-mono"
+                   maxlength="8" autocomplete="one-time-code" inputmode="numeric" autofocus required>
+            <label class="label">
+              <span class="label-text-alt text-base-content/60">Enter the 6-digit code or a backup code</span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block mt-4">
+            Verify
+          </button>
+        </form>
+
+        {% if backup_codes_remaining > 0 %}
+        <div class="text-center mt-6 text-sm text-base-content/60">
+          <p>Lost access to your authenticator?</p>
+          <p class="mt-1">You can use one of your {{ backup_codes_remaining }} backup codes.</p>
+        </div>
+        {% endif %}
+
+        <!-- Back to login -->
+        <div class="divider">or</div>
+
+        <a href="/signin" class="btn btn-ghost btn-block">
+          Sign in with a different account
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
