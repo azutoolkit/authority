@@ -24,10 +24,18 @@ module Authority::Dashboard
       # Get clients count (if user has any registered clients)
       clients_count = Client.query.count.to_i32
 
+      # Get analytics data
+      stats = AnalyticsService.get_dashboard_stats
+      login_activity = AnalyticsService.get_login_activity(7)
+      recent_activity = AnalyticsService.get_recent_activity(5)
+
       DashboardResponse.new(
         username: user.username,
         email: user.email,
-        clients_count: clients_count
+        clients_count: clients_count,
+        stats: stats,
+        login_activity: login_activity,
+        recent_activity: recent_activity
       )
     end
   end

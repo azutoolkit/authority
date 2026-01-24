@@ -400,16 +400,32 @@ module Authority
       id : String,
       password : String,
       actor : User,
-      ip_address : String? = nil
+      ip_address : String? = nil,
+      skip_password_validation : Bool = false,
+      skip_password_history : Bool = false
     ) : Result
       user = get(id)
       return Result.new(success: false, error: "User not found", error_code: "not_found") unless user
 
       return Result.new(success: false, error: "Password is required", error_code: "validation_error") if password.empty?
 
+      # Validate password policy
+      unless skip_password_validation
+        validation = PasswordPolicyService.validate(password, user)
+        unless validation.valid?
+          return Result.new(success: false, error: validation.errors.first, error_code: "password_policy_error")
+        end
+      end
+
       now = Time.utc
 
+      # Add old password to history before changing
+      unless skip_password_history
+        user.password_history = PasswordPolicyService.add_to_history(user, user.encrypted_password)
+      end
+
       user.password = password
+      user.password_changed_at = now
       user.updated_at = now
       user.update!
 
@@ -424,6 +440,14 @@ module Authority
           resource_id: updated_user.id.to_s,
           resource_name: updated_user.username,
           ip_address: ip_address
+        )
+      end
+
+      # Send notification email
+      spawn do
+        EmailService.send_password_changed(
+          updated_user.email,
+          updated_user.first_name.empty? ? updated_user.username : updated_user.first_name
         )
       end
 

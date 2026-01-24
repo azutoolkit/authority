@@ -3,76 +3,228 @@
 {% set active_page = "dashboard" %}
 
 {% block body %}
-<main class="min-h-screen py-12 px-4">
-  <div class="max-w-6xl mx-auto">
+<main class="min-h-screen py-8 px-4">
+  <div class="max-w-7xl mx-auto">
     <!-- Page Header -->
     <div class="mb-8">
       <h1 class="text-3xl font-bold text-base-content">Dashboard</h1>
-      <p class="mt-2 text-base-content/60">Welcome back, {{username}}!</p>
+      <p class="mt-2 text-base-content/60">Welcome back, {{username}}! Here's an overview of your system.</p>
     </div>
 
     {% include "errors.html" %}
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <!-- Profile Card -->
-      <div class="card bg-base-100 shadow-xl">
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <!-- Total Users -->
+      <div class="card bg-base-100 shadow-md">
+        <div class="card-body p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-base-content/60 font-medium">Total Users</p>
+              <p class="text-3xl font-bold mt-1">{{stats.total_users}}</p>
+              {% if stats.new_users_7d > 0 %}
+              <p class="text-xs text-success mt-1">+{{stats.new_users_7d}} this week</p>
+              {% endif %}
+            </div>
+            <div class="p-3 bg-primary/10 rounded-lg">
+              <svg class="h-6 w-6 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OAuth Clients -->
+      <div class="card bg-base-100 shadow-md">
+        <div class="card-body p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-base-content/60 font-medium">OAuth Clients</p>
+              <p class="text-3xl font-bold mt-1">{{stats.total_clients}}</p>
+              {% if stats.new_clients_7d > 0 %}
+              <p class="text-xs text-success mt-1">+{{stats.new_clients_7d}} this week</p>
+              {% endif %}
+            </div>
+            <div class="p-3 bg-secondary/10 rounded-lg">
+              <svg class="h-6 w-6 text-secondary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Users -->
+      <div class="card bg-base-100 shadow-md">
+        <div class="card-body p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-base-content/60 font-medium">Active Users (7d)</p>
+              <p class="text-3xl font-bold mt-1">{{stats.active_users}}</p>
+              {% if stats.total_users > 0 %}
+              <p class="text-xs text-base-content/50 mt-1">{{((stats.active_users * 100) / stats.total_users)|round}}% of total</p>
+              {% endif %}
+            </div>
+            <div class="p-3 bg-success/10 rounded-lg">
+              <svg class="h-6 w-6 text-success" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Locked Accounts -->
+      <div class="card bg-base-100 shadow-md">
+        <div class="card-body p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-base-content/60 font-medium">Locked Accounts</p>
+              <p class="text-3xl font-bold mt-1">{{stats.locked_users}}</p>
+              {% if stats.locked_users > 0 %}
+              <p class="text-xs text-warning mt-1">Needs attention</p>
+              {% else %}
+              <p class="text-xs text-success mt-1">All clear</p>
+              {% endif %}
+            </div>
+            <div class="p-3 {% if stats.locked_users > 0 %}bg-warning/10{% else %}bg-base-200{% endif %} rounded-lg">
+              <svg class="h-6 w-6 {% if stats.locked_users > 0 %}text-warning{% else %}text-base-content/40{% endif %}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts and Activity Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <!-- Login Activity Chart -->
+      <div class="lg:col-span-2 card bg-base-100 shadow-md">
         <div class="card-body">
-          <div class="flex items-center gap-4">
-            <div class="avatar placeholder">
-              <div class="bg-primary text-primary-content w-12 rounded-full">
-                <span class="text-xl">{{username[0]|upper}}</span>
+          <h2 class="card-title text-lg">Login Activity (Last 7 Days)</h2>
+          <div class="h-64">
+            <canvas id="loginChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- System Health -->
+      <div class="card bg-base-100 shadow-md">
+        <div class="card-body">
+          <h2 class="card-title text-lg">System Health</h2>
+          <div class="space-y-4 mt-4">
+            <!-- Total Scopes -->
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-base-content/60">Total Scopes</span>
+              <span class="font-semibold">{{stats.total_scopes}}</span>
+            </div>
+            <div class="divider my-0"></div>
+            <!-- Failed Logins -->
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-base-content/60">Failed Logins (24h)</span>
+              <span class="font-semibold {% if stats.failed_logins_24h > 10 %}text-error{% elif stats.failed_logins_24h > 5 %}text-warning{% endif %}">
+                {{stats.failed_logins_24h}}
+              </span>
+            </div>
+            <div class="divider my-0"></div>
+            <!-- Server Status -->
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-base-content/60">Server Status</span>
+              <div class="badge badge-success gap-1">
+                <span class="w-2 h-2 bg-success rounded-full animate-pulse"></span>
+                Online
               </div>
             </div>
-            <div>
-              <h2 class="card-title text-lg">{{username}}</h2>
-              <p class="text-sm text-base-content/60">{{email}}</p>
-            </div>
-          </div>
-          <div class="divider"></div>
-          <div class="card-actions justify-end">
-            <a href="/profile" class="btn btn-primary btn-sm">View Profile</a>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Clients Card -->
-      <div class="card bg-base-100 shadow-xl">
+    <!-- Recent Activity and Quick Actions -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Recent Activity -->
+      <div class="lg:col-span-2 card bg-base-100 shadow-md">
         <div class="card-body">
-          <div class="flex items-center justify-between">
-            <h2 class="card-title text-lg">OAuth Clients</h2>
-            <div class="badge badge-primary badge-lg">{{clients_count}}</div>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="card-title text-lg">Recent Activity</h2>
+            <a href="/dashboard/audit-logs" class="btn btn-ghost btn-sm">View All</a>
           </div>
-          <p class="text-base-content/60">Registered applications</p>
-          <div class="divider"></div>
-          <div class="card-actions justify-end">
-            <a href="/clients/new" class="btn btn-outline btn-sm">New Client</a>
+          {% if recent_activity and recent_activity|length > 0 %}
+          <div class="overflow-x-auto">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Action</th>
+                  <th>Resource</th>
+                  <th>User</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for activity in recent_activity %}
+                <tr class="hover">
+                  <td>
+                    <span class="badge {{activity.action_badge_class}} badge-sm">{{activity.action}}</span>
+                  </td>
+                  <td>
+                    <span class="text-sm">{{activity.resource_type}}</span>
+                    {% if activity.resource_name %}
+                    <span class="text-xs text-base-content/60 block">{{activity.resource_name}}</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-sm">{{activity.actor_email}}</td>
+                  <td class="text-sm text-base-content/60">
+                    {% if activity.created_at %}
+                    {{activity.created_at|date("%b %d, %H:%M")}}
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
           </div>
+          {% else %}
+          <div class="text-center py-8 text-base-content/60">
+            <svg class="h-12 w-12 mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p>No recent activity</p>
+          </div>
+          {% endif %}
         </div>
       </div>
 
-      <!-- Quick Actions Card -->
-      <div class="card bg-base-100 shadow-xl">
+      <!-- Quick Actions -->
+      <div class="card bg-base-100 shadow-md">
         <div class="card-body">
-          <h2 class="card-title text-lg">Quick Actions</h2>
-          <div class="divider"></div>
+          <h2 class="card-title text-lg mb-4">Quick Actions</h2>
           <div class="space-y-2">
-            <a href="/authorize" class="btn btn-ghost btn-block justify-start gap-2">
+            <a href="/dashboard/users/new" class="btn btn-ghost btn-block justify-start gap-2">
               <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
               </svg>
-              Authorize App
+              Create User
             </a>
+            <a href="/dashboard/clients/new" class="btn btn-ghost btn-block justify-start gap-2">
+              <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              Register Client
+            </a>
+            <a href="/dashboard/scopes/new" class="btn btn-ghost btn-block justify-start gap-2">
+              <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+              </svg>
+              Create Scope
+            </a>
+            <div class="divider my-2"></div>
             <a href="/.well-known/openid-configuration" class="btn btn-ghost btn-block justify-start gap-2" target="_blank">
               <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
               </svg>
-              OpenID Configuration
-            </a>
-            <a href="/signout" class="btn btn-ghost btn-block justify-start gap-2 text-error">
-              <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
-              </svg>
-              Sign Out
+              OpenID Config
             </a>
           </div>
         </div>
@@ -80,4 +232,61 @@
     </div>
   </div>
 </main>
+
+<!-- Chart.js from CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+  // Parse login activity data from template
+  const loginData = {
+    labels: [{% for activity in login_activity %}"{{activity.date|slice(-5)}}"{% if not loop.last %}, {% endif %}{% endfor %}],
+    successful: [{% for activity in login_activity %}{{activity.successful}}{% if not loop.last %}, {% endif %}{% endfor %}],
+    failed: [{% for activity in login_activity %}{{activity.failed}}{% if not loop.last %}, {% endif %}{% endfor %}]
+  };
+
+  // Initialize chart
+  const ctx = document.getElementById('loginChart');
+  if (ctx) {
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: loginData.labels,
+        datasets: [
+          {
+            label: 'Successful Logins',
+            data: loginData.successful,
+            borderColor: 'rgb(34, 197, 94)',
+            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+            fill: true,
+            tension: 0.3
+          },
+          {
+            label: 'Failed Attempts',
+            data: loginData.failed,
+            borderColor: 'rgb(239, 68, 68)',
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            fill: true,
+            tension: 0.3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom'
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1
+            }
+          }
+        }
+      }
+    });
+  }
+</script>
 {% endblock %}
