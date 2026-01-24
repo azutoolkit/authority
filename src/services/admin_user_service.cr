@@ -52,7 +52,9 @@ module Authority
 
     private def self.build_sorted_query(options : ListOptions)
       query = User.query
-      query = query.where(role: options.role) if options.role && !options.role.empty?
+      if (role = options.role) && !role.empty?
+        query = query.where(role: role)
+      end
 
       valid_sort_columns = ["created_at", "updated_at", "username", "email", "last_login_at"]
       sort_column = valid_sort_columns.includes?(options.sort_by) ? options.sort_by : "created_at"

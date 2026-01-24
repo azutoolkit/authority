@@ -51,9 +51,17 @@ module Authority
     # Cleanup old used codes, returns count of deleted rows
     def self.cleanup_expired!(max_age : Time::Span = 10.minutes) : Int64
       cutoff = Time.utc - max_age
-      UsedAuthCode
-        .where { oauth_used_auth_codes.used_at < cutoff }
-        .delete_all
+      # Fetch and delete in memory to avoid complex DSL issues
+      codes = UsedAuthCode.query.all.select do |code|
+        if used_at = code.used_at
+          used_at < cutoff
+        else
+          false
+        end
+      end
+      count = codes.size.to_i64
+      codes.each(&.delete!)
+      count
     end
   end
 end

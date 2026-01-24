@@ -16,9 +16,9 @@ module AuditTestHelpers
 
   def self.cleanup_audit_logs(actor_email : String)
     prefix = actor_email.split("@").first
-    Authority::AuditLog
-      .where { oauth_audit_logs.actor_email.like("#{prefix}%") }
-      .delete_all
+    Authority::AuditLog.query.all.each do |log|
+      log.delete! if log.actor_email.starts_with?(prefix)
+    end
   end
 end
 
