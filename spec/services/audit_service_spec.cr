@@ -251,7 +251,6 @@ describe Authority::AuditService do
 
       # Create an old log
       old_log = Authority::AuditLog.new
-      old_log.id = UUID.random
       old_log.actor_id = UUID.new(admin.id.to_s)
       old_log.actor_email = admin.email
       old_log.action = "create"

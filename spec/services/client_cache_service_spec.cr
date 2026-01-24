@@ -9,7 +9,6 @@ module ClientCacheTestHelpers
     now = Time.utc
 
     client = Authority::Client.new
-    client.id = UUID.random
     client.client_id = client_id
     client.client_secret = hashed_secret
     client.name = "Test Client #{client_id[0, 8]}"

@@ -515,7 +515,7 @@ describe Authority::AdminUserService do
       target_result = Authority::AdminUserService.create(
         username: target_username,
         email: "#{target_username}@test.com",
-        password: "oldpassword",
+        password: "OldPassword123!",
         first_name: "Password",
         last_name: "Target"
       )
@@ -525,7 +525,7 @@ describe Authority::AdminUserService do
         if target = target_result.user
           result = Authority::AdminUserService.set_temp_password(
             id: target.id.to_s,
-            password: "newpassword",
+            password: "NewPassword123!",
             actor: actor
           )
 
@@ -533,8 +533,8 @@ describe Authority::AdminUserService do
           updated_user = Authority::AdminUserService.get(target.id.to_s)
           updated_user.should_not be_nil
           if user = updated_user
-            user.verify?("newpassword").should be_true
-            user.verify?("oldpassword").should be_false
+            user.verify?("NewPassword123!").should be_true
+            user.verify?("OldPassword123!").should be_false
           end
         end
       end

@@ -2,7 +2,6 @@ def create_client(client_id, client_secret, redirect_uri)
   now = Time.utc
 
   client = Authority::Client.new
-  client.id = UUID.random
   client.client_id = client_id
   client.client_secret = client_secret
   client.redirect_uri = redirect_uri

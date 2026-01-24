@@ -18,7 +18,6 @@ def create_test_client(name : String = "Test Client") : Authority::Client
   now = Time.utc
 
   client = Authority::Client.new
-  client.id = UUID.random
   client.client_id = UUID.random.to_s
   client.client_secret = "test_secret_#{Random.rand(10000)}"
   client.redirect_uri = "https://example#{Random.rand(10000)}.com/callback"
@@ -198,7 +197,6 @@ describe Authority::AdminClientService do
       old_secret_hash = Authority::ClientSecretService.hash("old_secret")
 
       client = Authority::Client.new
-      client.id = UUID.random
       client.client_id = UUID.random.to_s
       client.client_secret = old_secret_hash
       client.redirect_uri = "https://regen.com/callback"
