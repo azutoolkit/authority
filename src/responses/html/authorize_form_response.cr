@@ -4,7 +4,7 @@ module Authority::Authorize
     include Response
     include Templates::Renderable
 
-    TEMPLATE = "authorize_form.html"
+    TEMPLATE = "auth/authorize/form.html"
 
     getter authorize_show_request : NewRequest
     getter client : ClientEntity

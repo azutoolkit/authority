@@ -58,7 +58,6 @@ module Authority
       now = Time.utc
 
       client = Client.new
-      client.id = UUID.random
       client.client_id = UUID.random.to_s
       client.client_secret = hashed_secret
       client.name = name
@@ -113,7 +112,6 @@ module Authority
       now = Time.utc
 
       client = Client.new
-      client.id = UUID.random
       client.client_id = UUID.random.to_s
       client.client_secret = hashed_secret
       client.name = name

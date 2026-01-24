@@ -150,7 +150,6 @@ module Authority
       now = Time.utc
 
       user = User.new
-      user.id = UUID.random
       user.username = username
       user.email = email
       user.first_name = first_name

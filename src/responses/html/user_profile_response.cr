@@ -14,7 +14,7 @@ module Authority::Profile
     include Response
     include Templates::Renderable
 
-    TEMPLATE = "user_profile.html"
+    TEMPLATE = "auth/profile/user_profile.html"
 
     def initialize(
       @first_name : String,

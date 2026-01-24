@@ -1,5 +1,5 @@
 module Authority
-  @[Crinja::Attributes(expose: [id, username, email, first_name, last_name, role, email_verified, locked_at, last_login_at, created_at, updated_at, locked?])]
+  @[Crinja::Attributes(expose: [id_str, username, email, first_name, last_name, role, scope, scopes_list, email_verified, locked_at, lock_reason, failed_login_attempts, last_login_at, last_login_ip, created_at, updated_at, locked])]
   class User
     include CQL::ActiveRecord::Model(UUID)
     include Crinja::Object::Auto
@@ -24,9 +24,24 @@ module Authority
     def initialize
     end
 
+    # Returns UUID as string for template rendering
+    def id_str : String
+      id.to_s
+    end
+
     # Check if user account is locked
     def locked? : Bool
       !locked_at.nil?
+    end
+
+    # Alias method for Crinja template access (without ? suffix)
+    def locked : Bool
+      locked?
+    end
+
+    # Returns scopes as an array for template iteration
+    def scopes_list : Array(String)
+      scope.split(' ').reject(&.empty?)
     end
 
     def password=(plain_text : String)

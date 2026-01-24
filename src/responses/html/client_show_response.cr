@@ -3,15 +3,16 @@ module Authority::Clients
     include Response
     include Templates::Renderable
 
-    TEMPLATE = "show_client_page.html"
+    TEMPLATE = "auth/clients/show_client_page.jinja"
 
-    getter client : ClientEntity
+    getter client : ClientEntity, username : String
 
-    def initialize(@client : ClientEntity)
+    def initialize(@client : ClientEntity, @username : String = "")
     end
 
     def render
       view TEMPLATE, {
+        username:      username,
         client_id:     client.client_id.to_s,
         client_secret: client.client_secret,
         name:          client.name,

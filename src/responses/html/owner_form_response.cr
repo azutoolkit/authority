@@ -3,7 +3,7 @@ module Authority::Owner
     include Response
     include Templates::Renderable
 
-    TEMPLATE = "new_owner_form.html"
+    TEMPLATE = "auth/owner/new_owner_form.jinja"
     getter req : Owner::NewRequest, errors : Array(String)?
 
     def initialize(@req : Owner::NewRequest, @errors = nil)

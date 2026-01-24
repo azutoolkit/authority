@@ -20,15 +20,17 @@ module Authority
     end
 
     # List all scopes with pagination
+    # Note: Using manual pagination due to CQL query builder issue with limit/offset parameter binding
     def self.list(page : Int32 = 1, per_page : Int32 = 20) : Array(Scope)
       offset = (page - 1) * per_page
-      results = [] of Scope
+      all_scopes = [] of Scope
 
-      Scope.query.order(is_system: :desc, name: :asc).limit(per_page).offset(offset).each do |scope|
-        results << scope
+      Scope.query.order(name: :asc).each do |scope|
+        all_scopes << scope
       end
 
-      results
+      # Manual pagination
+      all_scopes[offset, per_page]? || [] of Scope
     end
 
     # Get total count of scopes
@@ -83,7 +85,6 @@ module Authority
       now = Time.utc
 
       scope = Scope.new
-      scope.id = UUID.random
       scope.name = name
       scope.display_name = display_name
       scope.description = description

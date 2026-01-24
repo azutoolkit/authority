@@ -3,15 +3,16 @@ module Authority::Clients
     include Response
     include Templates::Renderable
 
-    TEMPLATE = "new_client_form.html"
+    TEMPLATE = "auth/clients/new_client_form.jinja"
 
-    getter req : NewRequest, errors : Array(String)?
+    getter req : NewRequest, errors : Array(String)?, username : String
 
-    def initialize(@req : NewRequest, @errors = nil)
+    def initialize(@req : NewRequest, @errors = nil, @username : String = "")
     end
 
     def render
       view TEMPLATE, {
+        username:     username,
         errors:       errors,
         name:         req.name,
         description:  req.description,

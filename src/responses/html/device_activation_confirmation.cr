@@ -4,7 +4,7 @@ module Authority::Device
     include Response
     include Templates::Renderable
 
-    TEMPLATE = "device_activation_confirmation.html"
+    TEMPLATE = "auth/device/activation_confirmation.jinja"
 
     def render
       view TEMPLATE, {} of String => String

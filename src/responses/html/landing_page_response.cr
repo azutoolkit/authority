@@ -3,7 +3,7 @@ module Authority::Landing
     include Response
     include Templates::Renderable
 
-    TEMPLATE = "landing/page.html"
+    TEMPLATE = "auth/landing/page.html"
 
     def render
       view TEMPLATE, {

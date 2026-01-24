@@ -4,7 +4,7 @@ module Authority::Device
     include Response
     include Templates::Renderable
 
-    TEMPLATE = "device_activation_form.html"
+    TEMPLATE = "auth/device/activation_form.jinja"
 
     getter activate_request : ActivateRequest
 

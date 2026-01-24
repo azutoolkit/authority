@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{% extends "auth/layout.jinja" %}
 {% set title = "Sign In" %}
 
 {% block body %}
@@ -7,13 +7,13 @@
     <!-- Logo/Avatar Section -->
     <div class="text-center mb-8">
       <div class="avatar placeholder">
-        <div class="bg-primary text-primary-content w-20 rounded-full shadow-lg">
+        <div class="bg-primary text-primary-content w-20 rounded-full">
           <svg class="h-10 w-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
           </svg>
         </div>
       </div>
-      <h1 class="mt-6 text-2xl font-bold text-base-content">
+      <h1 class="mt-6 text-2xl font-bold">
         Sign in to Authority
       </h1>
       <p class="mt-2 text-sm text-base-content/60">
@@ -24,15 +24,15 @@
     <!-- Card Container -->
     <div class="card bg-base-100 shadow-xl">
       <div class="card-body">
-        {% include "errors.html" %}
+        {% include "errors.jinja" %}
 
-        <form action="/signin" method="post" class="space-y-5">
+        <form action="{{session|sessions_create_path}}" method="post" class="space-y-6">
           <input type="hidden" name="forward_url" id="forward_url" value="{{forward_url}}">
 
           <!-- Username Field -->
-          <div class="form-control w-full">
+          <div class="form-control">
             <label class="label" for="username">
-              <span class="label-text font-medium">Username</span>
+              <span class="label-text">Username</span>
             </label>
             <input
               type="text"
@@ -40,15 +40,15 @@
               name="username"
               required
               autocomplete="username"
-              class="input input-bordered w-full focus:input-primary"
+              class="input input-bordered w-full"
               placeholder="Enter your username"
             >
           </div>
 
           <!-- Password Field -->
-          <div class="form-control w-full">
+          <div class="form-control">
             <label class="label" for="password">
-              <span class="label-text font-medium">Password</span>
+              <span class="label-text">Password</span>
             </label>
             <input
               type="password"
@@ -56,7 +56,7 @@
               name="password"
               required
               autocomplete="current-password"
-              class="input input-bordered w-full focus:input-primary"
+              class="input input-bordered w-full"
               placeholder="Enter your password"
             >
           </div>
@@ -83,7 +83,7 @@
     <!-- Sign Up Link -->
     <p class="mt-8 text-center text-sm text-base-content/60">
       Don't have an account?
-      <a href="/signup" class="link link-primary font-medium">
+      <a href="{{session|owner_new_path}}" class="link link-primary">
         Sign up
       </a>
     </p>

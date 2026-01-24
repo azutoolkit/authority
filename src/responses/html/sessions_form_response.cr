@@ -4,7 +4,7 @@ module Authority::Sessions
     include Response
     include Templates::Renderable
 
-    TEMPLATE = "new_session_form.html"
+    TEMPLATE = "auth/sessions/new_session_form.jinja"
 
     def initialize(@forward_url : String = SIGNIN_PATH, @errors : Array(String)? = nil)
     end

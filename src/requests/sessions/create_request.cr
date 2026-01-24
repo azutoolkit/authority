@@ -6,7 +6,7 @@ module Authority::Sessions
     getter username : String = ""
     getter password : String = ""
     getter remember : String = "false"
-    getter forward_url : String = Base64.urlsafe_encode("/user-info")
+    getter forward_url : String = Base64.urlsafe_encode("/profile")
 
     validate username, message: "Username must be present.", presence: true
     validate password, message: "Password must be present.", presence: true

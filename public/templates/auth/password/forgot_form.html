@@ -1,5 +1,5 @@
-{% extends "layout.html" %}
-{% set title = "Reset Password" %}
+{% extends "auth/layout.html" %}
+{% set title = "Forgot Password" %}
 
 {% block body %}
 <main class="min-h-screen flex items-center justify-center px-4 py-12">
@@ -9,15 +9,15 @@
       <div class="avatar placeholder">
         <div class="bg-primary text-primary-content w-20 rounded-full shadow-lg">
           <svg class="h-10 w-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
           </svg>
         </div>
       </div>
       <h1 class="mt-6 text-2xl font-bold text-base-content">
-        Set new password
+        Forgot your password?
       </h1>
       <p class="mt-2 text-sm text-base-content/60">
-        Your new password must be different from previously used passwords.
+        No worries, we'll send you reset instructions.
       </p>
     </div>
 
@@ -26,50 +26,28 @@
       <div class="card-body">
         {% include "errors.html" %}
 
-        <form action="/reset-password" method="post" class="space-y-5">
-          <input type="hidden" name="token" value="{{token}}">
-
-          <!-- New Password Field -->
+        <form action="/forgot-password" method="post" class="space-y-5">
+          <!-- Email Field -->
           <div class="form-control w-full">
-            <label class="label" for="password">
-              <span class="label-text font-medium">New Password</span>
+            <label class="label" for="email">
+              <span class="label-text font-medium">Email Address</span>
             </label>
             <input
-              type="password"
-              id="password"
-              name="password"
+              type="email"
+              id="email"
+              name="email"
               required
-              autocomplete="new-password"
+              autocomplete="email"
               autofocus
+              value="{{email}}"
               class="input input-bordered w-full focus:input-primary"
-              placeholder="Enter new password"
-              minlength="8"
-            >
-            <label class="label">
-              <span class="label-text-alt">Must be at least 8 characters</span>
-            </label>
-          </div>
-
-          <!-- Confirm Password Field -->
-          <div class="form-control w-full">
-            <label class="label" for="confirm_password">
-              <span class="label-text font-medium">Confirm Password</span>
-            </label>
-            <input
-              type="password"
-              id="confirm_password"
-              name="confirm_password"
-              required
-              autocomplete="new-password"
-              class="input input-bordered w-full focus:input-primary"
-              placeholder="Confirm new password"
-              minlength="8"
+              placeholder="Enter your email"
             >
           </div>
 
           <!-- Submit Button -->
           <button type="submit" class="btn btn-primary w-full">
-            Reset Password
+            Send Reset Instructions
           </button>
         </form>
       </div>
