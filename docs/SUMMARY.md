@@ -9,6 +9,7 @@
 * [First OAuth Integration](tutorials/first-oauth-integration.md)
 * [Protect Your API](tutorials/protect-your-api.md)
 * [Add User Authentication](tutorials/add-user-authentication.md)
+* [Add Social Login](tutorials/add-social-login.md)
 
 ## How-To Guides
 
@@ -26,6 +27,13 @@
   * [Account Lockout](how-to/security/configure-lockout.md)
   * [Password Policies](how-to/security/password-policies.md)
   * [Audit Logging](how-to/security/audit-logging.md)
+* [Social Login](how-to/social-login/README.md)
+  * [Configure Google](how-to/social-login/configure-google.md)
+  * [Configure GitHub](how-to/social-login/configure-github.md)
+  * [Configure Facebook](how-to/social-login/configure-facebook.md)
+  * [Configure LinkedIn](how-to/social-login/configure-linkedin.md)
+  * [Configure Apple](how-to/social-login/configure-apple.md)
+  * [Manage Linked Accounts](how-to/social-login/manage-linked-accounts.md)
 * [OAuth Clients](how-to/oauth-clients/register-client.md)
   * [Register Client](how-to/oauth-clients/register-client.md)
   * [Configure Scopes](how-to/oauth-clients/configure-scopes.md)
@@ -43,6 +51,7 @@
 
 * [API](reference/api/endpoints.md)
   * [Endpoints](reference/api/endpoints.md)
+  * [Social Login](reference/api/social-login.md)
   * [Error Codes](reference/api/error-codes.md)
   * [Rate Limits](reference/api/rate-limits.md)
 * [OAuth 2.0](reference/oauth2/README.md)
