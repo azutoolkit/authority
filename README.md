@@ -161,11 +161,11 @@ graph TB
 
 ### Landing Page
 
-![Landing Page](docs/screenshots/landing-page.gif)
+![Landing Page](./docs/screenshots/landing-page.gif)
 
 ### Sign In
 
-![Sign In](docs/screenshots/signin.gif)
+![Sign In](./docs/screenshots/signin.gif)
 
 ---
 
@@ -175,37 +175,37 @@ Authority includes a powerful, modern admin dashboard with a beautiful dark them
 
 ### OAuth Clients Management
 
-![OAuth Clients](docs/screenshots/admin-clients.gif)
+![OAuth Clients](./docs/screenshots/admin-clients.gif)
 
 Register and manage OAuth applications with redirect URIs, client secrets, and scope assignments.
 
 ### User Management
 
-![User Management](docs/screenshots/admin-users.gif)
+![User Management](./docs/screenshots/admin-users.gif)
 
 Create, edit, lock/unlock accounts, assign admin/user roles, and manage passwords.
 
 ### Scope Management
 
-![Scope Management](docs/screenshots/admin-scopes.gif)
+![Scope Management](./docs/screenshots/admin-scopes.gif)
 
 Define system and custom OAuth scopes with descriptions.
 
 ### Audit Logs
 
-![Audit Logs](docs/screenshots/admin-audit-logs.gif)
+![Audit Logs](./docs/screenshots/admin-audit-logs.gif)
 
 Track all administrative actions with filtering by actor, action type, and date range. Export to CSV.
 
 ### System Settings
 
-![System Settings](docs/screenshots/admin-settings.gif)
+![System Settings](./docs/screenshots/admin-settings.gif)
 
 Configure account lockout, password policies, session duration, email, and branding.
 
 ### User Profile
 
-![User Profile](docs/screenshots/user-profile.gif)
+![User Profile](./docs/screenshots/user-profile.gif)
 
 Self-service profile management, MFA setup, password changes, and active sessions
 
