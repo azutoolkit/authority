@@ -1,5 +1,5 @@
 # Create table for Pushed Authorization Requests (PAR) per RFC 9126
-class CreatePARRequests < CQL::Migration(1768940400_i64)
+class CreateParRequests < CQL::Migration(1768940400_i64)
   def up
     schema.exec <<-SQL
       CREATE TABLE IF NOT EXISTS oauth_par_requests (

@@ -1,29 +1,25 @@
 # Migration to create persistent_sessions table for tracking user sessions
-class CreatePersistentSessions < CQL::Migration(1768941000)
+class CreatePersistentSessions < CQL::Migration(1768941000_i64)
   def up
-    schema.alter :users do
-      # Nothing to add to users table
-    end
-
-    schema.create :persistent_sessions, if_not_exists: true do
-      primary_key :id, type: :uuid
-      column :user_id, type: :uuid, null: false
-      column :session_token, type: :text, null: false
-      column :ip_address, type: :text
-      column :user_agent, type: :text
-      column :device_info, type: :text
-      column :last_activity_at, type: :timestamp, null: false
-      column :expires_at, type: :timestamp, null: false
-      column :created_at, type: :timestamp, null: false
-      column :revoked_at, type: :timestamp
-
-      index [:session_token], unique: true
-      index [:user_id]
-      index [:expires_at]
-    end
+    schema.exec <<-SQL
+      CREATE TABLE IF NOT EXISTS persistent_sessions (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        user_id UUID NOT NULL,
+        session_token TEXT NOT NULL UNIQUE,
+        ip_address TEXT,
+        user_agent TEXT,
+        device_info TEXT,
+        last_activity_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        expires_at TIMESTAMP NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        revoked_at TIMESTAMP
+      )
+    SQL
+    schema.exec %(CREATE INDEX IF NOT EXISTS idx_persistent_sessions_user_id ON persistent_sessions(user_id))
+    schema.exec %(CREATE INDEX IF NOT EXISTS idx_persistent_sessions_expires_at ON persistent_sessions(expires_at))
   end
 
   def down
-    schema.drop :persistent_sessions, if_exists: true
+    schema.exec %(DROP TABLE IF EXISTS persistent_sessions)
   end
 end

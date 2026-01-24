@@ -44,7 +44,7 @@ module Authority::Dashboard::Clients
         if export_result.success?
           header "Content-Type", "text/csv; charset=UTF-8"
           header "Content-Disposition", "attachment; filename=\"#{export_result.filename}\""
-          text export_result.content.not_nil!
+          CsvResponse.new(export_result.content.not_nil!)
         else
           redirect_with_error("Export failed: #{export_result.error}")
         end

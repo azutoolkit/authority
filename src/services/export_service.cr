@@ -50,7 +50,7 @@ module Authority
           io << csv_escape(user.email_verified.to_s) << ","
           io << csv_escape(user.mfa_enabled.to_s) << ","
           io << csv_escape(user.last_login_at.try(&.to_s("%Y-%m-%d %H:%M:%S")) || "") << ","
-          io << csv_escape(user.created_at.to_s("%Y-%m-%d %H:%M:%S")) << "\n"
+          io << csv_escape(user.created_at.try(&.to_s("%Y-%m-%d %H:%M:%S")) || "") << "\n"
         end
       end
 
@@ -84,7 +84,7 @@ module Authority
           io << csv_escape(user.email_verified.to_s) << ","
           io << csv_escape(user.mfa_enabled.to_s) << ","
           io << csv_escape(user.last_login_at.try(&.to_s("%Y-%m-%d %H:%M:%S")) || "") << ","
-          io << csv_escape(user.created_at.to_s("%Y-%m-%d %H:%M:%S")) << "\n"
+          io << csv_escape(user.created_at.try(&.to_s("%Y-%m-%d %H:%M:%S")) || "") << "\n"
         end
       end
 
@@ -125,7 +125,7 @@ module Authority
           io << csv_escape(client.redirect_uri) << ","
           io << csv_escape(client.scopes) << ","
           io << csv_escape(client.is_confidential?.to_s) << ","
-          io << csv_escape(client.created_at.to_s("%Y-%m-%d %H:%M:%S")) << "\n"
+          io << csv_escape(client.created_at.try(&.to_s("%Y-%m-%d %H:%M:%S")) || "") << "\n"
         end
       end
 
@@ -156,7 +156,7 @@ module Authority
           io << csv_escape(client.redirect_uri) << ","
           io << csv_escape(client.scopes) << ","
           io << csv_escape(client.is_confidential?.to_s) << ","
-          io << csv_escape(client.created_at.to_s("%Y-%m-%d %H:%M:%S")) << "\n"
+          io << csv_escape(client.created_at.try(&.to_s("%Y-%m-%d %H:%M:%S")) || "") << "\n"
         end
       end
 
@@ -194,12 +194,12 @@ module Authority
       logs = query.limit(limit).all
 
       # Apply date filters in memory
-      if start_date
-        logs = logs.select { |log| log.created_at >= start_date }
+      if sd = start_date
+        logs = logs.select { |log| (cat = log.created_at) && cat >= sd }
       end
 
-      if end_date
-        logs = logs.select { |log| log.created_at <= end_date }
+      if ed = end_date
+        logs = logs.select { |log| (cat = log.created_at) && cat <= ed }
       end
 
       # Apply actor filter in memory
@@ -209,19 +209,19 @@ module Authority
 
       csv = String.build do |io|
         # Header row
-        io << "ID,Timestamp,Actor,Actor Type,Action,Resource Type,Resource ID,Resource Name,IP Address,Changes\n"
+        io << "ID,Timestamp,Actor Email,Action,Resource Type,Resource ID,Resource Name,IP Address,User Agent,Changes\n"
 
         # Data rows
         logs.each do |log|
           io << csv_escape(log.id.to_s) << ","
-          io << csv_escape(log.created_at.to_s("%Y-%m-%d %H:%M:%S")) << ","
-          io << csv_escape(log.actor_name || "System") << ","
-          io << csv_escape(log.actor_type) << ","
+          io << csv_escape(log.created_at.try(&.to_s("%Y-%m-%d %H:%M:%S")) || "") << ","
+          io << csv_escape(log.actor_email.empty? ? "System" : log.actor_email) << ","
           io << csv_escape(log.action) << ","
           io << csv_escape(log.resource_type) << ","
-          io << csv_escape(log.resource_id || "") << ","
+          io << csv_escape(log.resource_id.try(&.to_s) || "") << ","
           io << csv_escape(log.resource_name || "") << ","
           io << csv_escape(log.ip_address || "") << ","
+          io << csv_escape(log.user_agent || "") << ","
           io << csv_escape(log.changes || "") << "\n"
         end
       end

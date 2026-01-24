@@ -102,6 +102,11 @@ AppSchema = CQL::Schema.define(
     integer :failed_login_attempts, null: true, default: "0"
     timestamp :last_login_at, null: true
     text :last_login_ip, null: true
+    timestamp :password_changed_at, null: true
+    text :password_history, null: true
+    boolean :mfa_enabled, null: true, default: "false"
+    text :totp_secret, null: true
+    text :backup_codes, null: true
     timestamps
   end
 
@@ -170,10 +175,33 @@ AppSchema = CQL::Schema.define(
     timestamps
   end
 
+  table :persistent_sessions do
+    primary :id, String
+    text :user_id
+    text :session_token
+    text :ip_address, null: true
+    text :user_agent, null: true
+    text :device_info, null: true
+    timestamp :last_activity_at, default: "CURRENT_TIMESTAMP"
+    timestamp :expires_at
+    timestamp :created_at, default: "CURRENT_TIMESTAMP"
+    timestamp :revoked_at, null: true
+  end
+
   table :seed_versions do
     primary :id, Int32
     text :seed_name
     timestamp :executed_at, default: "CURRENT_TIMESTAMP"
+  end
+
+  table :settings do
+    primary :id, String
+    text :key
+    text :value, null: true
+    text :category
+    text :description, null: true
+    timestamp :updated_at, default: "CURRENT_TIMESTAMP"
+    text :updated_by, null: true
   end
 
 end

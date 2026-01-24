@@ -1,21 +1,21 @@
 # Migration to create settings table for system configuration
-class CreateSettings < CQL::Migration(1768941100)
+class CreateSettings < CQL::Migration(1768941100_i64)
   def up
-    schema.create :settings, if_not_exists: true do
-      primary_key :id, type: :uuid
-      column :key, type: :text, null: false
-      column :value, type: :text
-      column :category, type: :text, null: false
-      column :description, type: :text
-      column :updated_at, type: :timestamp, null: false
-      column :updated_by, type: :text
-
-      index [:key], unique: true
-      index [:category]
-    end
+    schema.exec <<-SQL
+      CREATE TABLE IF NOT EXISTS settings (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        key TEXT NOT NULL UNIQUE,
+        value TEXT,
+        category TEXT NOT NULL,
+        description TEXT,
+        updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_by TEXT
+      )
+    SQL
+    schema.exec %(CREATE INDEX IF NOT EXISTS idx_settings_category ON settings(category))
   end
 
   def down
-    schema.drop :settings, if_exists: true
+    schema.exec %(DROP TABLE IF EXISTS settings)
   end
 end

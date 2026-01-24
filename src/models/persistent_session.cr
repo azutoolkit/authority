@@ -8,7 +8,6 @@ module Authority
     db_context AuthorityDB, :persistent_sessions
 
     # Core fields
-    property id : UUID = UUID.random
     property user_id : UUID = UUID.random
     property session_token : String = ""
     property ip_address : String?
@@ -18,6 +17,9 @@ module Authority
     property expires_at : Time = Time.utc
     property created_at : Time = Time.utc
     property revoked_at : Time?
+
+    def initialize
+    end
 
     # Helper to get string ID for templates
     def id_str : String

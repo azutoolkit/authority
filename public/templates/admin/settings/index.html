@@ -1,0 +1,342 @@
+{% extends "admin/layout.html" %}
+{% set title = "Settings" %}
+{% set active_page = "settings" %}
+
+{% block body %}
+<main class="min-h-screen py-12 px-4">
+  <div class="max-w-4xl mx-auto">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-base-content">System Settings</h1>
+      <p class="mt-2 text-base-content/60">Configure security, email, audit, and branding settings</p>
+    </div>
+
+    {% include "errors.html" %}
+
+    {% if success %}
+    <div class="alert alert-success mb-6">
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span>{{success}}</span>
+    </div>
+    {% endif %}
+
+    <!-- Tabs -->
+    <div class="tabs tabs-boxed mb-6">
+      <a href="/dashboard/settings?tab=security" class="tab {% if active_tab == 'security' %}tab-active{% endif %}">Security</a>
+      <a href="/dashboard/settings?tab=email" class="tab {% if active_tab == 'email' %}tab-active{% endif %}">Email</a>
+      <a href="/dashboard/settings?tab=audit" class="tab {% if active_tab == 'audit' %}tab-active{% endif %}">Audit</a>
+      <a href="/dashboard/settings?tab=branding" class="tab {% if active_tab == 'branding' %}tab-active{% endif %}">Branding</a>
+    </div>
+
+    <form action="/dashboard/settings" method="POST">
+      <input type="hidden" name="tab" value="{{active_tab}}">
+
+      <!-- Security Settings -->
+      {% if active_tab == 'security' %}
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title text-lg mb-4">Account Lockout</h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Lockout Threshold</span>
+              </label>
+              <input type="number" name="lockout_threshold" value="{{settings.security.lockout_threshold}}"
+                     class="input input-bordered" min="1" max="20">
+              <label class="label">
+                <span class="label-text-alt">Failed attempts before lockout</span>
+              </label>
+            </div>
+
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Lockout Duration (minutes)</span>
+              </label>
+              <input type="number" name="lockout_duration_minutes" value="{{settings.security.lockout_duration_minutes}}"
+                     class="input input-bordered" min="1" max="1440">
+              <label class="label">
+                <span class="label-text-alt">Minutes until auto-unlock</span>
+              </label>
+            </div>
+
+            <div class="form-control">
+              <label class="label cursor-pointer justify-start gap-4">
+                <input type="checkbox" name="auto_unlock_enabled" class="checkbox checkbox-primary"
+                       {% if settings.security.auto_unlock_enabled == 'true' %}checked{% endif %}>
+                <span class="label-text">Enable automatic unlock</span>
+              </label>
+            </div>
+
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Session Duration (days)</span>
+              </label>
+              <input type="number" name="session_duration_days" value="{{settings.security.session_duration_days}}"
+                     class="input input-bordered" min="1" max="365">
+              <label class="label">
+                <span class="label-text-alt">Days until session expires</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <h2 class="card-title text-lg mb-4">Password Policy</h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Minimum Length</span>
+              </label>
+              <input type="number" name="password_min_length" value="{{settings.security.password_min_length}}"
+                     class="input input-bordered" min="8" max="128">
+            </div>
+
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Password History Count</span>
+              </label>
+              <input type="number" name="password_history_count" value="{{settings.security.password_history_count}}"
+                     class="input input-bordered" min="0" max="24">
+              <label class="label">
+                <span class="label-text-alt">Prevent reuse of last N passwords</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="form-control">
+              <label class="label cursor-pointer justify-start gap-2">
+                <input type="checkbox" name="password_require_uppercase" class="checkbox checkbox-sm"
+                       {% if settings.security.password_require_uppercase == 'true' %}checked{% endif %}>
+                <span class="label-text text-sm">Uppercase</span>
+              </label>
+            </div>
+
+            <div class="form-control">
+              <label class="label cursor-pointer justify-start gap-2">
+                <input type="checkbox" name="password_require_lowercase" class="checkbox checkbox-sm"
+                       {% if settings.security.password_require_lowercase == 'true' %}checked{% endif %}>
+                <span class="label-text text-sm">Lowercase</span>
+              </label>
+            </div>
+
+            <div class="form-control">
+              <label class="label cursor-pointer justify-start gap-2">
+                <input type="checkbox" name="password_require_number" class="checkbox checkbox-sm"
+                       {% if settings.security.password_require_number == 'true' %}checked{% endif %}>
+                <span class="label-text text-sm">Number</span>
+              </label>
+            </div>
+
+            <div class="form-control">
+              <label class="label cursor-pointer justify-start gap-2">
+                <input type="checkbox" name="password_require_special" class="checkbox checkbox-sm"
+                       {% if settings.security.password_require_special == 'true' %}checked{% endif %}>
+                <span class="label-text text-sm">Special Char</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Email Settings -->
+      {% if active_tab == 'email' %}
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title text-lg mb-4">SMTP Configuration</h2>
+
+          <div class="form-control mb-4">
+            <label class="label cursor-pointer justify-start gap-4">
+              <input type="checkbox" name="smtp_enabled" class="toggle toggle-primary"
+                     {% if settings.email.smtp_enabled == 'true' %}checked{% endif %}>
+              <span class="label-text">Enable SMTP Email Sending</span>
+            </label>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">SMTP Host</span>
+              </label>
+              <input type="text" name="smtp_host" value="{{settings.email.smtp_host}}"
+                     class="input input-bordered" placeholder="smtp.example.com">
+            </div>
+
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">SMTP Port</span>
+              </label>
+              <input type="number" name="smtp_port" value="{{settings.email.smtp_port}}"
+                     class="input input-bordered" min="1" max="65535">
+            </div>
+
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">SMTP Username</span>
+              </label>
+              <input type="text" name="smtp_username" value="{{settings.email.smtp_username}}"
+                     class="input input-bordered" placeholder="(optional)">
+            </div>
+
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">From Email Address</span>
+              </label>
+              <input type="email" name="smtp_from_address" value="{{settings.email.smtp_from_address}}"
+                     class="input input-bordered" placeholder="noreply@example.com">
+            </div>
+
+            <div class="form-control md:col-span-2">
+              <label class="label">
+                <span class="label-text">From Display Name</span>
+              </label>
+              <input type="text" name="smtp_from_name" value="{{settings.email.smtp_from_name}}"
+                     class="input input-bordered" placeholder="My App">
+            </div>
+          </div>
+
+          <div class="alert alert-info mt-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span>SMTP password should be set via environment variable SMTP_PASSWORD for security.</span>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Audit Settings -->
+      {% if active_tab == 'audit' %}
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title text-lg mb-4">Audit Log Settings</h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Retention Period (days)</span>
+              </label>
+              <input type="number" name="audit_retention_days" value="{{settings.audit.audit_retention_days}}"
+                     class="input input-bordered" min="30" max="3650">
+              <label class="label">
+                <span class="label-text-alt">Logs older than this will be archived/deleted</span>
+              </label>
+            </div>
+
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Log Level</span>
+              </label>
+              <select name="audit_log_level" class="select select-bordered w-full">
+                <option value="all" {% if settings.audit.audit_log_level == 'all' %}selected{% endif %}>All Actions</option>
+                <option value="important" {% if settings.audit.audit_log_level == 'important' %}selected{% endif %}>Important Only</option>
+                <option value="errors" {% if settings.audit.audit_log_level == 'errors' %}selected{% endif %}>Errors Only</option>
+              </select>
+              <label class="label">
+                <span class="label-text-alt">Which actions to log</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Branding Settings -->
+      {% if active_tab == 'branding' %}
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title text-lg mb-4">Application Branding</h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Application Name</span>
+              </label>
+              <input type="text" name="app_name" value="{{settings.branding.app_name}}"
+                     class="input input-bordered" placeholder="My OAuth Server">
+            </div>
+
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Primary Color</span>
+              </label>
+              <div class="flex gap-2">
+                <input type="color" name="primary_color" value="{{settings.branding.primary_color}}"
+                       class="w-14 h-12 cursor-pointer rounded">
+                <input type="text" value="{{settings.branding.primary_color}}"
+                       class="input input-bordered flex-1" readonly id="colorPreview">
+              </div>
+            </div>
+
+            <div class="form-control md:col-span-2">
+              <label class="label">
+                <span class="label-text">Logo URL</span>
+              </label>
+              <input type="url" name="app_logo_url" value="{{settings.branding.app_logo_url}}"
+                     class="input input-bordered" placeholder="https://example.com/logo.png">
+              <label class="label">
+                <span class="label-text-alt">URL to your application logo (recommended: 200x50px)</span>
+              </label>
+            </div>
+
+            <div class="form-control md:col-span-2">
+              <label class="label">
+                <span class="label-text">Support Email</span>
+              </label>
+              <input type="email" name="support_email" value="{{settings.branding.support_email}}"
+                     class="input input-bordered" placeholder="support@example.com">
+              <label class="label">
+                <span class="label-text-alt">Displayed in error pages and help text</span>
+              </label>
+            </div>
+          </div>
+
+          {% if settings.branding.app_logo_url %}
+          <div class="mt-4">
+            <label class="label">
+              <span class="label-text">Logo Preview</span>
+            </label>
+            <div class="p-4 bg-base-200 rounded-lg inline-block">
+              <img src="{{settings.branding.app_logo_url}}" alt="Logo Preview" class="max-h-12">
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Save Button -->
+      <div class="mt-6 flex justify-between items-center">
+        <a href="/dashboard" class="btn btn-ghost gap-2">
+          <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+          Back to Dashboard
+        </a>
+        <button type="submit" class="btn btn-primary gap-2">
+          <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+          </svg>
+          Save Settings
+        </button>
+      </div>
+    </form>
+  </div>
+</main>
+
+<script>
+  // Update color preview when color picker changes
+  const colorInput = document.querySelector('input[name="primary_color"]');
+  const colorPreview = document.getElementById('colorPreview');
+  if (colorInput && colorPreview) {
+    colorInput.addEventListener('input', function() {
+      colorPreview.value = this.value;
+    });
+  }
+</script>
+{% endblock %}

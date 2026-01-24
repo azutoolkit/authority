@@ -7,7 +7,6 @@ module Authority
     db_context AuthorityDB, :settings
 
     # Core fields
-    property id : UUID = UUID.random
     property key : String = ""
     property value : String?
     property category : String = ""
@@ -54,6 +53,9 @@ module Authority
       APP_LOGO_URL                = "app_logo_url"
       PRIMARY_COLOR               = "primary_color"
       SUPPORT_EMAIL               = "support_email"
+    end
+
+    def initialize
     end
 
     # Helper to get string ID for templates
