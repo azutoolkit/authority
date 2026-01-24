@@ -15,7 +15,7 @@ module Authority::AccessToken
       header "Cache-Control", "no-store"
       header "Pragma", "no-cache"
 
-      AccessTokenResponse.new access_token.not_nil!
+      AccessTokenResponse.new access_token
     end
 
     private def access_token : Authly::AccessToken

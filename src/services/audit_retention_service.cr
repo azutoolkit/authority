@@ -63,19 +63,19 @@ module Authority
       newest = AuditLog.query.order(created_at: :desc).first
 
       {
-        "total_logs"        => total,
-        "logs_to_delete"    => logs_to_delete,
-        "retention_days"    => retention_days.to_i64,
-        "oldest_log_date"   => oldest.try(&.created_at.try(&.to_s("%Y-%m-%d"))) || "N/A",
-        "newest_log_date"   => newest.try(&.created_at.try(&.to_s("%Y-%m-%d"))) || "N/A",
+        "total_logs"      => total,
+        "logs_to_delete"  => logs_to_delete,
+        "retention_days"  => retention_days.to_i64,
+        "oldest_log_date" => oldest.try(&.created_at.try(&.to_s("%Y-%m-%d"))) || "N/A",
+        "newest_log_date" => newest.try(&.created_at.try(&.to_s("%Y-%m-%d"))) || "N/A",
       }
     rescue
       {
-        "total_logs"        => 0_i64,
-        "logs_to_delete"    => 0_i64,
-        "retention_days"    => retention_days.to_i64,
-        "oldest_log_date"   => "N/A",
-        "newest_log_date"   => "N/A",
+        "total_logs"      => 0_i64,
+        "logs_to_delete"  => 0_i64,
+        "retention_days"  => retention_days.to_i64,
+        "oldest_log_date" => "N/A",
+        "newest_log_date" => "N/A",
       }
     end
 
@@ -92,10 +92,12 @@ module Authority
           end_date: cutoff_date
         )
 
-        if export_result.success? && export_result.content
-          File.write(archive_path, export_result.content.not_nil!)
-          archived_count = export_result.content.not_nil!.lines.size - 1  # Minus header
-          Log.info { "Archived #{archived_count} audit log entries to #{archive_path}" }
+        if export_result.success?
+          if content = export_result.content
+            File.write(archive_path, content)
+            archived_count = content.lines.size - 1 # Minus header
+            Log.info { "Archived #{archived_count} audit log entries to #{archive_path}" }
+          end
         end
       end
 

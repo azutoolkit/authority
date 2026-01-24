@@ -46,7 +46,7 @@ describe Authority::ClientCacheService do
       # First call should fetch from DB
       cached = Authority::ClientCacheService.get(client.client_id)
       cached.should_not be_nil
-      cached.not_nil!.name.should eq(client.name)
+      cached.try(&.name.should(eq(client.name)))
 
       ClientCacheTestHelpers.delete_test_client(client.client_id)
     end
@@ -63,14 +63,14 @@ describe Authority::ClientCacheService do
       # Second call - should still return cached client
       cached = Authority::ClientCacheService.get(client.client_id)
       cached.should_not be_nil
-      cached.not_nil!.name.should eq(client.name)
+      cached.try(&.name.should(eq(client.name)))
     end
 
     it "removes expired entries and refetches" do
       client = ClientCacheTestHelpers.create_test_client
 
       # Set very short TTL
-      Authority::ClientCacheService.set_ttl(1.millisecond)
+      Authority::ClientCacheService.ttl = 1.millisecond
 
       # Cache the client
       Authority::ClientCacheService.get(client.client_id)
@@ -85,7 +85,7 @@ describe Authority::ClientCacheService do
       ClientCacheTestHelpers.delete_test_client(client.client_id)
 
       # Reset TTL
-      Authority::ClientCacheService.set_ttl(5.minutes)
+      Authority::ClientCacheService.ttl = 5.minutes
     end
   end
 
@@ -155,7 +155,7 @@ describe Authority::ClientCacheService do
       client = ClientCacheTestHelpers.create_test_client
 
       # Set very short TTL
-      Authority::ClientCacheService.set_ttl(1.millisecond)
+      Authority::ClientCacheService.ttl = 1.millisecond
 
       Authority::ClientCacheService.set(client.client_id, client)
       Authority::ClientCacheService.stats[:size].should eq(1)
@@ -170,7 +170,7 @@ describe Authority::ClientCacheService do
       ClientCacheTestHelpers.delete_test_client(client.client_id)
 
       # Reset TTL
-      Authority::ClientCacheService.set_ttl(5.minutes)
+      Authority::ClientCacheService.ttl = 5.minutes
     end
   end
 

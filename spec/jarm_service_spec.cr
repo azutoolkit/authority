@@ -16,8 +16,8 @@ describe Authority::JARMService do
       result[:jwt].should_not be_nil
 
       # JWT should have 3 parts separated by dots
-      jwt = result[:jwt].not_nil!
-      jwt.split('.').size.should eq 3
+      result[:jwt].should_not be_nil
+      result[:jwt].try(&.split('.').size.should(eq(3)))
     end
 
     it "creates a signed JWT response with error" do
@@ -44,16 +44,18 @@ describe Authority::JARMService do
         error_description: nil
       )
 
-      jwt = result[:jwt].not_nil!
-      payload = Authority::JARMService.decode_payload(jwt)
+      result[:jwt].should_not be_nil
+      if jwt = result[:jwt]
+        payload = Authority::JARMService.decode_payload(jwt)
 
-      payload.should_not be_nil
-      if claims = payload
-        claims["iss"]?.should_not be_nil   # Issuer
-        claims["aud"]?.should_not be_nil   # Audience (client_id)
-        claims["exp"]?.should_not be_nil   # Expiration
-        claims["code"]?.should eq "auth-code-123"
-        claims["state"]?.should eq "state-xyz"
+        payload.should_not be_nil
+        if claims = payload
+          claims["iss"]?.should_not be_nil # Issuer
+          claims["aud"]?.should_not be_nil # Audience (client_id)
+          claims["exp"]?.should_not be_nil # Expiration
+          claims["code"]?.should eq "auth-code-123"
+          claims["state"]?.should eq "state-xyz"
+        end
       end
     end
   end
@@ -128,12 +130,14 @@ describe Authority::JARMService do
         error_description: nil
       )
 
-      jwt = result[:jwt].not_nil!
-      payload = Authority::JARMService.decode_payload(jwt)
+      result[:jwt].should_not be_nil
+      if jwt = result[:jwt]
+        payload = Authority::JARMService.decode_payload(jwt)
 
-      payload.should_not be_nil
-      if claims = payload
-        claims["code"]?.should eq "test-code"
+        payload.should_not be_nil
+        if claims = payload
+          claims["code"]?.should eq "test-code"
+        end
       end
     end
 

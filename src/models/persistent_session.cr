@@ -65,28 +65,36 @@ module Authority
     def self.parse_device_info(user_agent : String?) : String
       return "Unknown Device" unless user_agent
 
-      # Extract browser and OS info
-      browser = case user_agent
-                when /Firefox/i  then "Firefox"
-                when /Chrome/i   then "Chrome"
-                when /Safari/i   then "Safari"
-                when /Edge/i     then "Edge"
-                when /Opera/i    then "Opera"
-                when /MSIE|Trident/i then "Internet Explorer"
-                else "Unknown Browser"
-                end
-
-      os = case user_agent
-           when /Windows NT 10/i then "Windows 10"
-           when /Windows NT 6\./i then "Windows"
-           when /Mac OS X/i then "macOS"
-           when /Linux/i then "Linux"
-           when /iPhone|iPad/i then "iOS"
-           when /Android/i then "Android"
-           else "Unknown OS"
-           end
+      browser = detect_browser(user_agent)
+      os = detect_os(user_agent)
 
       "#{browser} on #{os}"
+    end
+
+    # Extract browser name from user agent string
+    private def self.detect_browser(user_agent : String) : String
+      case user_agent
+      when /Firefox/i      then "Firefox"
+      when /Chrome/i       then "Chrome"
+      when /Safari/i       then "Safari"
+      when /Edge/i         then "Edge"
+      when /Opera/i        then "Opera"
+      when /MSIE|Trident/i then "Internet Explorer"
+      else                      "Unknown Browser"
+      end
+    end
+
+    # Extract OS name from user agent string
+    private def self.detect_os(user_agent : String) : String
+      case user_agent
+      when /Windows NT 10/i  then "Windows 10"
+      when /Windows NT 6\./i then "Windows"
+      when /Mac OS X/i       then "macOS"
+      when /Linux/i          then "Linux"
+      when /iPhone|iPad/i    then "iOS"
+      when /Android/i        then "Android"
+      else                        "Unknown OS"
+      end
     end
 
     # Calculate relative time (e.g., "5 minutes ago")
@@ -101,7 +109,7 @@ module Authority
       when minutes < 60 then "#{minutes} minute#{"s" if minutes != 1} ago"
       when hours < 24   then "#{hours} hour#{"s" if hours != 1} ago"
       when days < 7     then "#{days} day#{"s" if days != 1} ago"
-      else              last_activity_at.to_s("%Y-%m-%d %H:%M")
+      else                   last_activity_at.to_s("%Y-%m-%d %H:%M")
       end
     end
 

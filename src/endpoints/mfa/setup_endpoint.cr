@@ -31,11 +31,19 @@ module Authority::MFA
         return redirect to: "/profile?error=mfa_setup_failed", status: 302
       end
 
+      secret = result.secret
+      qr_uri = result.qr_uri
+      backup_codes = result.backup_codes
+
+      unless secret && qr_uri && backup_codes
+        return redirect to: "/profile?error=mfa_setup_failed", status: 302
+      end
+
       SetupResponse.new(
         username: user.username,
-        secret: result.secret.not_nil!,
-        qr_uri: result.qr_uri.not_nil!,
-        backup_codes: result.backup_codes.not_nil!
+        secret: secret,
+        qr_uri: qr_uri,
+        backup_codes: backup_codes
       )
     end
   end

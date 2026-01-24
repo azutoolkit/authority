@@ -8,11 +8,11 @@ module Authority
     extend self
 
     # TOTP configuration
-    DIGITS      = 6          # Number of digits in the code
-    PERIOD      = 30         # Time period in seconds
-    ALGORITHM   = :sha1      # HMAC algorithm
+    DIGITS      =  6    # Number of digits in the code
+    PERIOD      = 30    # Time period in seconds
+    ALGORITHM   = :sha1 # HMAC algorithm
     ISSUER      = "Authority"
-    SECRET_SIZE = 20         # 160 bits as recommended by RFC 4226
+    SECRET_SIZE = 20 # 160 bits as recommended by RFC 4226
 
     # Result struct for TOTP operations
     struct SetupResult
@@ -106,10 +106,11 @@ module Authority
 
     # Verify a backup code
     def verify_backup_code(code : String, user : User) : VerifyResult
-      return VerifyResult.new(success: false, error: "No backup codes available") if user.backup_codes.nil?
+      backup_codes = user.backup_codes
+      return VerifyResult.new(success: false, error: "No backup codes available") if backup_codes.nil?
 
       begin
-        codes = Array(String).from_json(user.backup_codes.not_nil!)
+        codes = Array(String).from_json(backup_codes)
         clean_code = code.upcase.gsub(/[\s\-]/, "")
         clean_code = "#{clean_code[0, 4]}-#{clean_code[4, 4]}" if clean_code.size == 8
 
@@ -150,7 +151,7 @@ module Authority
 
     # Disable MFA for a user
     def disable(user : User) : VerifyResult
-      return VerifyResult.new(success: false, error: "MFA is not enabled") unless user.mfa_enabled
+      return VerifyResult.new(success: false, error: "MFA is not enabled") unless user.mfa_enabled?
 
       user.totp_secret = nil
       user.backup_codes = nil
@@ -163,11 +164,13 @@ module Authority
 
     # Verify MFA code for a user (handles both TOTP and backup codes)
     def verify_user_code(user : User, code : String) : VerifyResult
-      return VerifyResult.new(success: false, error: "MFA is not enabled") unless user.mfa_enabled
-      return VerifyResult.new(success: false, error: "No TOTP secret configured") if user.totp_secret.nil?
+      return VerifyResult.new(success: false, error: "MFA is not enabled") unless user.mfa_enabled?
+
+      totp_secret = user.totp_secret
+      return VerifyResult.new(success: false, error: "No TOTP secret configured") if totp_secret.nil?
 
       # Try TOTP code first
-      secret = decrypt_secret(user.totp_secret.not_nil!)
+      secret = decrypt_secret(totp_secret)
       if verify(code, secret)
         return VerifyResult.new(success: true)
       end
@@ -178,11 +181,13 @@ module Authority
 
     # Get remaining backup codes count
     def backup_codes_remaining(user : User) : Int32
-      return 0 if user.backup_codes.nil?
-
-      begin
-        Array(String).from_json(user.backup_codes.not_nil!).size
-      rescue
+      if backup_codes = user.backup_codes
+        begin
+          Array(String).from_json(backup_codes).size
+        rescue
+          0
+        end
+      else
         0
       end
     end

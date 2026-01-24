@@ -57,18 +57,20 @@ describe Authority::PARService do
         nonce: "nonce456"
       )
 
-      request_uri = create_result[:request_uri].not_nil!
-      request = Authority::PARService.get_request(request_uri, CLIENT_ID)
+      create_result[:request_uri].should_not be_nil
+      if request_uri = create_result[:request_uri]
+        request = Authority::PARService.get_request(request_uri, CLIENT_ID)
 
-      request.should_not be_nil
-      if req = request
-        req[:redirect_uri].should eq REDIRECT_URI
-        req[:response_type].should eq "code"
-        req[:scope].should eq "openid profile"
-        req[:state].should eq "xyz789"
-        req[:code_challenge].should eq "challenge123"
-        req[:code_challenge_method].should eq "S256"
-        req[:nonce].should eq "nonce456"
+        request.should_not be_nil
+        if req = request
+          req[:redirect_uri].should eq REDIRECT_URI
+          req[:response_type].should eq "code"
+          req[:scope].should eq "openid profile"
+          req[:state].should eq "xyz789"
+          req[:code_challenge].should eq "challenge123"
+          req[:code_challenge_method].should eq "S256"
+          req[:nonce].should eq "nonce456"
+        end
       end
     end
 
@@ -88,8 +90,10 @@ describe Authority::PARService do
         nonce: nil
       )
 
-      request_uri = create_result[:request_uri].not_nil!
-      Authority::PARService.get_request(request_uri, "different-client").should be_nil
+      create_result[:request_uri].should_not be_nil
+      if request_uri = create_result[:request_uri]
+        Authority::PARService.get_request(request_uri, "different-client").should be_nil
+      end
     end
 
     it "marks request as used after retrieval" do
@@ -104,13 +108,14 @@ describe Authority::PARService do
         nonce: nil
       )
 
-      request_uri = create_result[:request_uri].not_nil!
+      create_result[:request_uri].should_not be_nil
+      if request_uri = create_result[:request_uri]
+        # First retrieval should succeed
+        Authority::PARService.get_request(request_uri, CLIENT_ID).should_not be_nil
 
-      # First retrieval should succeed
-      Authority::PARService.get_request(request_uri, CLIENT_ID).should_not be_nil
-
-      # Second retrieval should fail (single-use)
-      Authority::PARService.get_request(request_uri, CLIENT_ID).should be_nil
+        # Second retrieval should fail (single-use)
+        Authority::PARService.get_request(request_uri, CLIENT_ID).should be_nil
+      end
     end
   end
 

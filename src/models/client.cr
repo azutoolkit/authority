@@ -1,5 +1,5 @@
 module Authority
-  @[Crinja::Attributes(expose: [id_str, name, client_id, client_secret, description, logo, scopes, scopes_list, redirect_uri, policy_url, tos_url, is_confidential, created_at, updated_at])]
+  @[Crinja::Attributes(expose: [id_str, name, client_id, client_secret, description, logo, scopes, scopes_list, redirect_uri, policy_url, tos_url, confidential, created_at, updated_at])]
   class Client
     include CQL::ActiveRecord::Model(UUID)
     include Crinja::Object::Auto
@@ -34,7 +34,7 @@ module Authority
     end
 
     # Alias method for Crinja template access (without ? suffix)
-    def is_confidential : Bool
+    def confidential : Bool
       is_confidential?
     end
   end

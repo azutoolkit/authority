@@ -54,7 +54,7 @@ module Authority::Dashboard::Settings
       )
 
       # Get updated settings
-      settings = SettingsService.get_all_grouped
+      settings = SettingsService.all_grouped
 
       if errors.empty?
         IndexResponse.new(

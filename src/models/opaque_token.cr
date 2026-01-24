@@ -13,8 +13,8 @@ module Authority
     property scope : String = ""
     property expires_at : Time = Time.utc
     property revoked_at : Time?
-    property family_id : UUID?  # For refresh token rotation - tracks token lineage
-    property used_at : Time?    # When refresh token was exchanged (rotation)
+    property family_id : UUID? # For refresh token rotation - tracks token lineage
+    property used_at : Time?   # When refresh token was exchanged (rotation)
     property created_at : Time?
     property updated_at : Time?
 

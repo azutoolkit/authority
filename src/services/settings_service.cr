@@ -188,7 +188,7 @@ module Authority
     end
 
     # Get settings as a grouped hash for the UI
-    def self.get_all_grouped : Hash(String, Hash(String, String?))
+    def self.all_grouped : Hash(String, Hash(String, String?))
       load_cache unless @@cache_loaded
 
       result = {

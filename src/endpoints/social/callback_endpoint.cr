@@ -13,104 +13,105 @@ module Authority::Social
 
       provider = callback_request.provider.downcase
 
-      # Check for OAuth errors from provider
-      if !callback_request.error.empty?
-        error_msg = callback_request.error_description.empty? ?
-          callback_request.error : callback_request.error_description
-        return error_redirect("Authentication failed: #{error_msg}")
-      end
+      return handle_oauth_error if oauth_error?
+      return error_redirect("Invalid provider: #{provider}") unless valid_provider?(provider)
+      return error_redirect("#{provider.capitalize} login is not enabled") unless provider_enabled?(provider)
 
-      # Validate provider
-      unless SocialConnection::Providers.valid?(provider)
-        return error_redirect("Invalid provider: #{provider}")
-      end
+      forward_url = validate_state_and_get_forward_url
+      return forward_url if forward_url.is_a?(Response)
 
-      # Check if provider is enabled
-      unless SocialOAuthService.provider_enabled?(provider)
-        return error_redirect("#{provider.capitalize} login is not enabled")
-      end
+      return error_redirect("Missing authorization code") if callback_request.code.empty?
 
-      # Validate state parameter
+      user = authenticate_user(provider)
+      return user if user.is_a?(Response)
+
+      create_session_and_redirect(user, forward_url)
+    end
+
+    private def oauth_error? : Bool
+      !callback_request.error.empty?
+    end
+
+    private def handle_oauth_error : Response
+      error_msg = callback_request.error_description.empty? ? callback_request.error : callback_request.error_description
+      error_redirect("Authentication failed: #{error_msg}")
+    end
+
+    private def valid_provider?(provider : String) : Bool
+      SocialConnection::Providers.valid?(provider)
+    end
+
+    private def provider_enabled?(provider : String) : Bool
+      SocialOAuthService.provider_enabled?(provider)
+    end
+
+    private def validate_state_and_get_forward_url : String | Response
       state = callback_request.state
-      if state.empty?
-        return error_redirect("Missing state parameter")
-      end
+      return error_redirect("Missing state parameter") if state.empty?
 
       state_result = SocialOAuthService.validate_state(state)
-      unless state_result[:valid]
-        return error_redirect("Invalid or expired state parameter")
-      end
+      return error_redirect("Invalid or expired state parameter") unless state_result[:valid]
 
-      forward_url = state_result[:forward_url] || "/profile"
+      state_result[:forward_url] || "/profile"
+    end
 
-      # Validate authorization code
-      code = callback_request.code
-      if code.empty?
-        return error_redirect("Missing authorization code")
-      end
+    private def authenticate_user(provider : String) : User | Response
+      tokens = exchange_code_for_tokens(provider)
+      return error_redirect("Failed to exchange authorization code") unless tokens
 
-      # Build redirect URI
+      user_info = fetch_user_info(provider, tokens)
+      return error_redirect("Failed to fetch user information from #{provider}") unless user_info
+
+      result = SocialOAuthService.authenticate_or_create(user_info, tokens, existing_user_id)
+      return error_redirect(result.error || "Authentication failed") unless result.success?
+
+      user = result.user
+      return error_redirect("Authentication failed - no user returned") unless user
+      return error_redirect("Your account has been locked. Please contact support.") if user.locked?
+
+      user
+    end
+
+    private def exchange_code_for_tokens(provider : String)
       host = ENV["APP_HOST"]? || "http://localhost:4000"
       redirect_uri = "#{host}/auth/#{provider}/callback"
+      SocialOAuthService.exchange_code(provider, callback_request.code, redirect_uri)
+    end
 
-      # Exchange code for tokens
-      tokens = SocialOAuthService.exchange_code(provider, code, redirect_uri)
-      unless tokens
-        return error_redirect("Failed to exchange authorization code")
-      end
+    private def fetch_user_info(provider : String, tokens)
+      SocialOAuthService.fetch_user_info(provider, tokens.access_token, tokens.id_token)
+    end
 
-      # Fetch user info from provider
-      user_info = SocialOAuthService.fetch_user_info(provider, tokens.access_token, tokens.id_token)
-      unless user_info
-        return error_redirect("Failed to fetch user information from #{provider}")
-      end
+    private def existing_user_id : UUID?
+      return nil unless authenticated?
+      current_user.try(&.id)
+    end
 
-      # Check if this is linking to an existing authenticated session
-      existing_user_id = nil
-      if authenticated?
-        user = current_user
-        existing_user_id = user.id if user
-      end
-
-      # Authenticate or create user
-      result = SocialOAuthService.authenticate_or_create(user_info, tokens, existing_user_id)
-
-      unless result.success?
-        return error_redirect(result.error || "Authentication failed")
-      end
-
-      user = result.user.not_nil!
-
-      # Check if user is locked
-      if user.locked?
-        return error_redirect("Your account has been locked. Please contact support.")
-      end
-
-      # Create session - set session properties directly
+    private def create_session_and_redirect(user : User, forward_url : String) : Response
       Authority.current_session.user_id = user.id.to_s
       Authority.current_session.email = user.email
       Authority.current_session.authenticated = true
 
-      # Update last login info
+      update_last_login(user)
+
+      redirect to: safe_forward_url(forward_url), status: 302
+    end
+
+    private def update_last_login(user : User)
       user.last_login_at = Time.utc
       user.last_login_ip = request_ip
       user.update!
+    end
 
-      # Decode forward URL and redirect
-      decoded_forward_url = begin
-        Base64.decode_string(forward_url)
-      rescue
-        forward_url
-      end
+    private def safe_forward_url(forward_url : String) : String
+      decoded = decode_forward_url(forward_url)
+      decoded.starts_with?("/") ? decoded : "/profile"
+    end
 
-      # Ensure forward URL is safe (relative path)
-      safe_forward_url = if decoded_forward_url.starts_with?("/")
-                           decoded_forward_url
-                         else
-                           "/profile"
-                         end
-
-      redirect to: safe_forward_url, status: 302
+    private def decode_forward_url(forward_url : String) : String
+      Base64.decode_string(forward_url)
+    rescue
+      forward_url
     end
 
     private def error_redirect(message : String) : Response
@@ -127,7 +128,6 @@ module Authority::Social
     end
 
     private def request_ip : String?
-      # Try X-Forwarded-For first for proxied requests
       header["X-Forwarded-For"]?.try(&.split(",").first.strip) ||
         header["X-Real-IP"]? ||
         "unknown"

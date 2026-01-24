@@ -13,9 +13,8 @@ module Authority::Account
 
       # Note: We always return success to prevent email enumeration
       if email_resend_request.valid?
-        token = AccountRecoveryService.resend_email_verification(email_resend_request.email)
+        AccountRecoveryService.resend_email_verification(email_resend_request.email)
         # In production, send email with token here
-        # EmailService.send_email_verification(user.email, token.token) if token
       end
 
       EmailVerificationResentResponse.new

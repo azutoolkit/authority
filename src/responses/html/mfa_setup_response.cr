@@ -42,10 +42,10 @@ module Authority::MFA
 
     def render
       view TEMPLATE, {
-        username:              @username,
-        forward_url:           @forward_url,
+        username:               @username,
+        forward_url:            @forward_url,
         backup_codes_remaining: @backup_codes_remaining,
-        errors:                @errors,
+        errors:                 @errors,
       }
     end
   end

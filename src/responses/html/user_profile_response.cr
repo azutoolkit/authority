@@ -51,15 +51,15 @@ module Authority::Profile
 
     def render
       view TEMPLATE, {
-        first_name:               @first_name,
-        last_name:                @last_name,
-        email:                    @email,
-        username:                 @username,
-        email_verified:           @email_verified,
-        mfa_enabled:              @mfa_enabled,
-        created_at:               @created_at,
-        last_login:               @last_login,
-        connected_apps:           @connected_apps.map { |app|
+        first_name:     @first_name,
+        last_name:      @last_name,
+        email:          @email,
+        username:       @username,
+        email_verified: @email_verified,
+        mfa_enabled:    @mfa_enabled,
+        created_at:     @created_at,
+        last_login:     @last_login,
+        connected_apps: @connected_apps.map { |app|
           {
             name:         app.name,
             logo:         app.logo,

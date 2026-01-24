@@ -26,7 +26,7 @@ module Authority::Dashboard::Users
       reason = lock_request.reason.empty? ? "Locked by admin" : lock_request.reason
 
       # Lock the user
-      result = AdminUserService.lock(
+      AdminUserService.lock(
         id: lock_request.id,
         reason: reason,
         actor: admin_user

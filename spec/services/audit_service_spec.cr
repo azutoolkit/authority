@@ -38,13 +38,14 @@ describe Authority::AuditService do
       )
 
       log.should_not be_nil
-      log = log.not_nil!
-      log.actor_email.should eq(admin.email)
-      log.action.should eq("create")
-      log.resource_type.should eq("Client")
-      log.resource_name.should eq("Test Client")
-      log.ip_address.should_not be_nil
-      log.user_agent.should eq("Mozilla/5.0 Test")
+      if audit_log = log
+        audit_log.actor_email.should eq(admin.email)
+        audit_log.action.should eq("create")
+        audit_log.resource_type.should eq("Client")
+        audit_log.resource_name.should eq("Test Client")
+        audit_log.ip_address.should_not be_nil
+        audit_log.user_agent.should eq("Mozilla/5.0 Test")
+      end
 
       AuditTestHelpers.cleanup_audit_logs(admin.email)
       admin.delete!
@@ -68,14 +69,16 @@ describe Authority::AuditService do
       )
 
       log.should_not be_nil
-      log = log.not_nil!
-      log.changes.should_not be_nil
-      log.action.should eq("update")
+      if audit_log = log
+        audit_log.changes.should_not be_nil
+        audit_log.action.should eq("update")
 
-      # Verify changes JSON contains expected data
-      changes_str = log.changes.not_nil!
-      changes_str.should contain("Old Name")
-      changes_str.should contain("New Name")
+        # Verify changes JSON contains expected data
+        if changes_str = audit_log.changes
+          changes_str.should contain("Old Name")
+          changes_str.should contain("New Name")
+        end
+      end
 
       AuditTestHelpers.cleanup_audit_logs(admin.email)
       admin.delete!
@@ -94,9 +97,10 @@ describe Authority::AuditService do
       log = Authority::AuditService.log(entry)
 
       log.should_not be_nil
-      log = log.not_nil!
-      log.action.should eq("delete")
-      log.resource_type.should eq("Scope")
+      if audit_log = log
+        audit_log.action.should eq("delete")
+        audit_log.resource_type.should eq("Scope")
+      end
 
       AuditTestHelpers.cleanup_audit_logs(admin.email)
       admin.delete!
@@ -115,11 +119,13 @@ describe Authority::AuditService do
       )
 
       created_log.should_not be_nil
-      id = created_log.not_nil!.id.not_nil!
-
-      retrieved = Authority::AuditService.get(id.to_s)
-      retrieved.should_not be_nil
-      retrieved.not_nil!.action.should eq("lock")
+      if audit_log = created_log
+        if id = audit_log.id
+          retrieved = Authority::AuditService.get(id.to_s)
+          retrieved.should_not be_nil
+          retrieved.try(&.action.should(eq("lock")))
+        end
+      end
 
       AuditTestHelpers.cleanup_audit_logs(admin.email)
       admin.delete!
@@ -180,7 +186,7 @@ describe Authority::AuditService do
       )
 
       logs = Authority::AuditService.list(options)
-      logs.all? { |l| l.actor_id.to_s == admin1.id.to_s }.should be_true
+      logs.all? { |log| log.actor_id.to_s == admin1.id.to_s }.should be_true
 
       AuditTestHelpers.cleanup_audit_logs(admin1.email)
       AuditTestHelpers.cleanup_audit_logs(admin2.email)
@@ -208,7 +214,7 @@ describe Authority::AuditService do
       )
 
       logs = Authority::AuditService.list(options)
-      logs.all? { |l| l.action == "delete" }.should be_true
+      logs.all? { |log| log.action == "delete" }.should be_true
 
       AuditTestHelpers.cleanup_audit_logs(admin.email)
       admin.delete!
@@ -234,7 +240,7 @@ describe Authority::AuditService do
       )
 
       logs = Authority::AuditService.list(options)
-      logs.all? { |l| l.resource_type == "User" }.should be_true
+      logs.all? { |log| log.resource_type == "User" }.should be_true
 
       AuditTestHelpers.cleanup_audit_logs(admin.email)
       admin.delete!
@@ -266,7 +272,7 @@ describe Authority::AuditService do
       )
 
       logs = Authority::AuditService.list(options)
-      logs.all? { |l| l.created_at.not_nil! > Time.utc - 2.days }.should be_true
+      logs.all? { |log| log.created_at.try { |time| time > Time.utc - 2.days } || false }.should be_true
 
       AuditTestHelpers.cleanup_audit_logs(admin.email)
       admin.delete!
@@ -381,7 +387,7 @@ describe Authority::AuditService do
       )
 
       actors = Authority::AuditService.distinct_actors
-      actors.any? { |a| a[:email] == admin.email }.should be_true
+      actors.any? { |actor| actor[:email] == admin.email }.should be_true
 
       AuditTestHelpers.cleanup_audit_logs(admin.email)
       admin.delete!

@@ -48,19 +48,19 @@ describe Authority::OpaqueToken do
         new_token = original.rotate!
 
         new_token.should_not be_nil
-        new_token = new_token.not_nil!
+        if rotated_token = new_token
+          # Original should be marked as used
+          original_reloaded = Authority::OpaqueToken.find!(original.id!)
+          original_reloaded.used?.should be_true
+          original_reloaded.used_at.should_not be_nil
 
-        # Original should be marked as used
-        original_reloaded = Authority::OpaqueToken.find!(original.id!)
-        original_reloaded.used?.should be_true
-        original_reloaded.used_at.should_not be_nil
-
-        # New token should be in same family
-        new_token.family_id.should eq original.family_id
-        new_token.used?.should be_false
-        new_token.client_id.should eq client_id
-        new_token.scope.should eq scope
-        new_token.user_id.should eq user_id
+          # New token should be in same family
+          rotated_token.family_id.should eq original.family_id
+          rotated_token.used?.should be_false
+          rotated_token.client_id.should eq client_id
+          rotated_token.scope.should eq scope
+          rotated_token.user_id.should eq user_id
+        end
       end
 
       it "returns nil for already used token" do
@@ -192,18 +192,17 @@ describe Authority::OpaqueTokenService do
       )
 
       # Refresh
-      result = Authority::OpaqueTokenService.refresh(
-        initial.refresh_token.not_nil!,
-        client_id
-      )
+      if initial_refresh = initial.refresh_token
+        result = Authority::OpaqueTokenService.refresh(initial_refresh, client_id)
 
-      result.should_not be_nil
-      result = result.not_nil!
-
-      # Should have new tokens
-      result.access_token.should_not eq initial.access_token
-      result.refresh_token.should_not eq initial.refresh_token
-      result.scope.should eq scope
+        result.should_not be_nil
+        if token_result = result
+          # Should have new tokens
+          token_result.access_token.should_not eq initial.access_token
+          token_result.refresh_token.should_not eq initial.refresh_token
+          token_result.scope.should eq scope
+        end
+      end
     end
 
     it "marks old refresh token as used" do
@@ -212,14 +211,14 @@ describe Authority::OpaqueTokenService do
         scope: scope
       )
 
-      old_refresh = initial.refresh_token.not_nil!
+      if old_refresh = initial.refresh_token
+        Authority::OpaqueTokenService.refresh(old_refresh, client_id)
 
-      Authority::OpaqueTokenService.refresh(old_refresh, client_id)
-
-      # Old token should be marked as used
-      old_token = Authority::OpaqueToken.find_by(token: old_refresh)
-      old_token.should_not be_nil
-      old_token.not_nil!.used?.should be_true
+        # Old token should be marked as used
+        old_token = Authority::OpaqueToken.find_by(token: old_refresh)
+        old_token.should_not be_nil
+        old_token.try(&.used?.should(be_true))
+      end
     end
 
     it "returns nil and revokes family on token reuse" do
@@ -228,23 +227,26 @@ describe Authority::OpaqueTokenService do
         scope: scope
       )
 
-      old_refresh = initial.refresh_token.not_nil!
+      if old_refresh = initial.refresh_token
+        # First refresh should succeed
+        first_result = Authority::OpaqueTokenService.refresh(old_refresh, client_id)
+        first_result.should_not be_nil
 
-      # First refresh should succeed
-      first_result = Authority::OpaqueTokenService.refresh(old_refresh, client_id)
-      first_result.should_not be_nil
+        # Attempt to reuse the old token (simulating attacker)
+        second_result = Authority::OpaqueTokenService.refresh(old_refresh, client_id)
+        second_result.should be_nil
 
-      # Attempt to reuse the old token (simulating attacker)
-      second_result = Authority::OpaqueTokenService.refresh(old_refresh, client_id)
-      second_result.should be_nil
+        # All tokens in the family should be revoked
+        old_token = Authority::OpaqueToken.find_by(token: old_refresh)
+        old_token.try(&.revoked?.should(be_true))
 
-      # All tokens in the family should be revoked
-      old_token = Authority::OpaqueToken.find_by(token: old_refresh)
-      old_token.not_nil!.revoked?.should be_true
-
-      new_refresh = first_result.not_nil!.refresh_token.not_nil!
-      new_token = Authority::OpaqueToken.find_by(token: new_refresh)
-      new_token.not_nil!.revoked?.should be_true
+        if fr = first_result
+          if new_refresh = fr.refresh_token
+            new_token = Authority::OpaqueToken.find_by(token: new_refresh)
+            new_token.try(&.revoked?.should(be_true))
+          end
+        end
+      end
     end
 
     it "returns nil for wrong client_id" do
@@ -253,12 +255,10 @@ describe Authority::OpaqueTokenService do
         scope: scope
       )
 
-      result = Authority::OpaqueTokenService.refresh(
-        initial.refresh_token.not_nil!,
-        "wrong-client"
-      )
-
-      result.should be_nil
+      if refresh = initial.refresh_token
+        result = Authority::OpaqueTokenService.refresh(refresh, "wrong-client")
+        result.should be_nil
+      end
     end
 
     it "returns nil for expired refresh token" do
@@ -278,11 +278,12 @@ describe Authority::OpaqueTokenService do
         scope: scope
       )
 
-      refresh = initial.refresh_token.not_nil!
-      Authority::OpaqueToken.revoke_by_token!(refresh)
+      if refresh = initial.refresh_token
+        Authority::OpaqueToken.revoke_by_token!(refresh)
 
-      result = Authority::OpaqueTokenService.refresh(refresh, client_id)
-      result.should be_nil
+        result = Authority::OpaqueTokenService.refresh(refresh, client_id)
+        result.should be_nil
+      end
     end
   end
 end

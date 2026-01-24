@@ -21,7 +21,7 @@ module Authority::Dashboard::Clients
       return forbidden_response("Admin access required") unless user
 
       # Delete the client
-      result = AdminClientService.delete(
+      AdminClientService.delete(
         id: delete_request.id,
         actor: user
       )

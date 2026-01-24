@@ -14,7 +14,7 @@ module Authority
       getter social_connection : SocialConnection?
       getter error : String?
       getter error_code : String?
-      getter is_new_user : Bool
+      getter? is_new_user : Bool
 
       def initialize(
         @success : Bool,
@@ -32,7 +32,7 @@ module Authority
       getter provider : String
       getter provider_user_id : String
       getter email : String?
-      getter email_verified : Bool
+      getter? email_verified : Bool
       getter name : String?
       getter first_name : String?
       getter last_name : String?
@@ -74,39 +74,39 @@ module Authority
     # Provider configurations
     PROVIDER_CONFIGS = {
       SocialConnection::Providers::GOOGLE => {
-        authorize_url:  "https://accounts.google.com/o/oauth2/v2/auth",
-        token_url:      "https://oauth2.googleapis.com/token",
-        userinfo_url:   "https://www.googleapis.com/oauth2/v3/userinfo",
-        scopes:         "openid email profile",
-        response_type:  "code",
+        authorize_url: "https://accounts.google.com/o/oauth2/v2/auth",
+        token_url:     "https://oauth2.googleapis.com/token",
+        userinfo_url:  "https://www.googleapis.com/oauth2/v3/userinfo",
+        scopes:        "openid email profile",
+        response_type: "code",
       },
       SocialConnection::Providers::FACEBOOK => {
-        authorize_url:  "https://www.facebook.com/v18.0/dialog/oauth",
-        token_url:      "https://graph.facebook.com/v18.0/oauth/access_token",
-        userinfo_url:   "https://graph.facebook.com/v18.0/me?fields=id,name,email,first_name,last_name,picture.type(large)",
-        scopes:         "email,public_profile",
-        response_type:  "code",
+        authorize_url: "https://www.facebook.com/v18.0/dialog/oauth",
+        token_url:     "https://graph.facebook.com/v18.0/oauth/access_token",
+        userinfo_url:  "https://graph.facebook.com/v18.0/me?fields=id,name,email,first_name,last_name,picture.type(large)",
+        scopes:        "email,public_profile",
+        response_type: "code",
       },
       SocialConnection::Providers::APPLE => {
-        authorize_url:  "https://appleid.apple.com/auth/authorize",
-        token_url:      "https://appleid.apple.com/auth/token",
-        userinfo_url:   "",  # Apple returns user info in ID token
-        scopes:         "name email",
-        response_type:  "code",
+        authorize_url: "https://appleid.apple.com/auth/authorize",
+        token_url:     "https://appleid.apple.com/auth/token",
+        userinfo_url:  "", # Apple returns user info in ID token
+        scopes:        "name email",
+        response_type: "code",
       },
       SocialConnection::Providers::LINKEDIN => {
-        authorize_url:  "https://www.linkedin.com/oauth/v2/authorization",
-        token_url:      "https://www.linkedin.com/oauth/v2/accessToken",
-        userinfo_url:   "https://api.linkedin.com/v2/userinfo",
-        scopes:         "openid profile email",
-        response_type:  "code",
+        authorize_url: "https://www.linkedin.com/oauth/v2/authorization",
+        token_url:     "https://www.linkedin.com/oauth/v2/accessToken",
+        userinfo_url:  "https://api.linkedin.com/v2/userinfo",
+        scopes:        "openid profile email",
+        response_type: "code",
       },
       SocialConnection::Providers::GITHUB => {
-        authorize_url:  "https://github.com/login/oauth/authorize",
-        token_url:      "https://github.com/login/oauth/access_token",
-        userinfo_url:   "https://api.github.com/user",
-        scopes:         "user:email",
-        response_type:  "code",
+        authorize_url: "https://github.com/login/oauth/authorize",
+        token_url:     "https://github.com/login/oauth/access_token",
+        userinfo_url:  "https://api.github.com/user",
+        scopes:        "user:email",
+        response_type: "code",
       },
     }
 
@@ -177,7 +177,6 @@ module Authority
         "Accept"       => "application/json",
       }
 
-      uri = URI.parse(config[:token_url])
       response = HTTP::Client.post(
         config[:token_url],
         headers: headers,
@@ -287,9 +286,9 @@ module Authority
 
       # Create new user
       new_user_result = create_user_from_provider(provider_info)
-      return AuthResult.new(success: false, error: new_user_result[:error]) unless new_user_result[:user]
+      user = new_user_result[:user]
+      return AuthResult.new(success: false, error: new_user_result[:error]) unless user
 
-      user = new_user_result[:user].not_nil!
       user_id = user.id
       return AuthResult.new(success: false, error: "Failed to create user") unless user_id
       connection = create_social_connection(user_id, provider_info, tokens)
@@ -347,7 +346,7 @@ module Authority
             when SocialConnection::Providers::APPLE    then Setting::Keys::APPLE_OAUTH_ENABLED
             when SocialConnection::Providers::LINKEDIN then Setting::Keys::LINKEDIN_OAUTH_ENABLED
             when SocialConnection::Providers::GITHUB   then Setting::Keys::GITHUB_OAUTH_ENABLED
-            else return false
+            else                                            return false
             end
 
       SettingsService.get_bool(key, false)
@@ -355,7 +354,7 @@ module Authority
 
     # Get all enabled providers
     def self.enabled_providers : Array(String)
-      SocialConnection::Providers::ALL.select { |p| provider_enabled?(p) }
+      SocialConnection::Providers::ALL.select { |provider| provider_enabled?(provider) }
     end
 
     # Generate a secure state parameter
@@ -393,7 +392,7 @@ module Authority
             when SocialConnection::Providers::APPLE    then Setting::Keys::APPLE_CLIENT_ID
             when SocialConnection::Providers::LINKEDIN then Setting::Keys::LINKEDIN_CLIENT_ID
             when SocialConnection::Providers::GITHUB   then Setting::Keys::GITHUB_CLIENT_ID
-            else return nil
+            else                                            return nil
             end
       SettingsService.get(key)
     end
@@ -405,7 +404,7 @@ module Authority
             when SocialConnection::Providers::APPLE    then Setting::Keys::APPLE_PRIVATE_KEY
             when SocialConnection::Providers::LINKEDIN then Setting::Keys::LINKEDIN_CLIENT_SECRET
             when SocialConnection::Providers::GITHUB   then Setting::Keys::GITHUB_CLIENT_SECRET
-            else return nil
+            else                                            return nil
             end
       SettingsService.get(key)
     end
@@ -428,7 +427,7 @@ module Authority
       payload = Base64.urlsafe_encode({
         "iss" => team_id,
         "iat" => now,
-        "exp" => now + (86400 * 180),  # 6 months
+        "exp" => now + (86400 * 180), # 6 months
         "aud" => "https://appleid.apple.com",
         "sub" => client_id,
       }.to_json, padding: false)
@@ -479,7 +478,7 @@ module Authority
         provider: SocialConnection::Providers::FACEBOOK,
         provider_user_id: json["id"].as_s,
         email: json["email"]?.try(&.as_s),
-        email_verified: true,  # Facebook only returns verified emails
+        email_verified: true, # Facebook only returns verified emails
         name: json["name"]?.try(&.as_s),
         first_name: json["first_name"]?.try(&.as_s),
         last_name: json["last_name"]?.try(&.as_s),
@@ -506,10 +505,10 @@ module Authority
         provider_user_id: json["sub"].as_s,
         email: json["email"]?.try(&.as_s),
         email_verified: json["email_verified"]?.try(&.as_bool) || json["email_verified"]?.try(&.as_s) == "true",
-        name: nil,  # Apple may not provide name after first login
+        name: nil, # Apple may not provide name after first login
         first_name: nil,
         last_name: nil,
-        avatar_url: nil,  # Apple doesn't provide avatar
+        avatar_url: nil, # Apple doesn't provide avatar
         raw_info: payload
       )
     rescue
@@ -562,14 +561,14 @@ module Authority
         emails_response = HTTP::Client.get("https://api.github.com/user/emails", headers: headers)
         if emails_response.status.success?
           emails = JSON.parse(emails_response.body).as_a
-          primary_email = emails.find { |e| e["primary"]?.try(&.as_bool) == true }
+          primary_email = emails.find { |email_entry| email_entry["primary"]?.try(&.as_bool) == true }
           if primary_email
             email = primary_email["email"]?.try(&.as_s)
             email_verified = primary_email["verified"]?.try(&.as_bool) || false
           end
         end
       else
-        email_verified = true  # If GitHub returns email in profile, it's verified
+        email_verified = true # If GitHub returns email in profile, it's verified
       end
 
       # Parse name into first/last
@@ -624,10 +623,10 @@ module Authority
       user = User.new
       user.username = username
       user.email = info.email || "#{username}@social.auth"
-      user.email_verified = info.email_verified
+      user.email_verified = info.email_verified?
       user.first_name = info.first_name || extract_first_name(info.name) || "User"
       user.last_name = info.last_name || extract_last_name(info.name) || ""
-      user.encrypted_password = ""  # No password for social-only accounts
+      user.encrypted_password = "" # No password for social-only accounts
       user.scope = "openid profile email"
       user.role = "user"
       user.created_at = Time.utc

@@ -12,7 +12,7 @@ module Authority
       getter total_users : Int64
       getter total_clients : Int64
       getter total_scopes : Int64
-      getter active_users : Int64       # Users logged in within 7 days
+      getter active_users : Int64 # Users logged in within 7 days
       getter locked_users : Int64
       getter failed_logins_24h : Int64
       getter new_users_7d : Int64
@@ -36,7 +36,7 @@ module Authority
     struct LoginActivity
       include Crinja::Object::Auto
 
-      getter date : String  # YYYY-MM-DD
+      getter date : String # YYYY-MM-DD
       getter successful : Int32
       getter failed : Int32
 
@@ -68,29 +68,29 @@ module Authority
     end
 
     # Get dashboard statistics
-    def get_dashboard_stats : DashboardStats
+    def dashboard_stats : DashboardStats
       total_users = User.query.count.to_i64
       total_clients = Client.query.count.to_i64
       total_scopes = Scope.query.count.to_i64
 
       # Count active users (logged in within 7 days)
       seven_days_ago = 7.days.ago
-      active_users = User.query.all.count { |u| u.last_login_at && u.last_login_at.not_nil! > seven_days_ago }.to_i64
+      active_users = User.query.all.count { |user| user.last_login_at.try { |time| time > seven_days_ago } || false }.to_i64
 
       # Count locked users
-      locked_users = User.query.all.count { |u| u.locked? }.to_i64
+      locked_users = User.query.all.count(&.locked?).to_i64
 
       # Count failed logins in last 24 hours (from audit logs)
       twenty_four_hours_ago = 24.hours.ago
       failed_logins_24h = AuditLog.query.all.count do |log|
-        log.action == "login_failed" && log.created_at && log.created_at.not_nil! > twenty_four_hours_ago
+        log.action == "login_failed" && (log.created_at.try { |time| time > twenty_four_hours_ago } || false)
       end.to_i64
 
       # New users in last 7 days
-      new_users_7d = User.query.all.count { |u| u.created_at && u.created_at.not_nil! > seven_days_ago }.to_i64
+      new_users_7d = User.query.all.count { |user| user.created_at.try { |time| time > seven_days_ago } || false }.to_i64
 
       # New clients in last 7 days
-      new_clients_7d = Client.query.all.count { |c| c.created_at && c.created_at.not_nil! > seven_days_ago }.to_i64
+      new_clients_7d = Client.query.all.count { |client| client.created_at.try { |time| time > seven_days_ago } || false }.to_i64
 
       DashboardStats.new(
         total_users: total_users,
@@ -105,7 +105,7 @@ module Authority
     end
 
     # Get login activity for the last N days (for charts)
-    def get_login_activity(days : Int32 = 7) : Array(LoginActivity)
+    def login_activity(days : Int32 = 7) : Array(LoginActivity)
       activity = [] of LoginActivity
       today = Time.utc.at_beginning_of_day
 
@@ -127,7 +127,7 @@ module Authority
     end
 
     # Get recent activity from audit logs
-    def get_recent_activity(limit : Int32 = 10) : Array(RecentActivity)
+    def recent_activity(limit : Int32 = 10) : Array(RecentActivity)
       logs = AuditService.list(AuditService::ListOptions.new(page: 1, per_page: limit))
 
       logs.map do |log|
@@ -143,7 +143,7 @@ module Authority
     end
 
     # Get user role distribution
-    def get_user_roles : Hash(String, Int64)
+    def user_roles : Hash(String, Int64)
       roles = Hash(String, Int64).new(0_i64)
 
       User.query.all.each do |user|
@@ -154,15 +154,15 @@ module Authority
     end
 
     # Get client confidentiality distribution
-    def get_client_types : NamedTuple(confidential: Int64, public_clients: Int64)
-      confidential = Client.query.all.count { |c| c.is_confidential }.to_i64
-      public_clients = Client.query.all.count { |c| !c.is_confidential }.to_i64
+    def client_types : NamedTuple(confidential: Int64, public_clients: Int64)
+      confidential = Client.query.all.count(&.is_confidential).to_i64
+      public_clients = Client.query.all.count { |client| !client.is_confidential }.to_i64
 
       {confidential: confidential, public_clients: public_clients}
     end
 
     # Get scope usage stats
-    def get_scope_usage : Array(NamedTuple(name: String, count: Int64))
+    def scope_usage : Array(NamedTuple(name: String, count: Int64))
       scope_counts = Hash(String, Int64).new(0_i64)
 
       # Count scope usage across all clients
@@ -174,7 +174,7 @@ module Authority
 
       # Sort by count descending
       scope_counts.map { |name, count| {name: name, count: count} }
-        .sort_by { |s| -s[:count] }
+        .sort_by! { |scope| -scope[:count] }
         .first(10)
     end
 
@@ -183,8 +183,6 @@ module Authority
       next_day = date + 1.day
 
       # Count from audit logs if available
-      action = successful ? AuditLog::Actions::UPDATE : "login_failed"
-
       AuditLog.query.all.count do |log|
         matches_action = if successful
                            log.action == AuditLog::Actions::UPDATE &&
@@ -194,9 +192,7 @@ module Authority
                            log.action == "login_failed"
                          end
 
-        matches_date = log.created_at &&
-                       log.created_at.not_nil! >= date &&
-                       log.created_at.not_nil! < next_day
+        matches_date = log.created_at.try { |time| time >= date && time < next_day } || false
 
         matches_action && matches_date
       end.to_i32

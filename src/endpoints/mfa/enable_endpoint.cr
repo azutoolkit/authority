@@ -20,7 +20,7 @@ module Authority::MFA
 
       # Validate request
       unless enable_request.valid?
-        errors = enable_request.errors.map { |e| e.message }
+        errors = enable_request.errors.map(&.message)
         return redirect to: "/mfa/setup?error=#{errors.first}", status: 302
       end
 
@@ -41,7 +41,7 @@ module Authority::MFA
 
       unless result.success?
         # Re-display setup page with error
-        setup_result = TOTPService.setup(user)
+        TOTPService.setup(user)
         return SetupResponse.new(
           username: user.username,
           secret: enable_request.secret,

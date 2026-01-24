@@ -36,10 +36,10 @@ describe Authority::JWKSService do
           jwk.e.should_not be_nil
 
           # Verify n and e are base64url encoded
-          jwk.n.not_nil!.should_not contain "+"
-          jwk.n.not_nil!.should_not contain "/"
-          jwk.e.not_nil!.should_not contain "+"
-          jwk.e.not_nil!.should_not contain "/"
+          jwk.n.try(&.should_not(contain("+")))
+          jwk.n.try(&.should_not(contain("/")))
+          jwk.e.try(&.should_not(contain("+")))
+          jwk.e.try(&.should_not(contain("/")))
         ensure
           Authly.config.algorithm = original_algorithm
           Authly.config.public_key = original_public_key
@@ -95,8 +95,8 @@ describe Authority::JWKSService do
 
           # Verify x and y are base64url encoded (32 bytes for P-256)
           # Base64URL of 32 bytes = 43 characters (without padding)
-          jwk.x.not_nil!.size.should eq 43
-          jwk.y.not_nil!.size.should eq 43
+          jwk.x.try(&.size.should(eq(43)))
+          jwk.y.try(&.size.should(eq(43)))
         ensure
           Authly.config.algorithm = original_algorithm
           Authly.config.public_key = original_public_key

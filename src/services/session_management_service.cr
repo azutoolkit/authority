@@ -80,7 +80,7 @@ module Authority
         .where(user_id: user_id)
         .order(last_activity_at: :desc)
         .all
-        .select { |s| !s.revoked? && s.expires_at > now }
+        .select { |session| !session.revoked? && session.expires_at > now }
     rescue
       [] of PersistentSession
     end
@@ -169,11 +169,15 @@ module Authority
 
     # Clean up expired sessions (for periodic maintenance)
     def self.cleanup_expired : Int32
-      cutoff = Time.utc - 30.days  # Keep expired sessions for 30 days for auditing
+      cutoff = Time.utc - 30.days # Keep expired sessions for 30 days for auditing
       deleted = 0
 
       PersistentSession.query.all.each do |session|
-        if session.expires_at < cutoff || (session.revoked_at && session.revoked_at.not_nil! < cutoff)
+        should_delete = session.expires_at < cutoff
+        if revoked_at = session.revoked_at
+          should_delete ||= revoked_at < cutoff
+        end
+        if should_delete
           session.delete!
           deleted += 1
         end

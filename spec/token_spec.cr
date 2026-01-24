@@ -45,8 +45,8 @@ describe "TokenSpec" do
 
       token = OAuth2::AccessToken::Bearer.from_json(response.body)
 
-      id_token = token.extra.not_nil!["id_token"]
-      id_token.should_not be_nil
+      token.extra.should_not be_nil
+      token.extra.try(&.["id_token"].should_not(be_nil))
     end
   end
 

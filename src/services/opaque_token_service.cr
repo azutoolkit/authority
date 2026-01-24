@@ -128,7 +128,7 @@ module Authority
   struct OpaqueTokenInfo
     include JSON::Serializable
 
-    getter active : Bool
+    getter? active : Bool
     getter client_id : String
     getter scope : String
     getter exp : Int64

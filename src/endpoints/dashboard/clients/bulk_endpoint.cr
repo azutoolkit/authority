@@ -38,17 +38,15 @@ module Authority::Dashboard::Clients
         else
           redirect to: "/dashboard/clients?error=Deleted+#{result.succeeded}+clients,+failed+#{result.failed}", status: 302
         end
-
       when "export"
         export_result = ExportService.export_clients_by_ids(ids)
-        if export_result.success?
+        if export_result.success? && (content = export_result.content)
           header "Content-Type", "text/csv; charset=UTF-8"
           header "Content-Disposition", "attachment; filename=\"#{export_result.filename}\""
-          CsvResponse.new(export_result.content.not_nil!)
+          CsvResponse.new(content)
         else
           redirect_with_error("Export failed: #{export_result.error}")
         end
-
       else
         redirect_with_error("Unknown action: #{action}")
       end

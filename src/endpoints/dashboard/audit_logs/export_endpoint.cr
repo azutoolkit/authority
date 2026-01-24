@@ -14,7 +14,6 @@ module Authority::Dashboard::AuditLogs
       header "Cache-Control", "no-store"
       header "Pragma", "no-cache"
 
-      # Check admin authorization
       if auth_error = require_admin!
         return auth_error
       end
@@ -22,53 +21,49 @@ module Authority::Dashboard::AuditLogs
       admin_user = current_admin_user
       return forbidden_response("Admin access required") unless admin_user
 
-      # Parse date filters
-      start_date : Time? = nil
-      end_date : Time? = nil
+      result = export_audit_logs
+      build_export_response(result)
+    end
 
-      if sd = index_request.start_date
-        if !sd.empty?
-          begin
-            start_date = Time.parse(sd, "%Y-%m-%d", Time::Location::UTC)
-          rescue
-            # Invalid date format, ignore
-          end
-        end
-      end
-
-      if ed = index_request.end_date
-        if !ed.empty?
-          begin
-            parsed = Time.parse(ed, "%Y-%m-%d", Time::Location::UTC)
-            end_date = parsed + 1.day - 1.second
-          rescue
-            # Invalid date format, ignore
-          end
-        end
-      end
-
-      # Export audit logs
-      action_filter = index_request.action
-      action_filter = nil if action_filter.try(&.empty?)
-
-      resource_type_filter = index_request.resource_type
-      resource_type_filter = nil if resource_type_filter.try(&.empty?)
-
-      actor_id_filter = index_request.actor_id
-      actor_id_filter = nil if actor_id_filter.try(&.empty?)
-
-      result = ExportService.export_audit_logs(
-        start_date: start_date,
-        end_date: end_date,
-        action: action_filter,
-        resource_type: resource_type_filter,
-        actor_id: actor_id_filter
+    private def export_audit_logs
+      ExportService.export_audit_logs(
+        start_date: parse_start_date,
+        end_date: parse_end_date,
+        action: filter_empty(index_request.action),
+        resource_type: filter_empty(index_request.resource_type),
+        actor_id: filter_empty(index_request.actor_id)
       )
+    end
 
-      if result.success?
+    private def parse_start_date : Time?
+      parse_date(index_request.start_date)
+    end
+
+    private def parse_end_date : Time?
+      date_str = index_request.end_date
+      return nil if date_str.nil? || date_str.empty?
+
+      parsed = parse_date(date_str)
+      parsed.try { |date| date + 1.day - 1.second }
+    end
+
+    private def parse_date(date_str : String?) : Time?
+      return nil if date_str.nil? || date_str.empty?
+      Time.parse(date_str, "%Y-%m-%d", Time::Location::UTC)
+    rescue
+      nil
+    end
+
+    private def filter_empty(value : String?) : String?
+      return nil if value.nil? || value.empty?
+      value
+    end
+
+    private def build_export_response(result) : Response
+      if result.success? && (content = result.content)
         header "Content-Type", "text/csv; charset=UTF-8"
         header "Content-Disposition", "attachment; filename=\"#{result.filename}\""
-        CsvResponse.new(result.content.not_nil!)
+        CsvResponse.new(content)
       else
         redirect to: "/dashboard/audit-logs?error=Export+failed", status: 302
       end

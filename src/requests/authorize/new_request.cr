@@ -10,8 +10,8 @@ module Authority::Authorize
     getter state : String
     getter code_challenge : String = ""
     getter code_challenge_method : String = ""
-    getter nonce : String = ""  # OpenID Connect nonce for replay prevention
-    getter consent_action : String = "approve"  # approve or deny
+    getter nonce : String = ""                 # OpenID Connect nonce for replay prevention
+    getter consent_action : String = "approve" # approve or deny
 
     validate response_type, message: "Param response_type must be present.", presence: true
     validate client_id, message: "Param client_id must be present.", presence: true

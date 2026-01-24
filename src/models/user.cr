@@ -9,7 +9,7 @@ module Authority
     property email : String = ""
     property first_name : String = ""
     property last_name : String = ""
-    property email_verified : Bool = false
+    property? email_verified : Bool = false
     property scope : String = ""
     property encrypted_password : String = ""
     property role : String = "user"
@@ -19,10 +19,10 @@ module Authority
     property last_login_at : Time?
     property last_login_ip : String?
     property password_changed_at : Time?
-    property password_history : String?  # JSON array of previous bcrypt hashes
-    property mfa_enabled : Bool = false
+    property password_history : String? # JSON array of previous bcrypt hashes
+    property? mfa_enabled : Bool = false
     property totp_secret : String?
-    property backup_codes : String?      # JSON array of backup codes
+    property backup_codes : String? # JSON array of backup codes
     property created_at : Time?
     property updated_at : Time?
 
@@ -44,6 +44,15 @@ module Authority
       locked?
     end
 
+    # Alias methods for Crinja template access (without ? suffix)
+    def email_verified : Bool
+      email_verified?
+    end
+
+    def mfa_enabled : Bool
+      mfa_enabled?
+    end
+
     # Returns scopes as an array for template iteration
     def scopes_list : Array(String)
       scope.split(' ').reject(&.empty?)
@@ -63,7 +72,7 @@ module Authority
         "first_name"     => first_name,
         "last_name"      => last_name,
         "email"          => email,
-        "email_verified" => email_verified.to_s,
+        "email_verified" => email_verified?.to_s,
         "scope"          => scope,
         "created_at"     => created_at.to_s,
         "updated_at"     => updated_at.to_s,
@@ -79,7 +88,7 @@ module Authority
         "last_name"      => last_name,
         "email"          => email,
         "scope"          => scope,
-        "email_verified" => email_verified.to_s,
+        "email_verified" => email_verified?.to_s,
         "created_at"     => created_at.to_s,
         "updated_at"     => updated_at.to_s,
         "iat"            => Time.utc.to_unix,

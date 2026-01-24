@@ -10,18 +10,18 @@ module Authority
     def render
       {
         # Required fields
-        issuer:                                @issuer,
-        authorization_endpoint:                "#{@issuer}/authorize",
-        token_endpoint:                        "#{@issuer}/token",
-        userinfo_endpoint:                     "#{@issuer}/oauth2/userinfo",
-        jwks_uri:                              "#{@issuer}/.well-known/jwks.json",
+        issuer:                 @issuer,
+        authorization_endpoint: "#{@issuer}/authorize",
+        token_endpoint:         "#{@issuer}/token",
+        userinfo_endpoint:      "#{@issuer}/oauth2/userinfo",
+        jwks_uri:               "#{@issuer}/.well-known/jwks.json",
 
         # Recommended fields
-        registration_endpoint:                 nil,
-        scopes_supported:                      ["openid", "profile", "email", "read", "write"],
-        response_types_supported:              ["code", "token"],
-        response_modes_supported:              ["query", "fragment"],
-        grant_types_supported:                 [
+        registration_endpoint:    nil,
+        scopes_supported:         ["openid", "profile", "email", "read", "write"],
+        response_types_supported: ["code", "token"],
+        response_modes_supported: ["query", "fragment"],
+        grant_types_supported:    [
           "authorization_code",
           "client_credentials",
           "password",
@@ -39,7 +39,7 @@ module Authority
         introspection_endpoint: "#{@issuer}/oauth/introspect",
 
         # Token revocation (RFC 7009)
-        revocation_endpoint:                       "#{@issuer}/oauth/revoke",
+        revocation_endpoint:                        "#{@issuer}/oauth/revoke",
         revocation_endpoint_auth_methods_supported: ["client_secret_basic"],
 
         # Device authorization (RFC 8628)

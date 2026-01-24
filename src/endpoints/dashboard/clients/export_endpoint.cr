@@ -34,10 +34,10 @@ module Authority::Dashboard::Clients
       # Export clients
       result = ExportService.export_clients(options)
 
-      if result.success?
+      if result.success? && (content = result.content)
         header "Content-Type", "text/csv; charset=UTF-8"
         header "Content-Disposition", "attachment; filename=\"#{result.filename}\""
-        CsvResponse.new(result.content.not_nil!)
+        CsvResponse.new(content)
       else
         redirect to: "/dashboard/clients?error=Export+failed", status: 302
       end

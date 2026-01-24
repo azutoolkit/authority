@@ -1,5 +1,5 @@
 module Authority
-  @[Crinja::Attributes(expose: [id_str, name, display_name, description, is_default, is_system, created_at, updated_at, protected?])]
+  @[Crinja::Attributes(expose: [id_str, name, display_name, description, default_scope, system_scope, created_at, updated_at, protected?])]
   class Scope
     include CQL::ActiveRecord::Model(UUID)
     include Crinja::Object::Auto
@@ -27,11 +27,11 @@ module Authority
     end
 
     # Alias methods for Crinja template access (without ? suffix)
-    def is_default : Bool
+    def default_scope : Bool
       is_default?
     end
 
-    def is_system : Bool
+    def system_scope : Bool
       is_system?
     end
   end

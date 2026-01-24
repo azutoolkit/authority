@@ -7,8 +7,8 @@ module Authority
     db_context AuthorityDB, :oauth_recovery_tokens
 
     # Token types
-    PASSWORD_RESET      = "password_reset"
-    EMAIL_VERIFICATION  = "email_verification"
+    PASSWORD_RESET     = "password_reset"
+    EMAIL_VERIFICATION = "email_verification"
 
     # TTL for different token types
     PASSWORD_RESET_TTL     = 1.hour

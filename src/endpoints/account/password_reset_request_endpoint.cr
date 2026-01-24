@@ -14,9 +14,8 @@ module Authority::Account
       # Note: We always return success to prevent email enumeration
       # The service handles the case where user doesn't exist
       if password_reset_request.valid?
-        token = AccountRecoveryService.request_password_reset(password_reset_request.email)
+        AccountRecoveryService.request_password_reset(password_reset_request.email)
         # In production, send email with token here
-        # EmailService.send_password_reset(user.email, token.token) if token
       end
 
       PasswordResetInitiatedResponse.new

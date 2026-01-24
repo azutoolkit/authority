@@ -19,7 +19,7 @@ module Authority::Clients
       return forbidden_response("Admin access required") unless user
 
       return owner_error(user.username) unless new_request.valid?
-      client = ClientRepo.create!(new_request).not_nil!
+      client = ClientRepo.create!(new_request)
       redirect to: "/clients/#{client.id}"
     rescue e
       user = current_admin_user

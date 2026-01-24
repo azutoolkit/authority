@@ -173,7 +173,7 @@ describe "User Consent" do
       auth_url = OAUTH_CLIENT.get_authorize_uri(scope: "read", state: state)
 
       # Flow should show consent screen (approve button visible)
-      code, expected_state = AuthorizationCodeFlux.flow(
+      code, _ = AuthorizationCodeFlux.flow(
         auth_url, user.username, password)
 
       # Consent should be recorded after approval

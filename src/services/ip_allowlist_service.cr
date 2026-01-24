@@ -40,7 +40,7 @@ module Authority
     # - ADMIN_ALLOWED_IPS is not set or empty (allow all)
     # - IP matches one of the allowed IPs or CIDR ranges
     def self.allowed?(ip : String) : Bool
-      entries = get_entries
+      entries = entries()
       return true if entries.empty? # No restriction if not configured
 
       # Normalize IP (handle IPv6-mapped IPv4 like ::ffff:192.168.1.1)
@@ -78,7 +78,7 @@ module Authority
     end
 
     # Parse and cache entries from environment
-    private def self.get_entries : Array(String | CIDRRange)
+    private def self.entries : Array(String | CIDRRange)
       @@entries ||= parse_config(ENV[ENV_VAR]?)
     end
 
@@ -123,7 +123,7 @@ module Authority
       # Validate IPv4 format
       parts = ip.split(".")
       return nil unless parts.size == 4
-      return nil unless parts.all? { |p| p.to_i?.try { |n| n >= 0 && n <= 255 } }
+      return nil unless parts.all? { |part| part.to_i?.try { |num| num >= 0 && num <= 255 } }
 
       ip
     end

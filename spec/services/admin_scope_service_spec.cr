@@ -9,7 +9,7 @@ describe Authority::AdminScopeService do
 
     it "includes system scopes" do
       result = Authority::AdminScopeService.list
-      system_scopes = result.select { |s| s.is_system? }
+      system_scopes = result.select(&.is_system?)
       system_scopes.size.should be >= 4 # openid, profile, email, offline_access
     end
 
@@ -34,7 +34,7 @@ describe Authority::AdminScopeService do
 
       fetched = Authority::AdminScopeService.get(scope.id.to_s)
       fetched.should_not be_nil
-      fetched.not_nil!.name.should eq scope.name
+      fetched.try(&.name).should eq scope.name
     end
 
     it "returns nil for non-existent ID" do
@@ -47,7 +47,7 @@ describe Authority::AdminScopeService do
     it "returns a scope by name" do
       scope = Authority::AdminScopeService.get_by_name("openid")
       scope.should_not be_nil
-      scope.not_nil!.name.should eq "openid"
+      scope.try(&.name).should eq "openid"
     end
 
     it "returns nil for non-existent name" do
@@ -59,12 +59,12 @@ describe Authority::AdminScopeService do
   describe ".default_scopes" do
     it "returns only default scopes" do
       result = Authority::AdminScopeService.default_scopes
-      result.all? { |s| s.is_default? }.should be_true
+      result.all?(&.is_default?).should be_true
     end
 
     it "includes openid as default" do
       result = Authority::AdminScopeService.default_scopes
-      result.any? { |s| s.name == "openid" }.should be_true
+      result.any? { |scope| scope.name == "openid" }.should be_true
     end
   end
 
@@ -79,7 +79,7 @@ describe Authority::AdminScopeService do
 
       result.success?.should be_true
       result.scope.should_not be_nil
-      result.scope.not_nil!.name.should eq name
+      result.scope.try(&.name).should eq name
     end
 
     it "can create scope with is_default true" do
@@ -91,7 +91,7 @@ describe Authority::AdminScopeService do
       )
 
       result.success?.should be_true
-      result.scope.not_nil!.is_default?.should be_true
+      result.scope.try(&.is_default?).should be_true
     end
 
     it "creates scope with is_system false" do
@@ -102,7 +102,7 @@ describe Authority::AdminScopeService do
       )
 
       result.success?.should be_true
-      result.scope.not_nil!.is_system?.should be_false
+      result.scope.try(&.is_system?).should be_false
     end
 
     it "fails with empty name" do
@@ -143,7 +143,7 @@ describe Authority::AdminScopeService do
       )
 
       result.success?.should be_true
-      result.scope.not_nil!.name.should eq name
+      result.scope.try(&.name).should eq name
     end
 
     it "fails with duplicate name" do
@@ -170,15 +170,17 @@ describe Authority::AdminScopeService do
         name: name,
         display_name: "Original"
       )
-      scope = create_result.scope.not_nil!
+      create_result.scope.should_not be_nil
 
-      result = Authority::AdminScopeService.update(
-        id: scope.id.to_s,
-        display_name: "Updated"
-      )
+      if scope = create_result.scope
+        result = Authority::AdminScopeService.update(
+          id: scope.id.to_s,
+          display_name: "Updated"
+        )
 
-      result.success?.should be_true
-      result.scope.not_nil!.display_name.should eq "Updated"
+        result.success?.should be_true
+        result.scope.try(&.display_name).should eq "Updated"
+      end
     end
 
     it "can update is_default" do
@@ -188,15 +190,17 @@ describe Authority::AdminScopeService do
         display_name: "Update Default",
         is_default: false
       )
-      scope = create_result.scope.not_nil!
+      create_result.scope.should_not be_nil
 
-      result = Authority::AdminScopeService.update(
-        id: scope.id.to_s,
-        is_default: true
-      )
+      if scope = create_result.scope
+        result = Authority::AdminScopeService.update(
+          id: scope.id.to_s,
+          is_default: true
+        )
 
-      result.success?.should be_true
-      result.scope.not_nil!.is_default?.should be_true
+        result.success?.should be_true
+        result.scope.try(&.is_default?).should be_true
+      end
     end
 
     it "fails for non-existent scope" do
@@ -214,13 +218,15 @@ describe Authority::AdminScopeService do
       openid = Authority::AdminScopeService.get_by_name("openid")
       openid.should_not be_nil
 
-      result = Authority::AdminScopeService.update(
-        id: openid.not_nil!.id.to_s,
-        display_name: "Modified OpenID"
-      )
+      if scope = openid
+        result = Authority::AdminScopeService.update(
+          id: scope.id.to_s,
+          display_name: "Modified OpenID"
+        )
 
-      result.success?.should be_false
-      result.error_code.should eq "system_scope_protected"
+        result.success?.should be_false
+        result.error_code.should eq "system_scope_protected"
+      end
     end
 
     it "prevents duplicate name on update" do
@@ -236,15 +242,17 @@ describe Authority::AdminScopeService do
         name: name2,
         display_name: "Scope Two"
       )
-      scope2 = create_result.scope.not_nil!
+      create_result.scope.should_not be_nil
 
-      result = Authority::AdminScopeService.update(
-        id: scope2.id.to_s,
-        name: name1
-      )
+      if scope2 = create_result.scope
+        result = Authority::AdminScopeService.update(
+          id: scope2.id.to_s,
+          name: name1
+        )
 
-      result.success?.should be_false
-      result.error_code.should eq "duplicate_name"
+        result.success?.should be_false
+        result.error_code.should eq "duplicate_name"
+      end
     end
   end
 
@@ -259,7 +267,7 @@ describe Authority::AdminScopeService do
         last_name: "Deleter",
         role: "admin"
       )
-      actor = actor_result.user.not_nil!
+      actor_result.user.should_not be_nil
 
       # Create a scope
       name = "delete_#{UUID.random.to_s[0..7]}"
@@ -267,15 +275,19 @@ describe Authority::AdminScopeService do
         name: name,
         display_name: "To Delete"
       )
-      scope = create_result.scope.not_nil!
+      create_result.scope.should_not be_nil
 
-      result = Authority::AdminScopeService.delete(
-        id: scope.id.to_s,
-        actor: actor
-      )
+      if actor = actor_result.user
+        if scope = create_result.scope
+          result = Authority::AdminScopeService.delete(
+            id: scope.id.to_s,
+            actor: actor
+          )
 
-      result.success?.should be_true
-      Authority::AdminScopeService.get(scope.id.to_s).should be_nil
+          result.success?.should be_true
+          Authority::AdminScopeService.get(scope.id.to_s).should be_nil
+        end
+      end
     end
 
     it "prevents deleting system scopes" do
@@ -288,19 +300,23 @@ describe Authority::AdminScopeService do
         last_name: "Deleter",
         role: "admin"
       )
-      actor = actor_result.user.not_nil!
+      actor_result.user.should_not be_nil
 
       # Try to delete a system scope
       openid = Authority::AdminScopeService.get_by_name("openid")
       openid.should_not be_nil
 
-      result = Authority::AdminScopeService.delete(
-        id: openid.not_nil!.id.to_s,
-        actor: actor
-      )
+      if actor = actor_result.user
+        if scope = openid
+          result = Authority::AdminScopeService.delete(
+            id: scope.id.to_s,
+            actor: actor
+          )
 
-      result.success?.should be_false
-      result.error_code.should eq "system_scope_protected"
+          result.success?.should be_false
+          result.error_code.should eq "system_scope_protected"
+        end
+      end
     end
 
     it "fails for non-existent scope" do
@@ -312,15 +328,17 @@ describe Authority::AdminScopeService do
         last_name: "Deleter",
         role: "admin"
       )
-      actor = actor_result.user.not_nil!
+      actor_result.user.should_not be_nil
 
-      result = Authority::AdminScopeService.delete(
-        id: UUID.random.to_s,
-        actor: actor
-      )
+      if actor = actor_result.user
+        result = Authority::AdminScopeService.delete(
+          id: UUID.random.to_s,
+          actor: actor
+        )
 
-      result.success?.should be_false
-      result.error_code.should eq "not_found"
+        result.success?.should be_false
+        result.error_code.should eq "not_found"
+      end
     end
   end
 end

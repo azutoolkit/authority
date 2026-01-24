@@ -25,9 +25,9 @@ module Authority::Dashboard
       clients_count = Client.query.count.to_i32
 
       # Get analytics data
-      stats = AnalyticsService.get_dashboard_stats
-      login_activity = AnalyticsService.get_login_activity(7)
-      recent_activity = AnalyticsService.get_recent_activity(5)
+      stats = AnalyticsService.dashboard_stats
+      login_activity = AnalyticsService.login_activity(7)
+      recent_activity = AnalyticsService.recent_activity(5)
 
       DashboardResponse.new(
         username: user.username,

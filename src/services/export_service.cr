@@ -47,8 +47,8 @@ module Authority
           io << csv_escape(user.last_name) << ","
           io << csv_escape(user.role) << ","
           io << csv_escape(user.locked? ? "Locked" : "Active") << ","
-          io << csv_escape(user.email_verified.to_s) << ","
-          io << csv_escape(user.mfa_enabled.to_s) << ","
+          io << csv_escape(user.email_verified?.to_s) << ","
+          io << csv_escape(user.mfa_enabled?.to_s) << ","
           io << csv_escape(user.last_login_at.try(&.to_s("%Y-%m-%d %H:%M:%S")) || "") << ","
           io << csv_escape(user.created_at.try(&.to_s("%Y-%m-%d %H:%M:%S")) || "") << "\n"
         end
@@ -81,8 +81,8 @@ module Authority
           io << csv_escape(user.last_name) << ","
           io << csv_escape(user.role) << ","
           io << csv_escape(user.locked? ? "Locked" : "Active") << ","
-          io << csv_escape(user.email_verified.to_s) << ","
-          io << csv_escape(user.mfa_enabled.to_s) << ","
+          io << csv_escape(user.email_verified?.to_s) << ","
+          io << csv_escape(user.mfa_enabled?.to_s) << ","
           io << csv_escape(user.last_login_at.try(&.to_s("%Y-%m-%d %H:%M:%S")) || "") << ","
           io << csv_escape(user.created_at.try(&.to_s("%Y-%m-%d %H:%M:%S")) || "") << "\n"
         end
@@ -179,51 +179,18 @@ module Authority
       actor_id : String? = nil,
       limit : Int32 = 10000
     ) : ExportResult
-      query = AuditLog.query.order(created_at: :desc)
-
-      # Apply filters at DB level where possible
-      if action && !action.empty?
-        query = query.where(action: action)
-      end
-
-      if resource_type && !resource_type.empty?
-        query = query.where(resource_type: resource_type)
-      end
-
-      # Fetch logs
-      logs = query.limit(limit).all
-
-      # Apply date filters in memory
-      if sd = start_date
-        logs = logs.select { |log| (cat = log.created_at) && cat >= sd }
-      end
-
-      if ed = end_date
-        logs = logs.select { |log| (cat = log.created_at) && cat <= ed }
-      end
-
-      # Apply actor filter in memory
-      if actor_id && !actor_id.empty?
-        logs = logs.select { |log| log.actor_id.try(&.to_s) == actor_id }
-      end
+      logs = fetch_filtered_audit_logs(
+        start_date: start_date,
+        end_date: end_date,
+        action: action,
+        resource_type: resource_type,
+        actor_id: actor_id,
+        limit: limit
+      )
 
       csv = String.build do |io|
-        # Header row
-        io << "ID,Timestamp,Actor Email,Action,Resource Type,Resource ID,Resource Name,IP Address,User Agent,Changes\n"
-
-        # Data rows
-        logs.each do |log|
-          io << csv_escape(log.id.to_s) << ","
-          io << csv_escape(log.created_at.try(&.to_s("%Y-%m-%d %H:%M:%S")) || "") << ","
-          io << csv_escape(log.actor_email.empty? ? "System" : log.actor_email) << ","
-          io << csv_escape(log.action) << ","
-          io << csv_escape(log.resource_type) << ","
-          io << csv_escape(log.resource_id.try(&.to_s) || "") << ","
-          io << csv_escape(log.resource_name || "") << ","
-          io << csv_escape(log.ip_address || "") << ","
-          io << csv_escape(log.user_agent || "") << ","
-          io << csv_escape(log.changes || "") << "\n"
-        end
+        io << audit_log_csv_header
+        logs.each { |log| io << format_audit_log_row(log) }
       end
 
       timestamp = Time.utc.to_s("%Y%m%d_%H%M%S")
@@ -234,6 +201,63 @@ module Authority
       )
     rescue e
       ExportResult.new(success: false, error: e.message)
+    end
+
+    # Fetch audit logs with database and in-memory filters applied
+    private def fetch_filtered_audit_logs(
+      start_date : Time?,
+      end_date : Time?,
+      action : String?,
+      resource_type : String?,
+      actor_id : String?,
+      limit : Int32
+    ) : Array(AuditLog)
+      query = build_audit_log_query(action, resource_type)
+      logs = query.limit(limit).all
+      apply_audit_log_memory_filters(logs, start_date, end_date, actor_id)
+    end
+
+    # Build the database query with filters that can be applied at DB level
+    private def build_audit_log_query(action : String?, resource_type : String?)
+      query = AuditLog.query.order(created_at: :desc)
+      query = query.where(action: action) if action && !action.empty?
+      query = query.where(resource_type: resource_type) if resource_type && !resource_type.empty?
+      query
+    end
+
+    # Apply filters that must be done in memory
+    private def apply_audit_log_memory_filters(
+      logs : Array(AuditLog),
+      start_date : Time?,
+      end_date : Time?,
+      actor_id : String?
+    ) : Array(AuditLog)
+      result = logs
+      result = result.select { |log| (cat = log.created_at) && cat >= start_date } if start_date
+      result = result.select { |log| (cat = log.created_at) && cat <= end_date } if end_date
+      result = result.select { |log| log.actor_id.try(&.to_s) == actor_id } if actor_id && !actor_id.empty?
+      result
+    end
+
+    # Generate CSV header for audit logs
+    private def audit_log_csv_header : String
+      "ID,Timestamp,Actor Email,Action,Resource Type,Resource ID,Resource Name,IP Address,User Agent,Changes\n"
+    end
+
+    # Format a single audit log entry as a CSV row
+    private def format_audit_log_row(log : AuditLog) : String
+      String.build do |io|
+        io << csv_escape(log.id.to_s) << ","
+        io << csv_escape(log.created_at.try(&.to_s("%Y-%m-%d %H:%M:%S")) || "") << ","
+        io << csv_escape(log.actor_email.empty? ? "System" : log.actor_email) << ","
+        io << csv_escape(log.action) << ","
+        io << csv_escape(log.resource_type) << ","
+        io << csv_escape(log.resource_id.try(&.to_s) || "") << ","
+        io << csv_escape(log.resource_name || "") << ","
+        io << csv_escape(log.ip_address || "") << ","
+        io << csv_escape(log.user_agent || "") << ","
+        io << csv_escape(log.changes || "") << "\n"
+      end
     end
 
     # Escape CSV field values

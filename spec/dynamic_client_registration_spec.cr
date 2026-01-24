@@ -20,17 +20,17 @@ describe "Dynamic Client Registration (RFC 7591)" do
 
     it "registers a client with all optional metadata" do
       response = register_client({
-        "client_name"              => "Full Metadata App",
-        "redirect_uris"            => ["https://example.com/callback", "https://example.com/callback2"],
+        "client_name"                => "Full Metadata App",
+        "redirect_uris"              => ["https://example.com/callback", "https://example.com/callback2"],
         "token_endpoint_auth_method" => "client_secret_basic",
-        "grant_types"              => ["authorization_code", "refresh_token"],
-        "response_types"           => ["code"],
-        "client_uri"               => "https://example.com",
-        "logo_uri"                 => "https://example.com/logo.png",
-        "scope"                    => "read write profile",
-        "contacts"                 => ["admin@example.com"],
-        "tos_uri"                  => "https://example.com/tos",
-        "policy_uri"               => "https://example.com/privacy",
+        "grant_types"                => ["authorization_code", "refresh_token"],
+        "response_types"             => ["code"],
+        "client_uri"                 => "https://example.com",
+        "logo_uri"                   => "https://example.com/logo.png",
+        "scope"                      => "read write profile",
+        "contacts"                   => ["admin@example.com"],
+        "tos_uri"                    => "https://example.com/tos",
+        "policy_uri"                 => "https://example.com/privacy",
       })
 
       response.status_code.should eq 201
@@ -150,8 +150,8 @@ describe "Dynamic Client Registration (RFC 7591)" do
     describe "public clients" do
       it "registers public client without client_secret" do
         response = register_client({
-          "client_name"              => "Public App",
-          "redirect_uris"            => ["https://example.com/callback"],
+          "client_name"                => "Public App",
+          "redirect_uris"              => ["https://example.com/callback"],
           "token_endpoint_auth_method" => "none",
         })
 

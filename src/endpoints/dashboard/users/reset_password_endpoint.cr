@@ -24,7 +24,7 @@ module Authority::Dashboard::Users
       return forbidden_response("Admin access required") unless admin_user
 
       # Set temporary password
-      result = AdminUserService.set_temp_password(
+      AdminUserService.set_temp_password(
         id: reset_password_request.id,
         password: reset_password_request.password,
         actor: admin_user

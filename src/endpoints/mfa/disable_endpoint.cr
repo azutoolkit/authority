@@ -49,7 +49,7 @@ module Authority::MFA
       unless disable_request.valid?
         return DisableResponse.new(
           username: user.username,
-          errors: disable_request.errors.map { |e| e.message }
+          errors: disable_request.errors.map(&.message)
         )
       end
 

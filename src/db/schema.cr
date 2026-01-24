@@ -1,4 +1,3 @@
-
 # CQL Schema Definition
 # https://github.com/azutoolkit/cql
 AuthorityDB = CQL::Schema.define(
@@ -137,6 +136,17 @@ AuthorityDB = CQL::Schema.define(
     text :code_hash, null: false, index: true, unique: true
     text :client_id, null: false, index: true
     timestamp :used_at, null: true
+  end
+
+  # Settings Table - stores system configuration
+  table :settings do
+    primary :id, UUID
+    text :key, null: false, index: true, unique: true
+    text :value, null: true
+    text :category, null: false, index: true
+    text :description, null: true
+    timestamp :updated_at, null: false
+    text :updated_by, null: true
   end
 
   # Social Connections Table - stores social login provider connections

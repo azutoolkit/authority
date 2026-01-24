@@ -21,7 +21,7 @@ module Authority
     def self.request_email_verification(user_id : String) : RecoveryToken?
       user = User.find_by(id: user_id)
       return nil unless user
-      return nil if user.email_verified # Already verified
+      return nil if user.email_verified? # Already verified
 
       RecoveryToken.create_email_verification(user_id)
     end
@@ -50,7 +50,7 @@ module Authority
     def self.resend_email_verification(email : String) : RecoveryToken?
       user = User.find_by(email: email)
       return nil unless user
-      return nil if user.email_verified # Already verified
+      return nil if user.email_verified? # Already verified
 
       RecoveryToken.create_email_verification(user.id!.to_s)
     end

@@ -117,7 +117,7 @@ module Authority
     end
 
     # Set the TTL for cache entries (for testing)
-    def set_ttl(ttl : Time::Span) : Nil
+    def ttl=(ttl : Time::Span) : Nil
       @@ttl = ttl
     end
 

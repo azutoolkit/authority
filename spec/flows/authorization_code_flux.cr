@@ -35,16 +35,16 @@ class AuthorizationCodeFlux < Flux
     cookies = HTTP::Cookies.new
     headers = HTTP::Headers.new
 
-    all_cookies.as_a.each do |c|
+    all_cookies.as_a.each do |cookie|
       cookies << HTTP::Cookie.new(
-        name: c["name"].as_s,
-        value: c["value"].as_s,
-        path: c["path"].as_s,
-        expires: c["expiry"].as_i64.minutes.from_now,
-        domain: c["domain"].as_s,
-        secure: c["secure"].as_bool,
-        http_only: c["secure"].as_bool,
-        samesite: HTTP::Cookie::SameSite.parse(c["sameSite"].as_s)
+        name: cookie["name"].as_s,
+        value: cookie["value"].as_s,
+        path: cookie["path"].as_s,
+        expires: cookie["expiry"].as_i64.minutes.from_now,
+        domain: cookie["domain"].as_s,
+        secure: cookie["secure"].as_bool,
+        http_only: cookie["secure"].as_bool,
+        samesite: HTTP::Cookie::SameSite.parse(cookie["sameSite"].as_s)
       )
     end
 

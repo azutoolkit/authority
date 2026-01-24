@@ -5,7 +5,7 @@ module Authority
   struct AccountRecoveryResponse
     include Response
 
-    getter success : Bool
+    getter? success : Bool
     getter message : String
 
     def initialize(@success : Bool = true, @message : String = "")
@@ -82,7 +82,7 @@ module Authority
   struct TokenValidationResponse
     include Response
 
-    getter valid : Bool
+    getter? valid : Bool
 
     def initialize(@valid : Bool)
     end

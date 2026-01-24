@@ -97,11 +97,11 @@ module Authority::Register
     end
 
     def validate_grant_types : Bool
-      grant_types.all? { |gt| SUPPORTED_GRANT_TYPES.includes?(gt) }
+      grant_types.all? { |grant_type| SUPPORTED_GRANT_TYPES.includes?(grant_type) }
     end
 
     def validate_response_types : Bool
-      response_types.all? { |rt| SUPPORTED_RESPONSE_TYPES.includes?(rt) }
+      response_types.all? { |response_type| SUPPORTED_RESPONSE_TYPES.includes?(response_type) }
     end
 
     def validate_auth_method : Bool

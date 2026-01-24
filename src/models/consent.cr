@@ -51,7 +51,7 @@ module Authority
 
         existing.scopes = merged
         existing.granted_at = Time.utc
-        existing.revoked_at = nil  # Reactivate if revoked
+        existing.revoked_at = nil # Reactivate if revoked
         existing.update!
         existing
       else

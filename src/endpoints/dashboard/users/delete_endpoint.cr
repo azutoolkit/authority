@@ -24,7 +24,7 @@ module Authority::Dashboard::Users
       return forbidden_response("Admin access required") unless admin_user
 
       # Delete the user
-      result = AdminUserService.delete(
+      AdminUserService.delete(
         id: delete_request.id,
         actor: admin_user
       )

@@ -11,11 +11,8 @@ module Authority::Dashboard::Clients
 
     def call : SecretResponse | NewResponse | Response
       set_security_headers!
-      header "Content-Type", "text/html; charset=UTF-8"
-      header "Cache-Control", "no-store"
-      header "Pragma", "no-cache"
+      set_html_headers!
 
-      # Check admin authorization
       if auth_error = require_admin!
         return auth_error
       end
@@ -23,57 +20,62 @@ module Authority::Dashboard::Clients
       user = current_admin_user
       return forbidden_response("Admin access required") unless user
 
-      # Validate required fields
+      errors = validate_request
+      return new_response_with_errors(user, errors) unless errors.empty?
+
+      result, plain_secret = create_client(user)
+      return new_response_with_errors(user, [result.error || "Failed to create client"]) unless result.success?
+
+      build_success_response(result.client, plain_secret, user)
+    end
+
+    private def set_html_headers!
+      header "Content-Type", "text/html; charset=UTF-8"
+      header "Cache-Control", "no-store"
+      header "Pragma", "no-cache"
+    end
+
+    private def validate_request : Array(String)
       errors = [] of String
       errors << "Name is required" if create_request.name.empty?
       errors << "Redirect URI is required" if create_request.redirect_uri.empty?
+      errors
+    end
 
-      unless errors.empty?
-        return NewResponse.new(
-          username: user.username,
-          errors: errors,
-          name: create_request.name,
-          redirect_uri: create_request.redirect_uri,
-          description: create_request.description,
-          logo: create_request.logo,
-          scopes: create_request.scopes,
-          policy_url: create_request.policy_url,
-          tos_url: create_request.tos_url,
-          is_confidential: create_request.is_confidential == "true"
-        )
-      end
-
-      # Create the client
-      result, plain_secret = AdminClientService.create_with_secret(
+    private def create_client(user : User)
+      AdminClientService.create_with_secret(
         name: create_request.name,
         redirect_uri: create_request.redirect_uri,
-        description: create_request.description.empty? ? nil : create_request.description,
+        description: empty_to_nil(create_request.description),
         logo: create_request.logo,
         scopes: create_request.scopes.empty? ? "read" : create_request.scopes,
-        policy_url: create_request.policy_url.empty? ? nil : create_request.policy_url,
-        tos_url: create_request.tos_url.empty? ? nil : create_request.tos_url,
+        policy_url: empty_to_nil(create_request.policy_url),
+        tos_url: empty_to_nil(create_request.tos_url),
         is_confidential: create_request.is_confidential == "true",
         actor: user
       )
+    end
 
-      unless result.success?
-        return NewResponse.new(
-          username: user.username,
-          errors: [result.error || "Failed to create client"],
-          name: create_request.name,
-          redirect_uri: create_request.redirect_uri,
-          description: create_request.description,
-          logo: create_request.logo,
-          scopes: create_request.scopes,
-          policy_url: create_request.policy_url,
-          tos_url: create_request.tos_url,
-          is_confidential: create_request.is_confidential == "true"
-        )
-      end
+    private def empty_to_nil(value : String) : String?
+      value.empty? ? nil : value
+    end
 
-      client = result.client
-      secret = plain_secret
+    private def new_response_with_errors(user : User, errors : Array(String)) : NewResponse
+      NewResponse.new(
+        username: user.username,
+        errors: errors,
+        name: create_request.name,
+        redirect_uri: create_request.redirect_uri,
+        description: create_request.description,
+        logo: create_request.logo,
+        scopes: create_request.scopes,
+        policy_url: create_request.policy_url,
+        tos_url: create_request.tos_url,
+        is_confidential: create_request.is_confidential == "true"
+      )
+    end
 
+    private def build_success_response(client : Client?, secret : String?, user : User) : SecretResponse | NewResponse
       if client && secret
         SecretResponse.new(
           client: client,
@@ -81,18 +83,7 @@ module Authority::Dashboard::Clients
           username: user.username
         )
       else
-        NewResponse.new(
-          username: user.username,
-          errors: ["Failed to create client"],
-          name: create_request.name,
-          redirect_uri: create_request.redirect_uri,
-          description: create_request.description,
-          logo: create_request.logo,
-          scopes: create_request.scopes,
-          policy_url: create_request.policy_url,
-          tos_url: create_request.tos_url,
-          is_confidential: create_request.is_confidential == "true"
-        )
+        new_response_with_errors(user, ["Failed to create client"])
       end
     end
   end

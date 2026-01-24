@@ -8,7 +8,7 @@ module Authority
     struct ValidationResult
       getter? valid : Bool
       getter errors : Array(String)
-      getter strength : Int32  # 0-100 strength score
+      getter strength : Int32 # 0-100 strength score
 
       def initialize(@valid : Bool, @errors : Array(String) = [] of String, @strength : Int32 = 0)
       end
@@ -27,76 +27,15 @@ module Authority
       errors = [] of String
       strength = 0
 
-      # Length check
-      if password.size < Security.password_min_length
-        errors << "Password must be at least #{Security.password_min_length} characters"
-      else
-        # Award points for length
-        strength += [password.size * 2, 30].min
-      end
-
-      # Uppercase check
-      if Security.password_require_uppercase
-        if password.matches?(/[A-Z]/)
-          strength += 15
-        else
-          errors << "Password must contain at least one uppercase letter"
-        end
-      end
-
-      # Lowercase check
-      if Security.password_require_lowercase
-        if password.matches?(/[a-z]/)
-          strength += 15
-        else
-          errors << "Password must contain at least one lowercase letter"
-        end
-      end
-
-      # Number check
-      if Security.password_require_number
-        if password.matches?(/[0-9]/)
-          strength += 15
-        else
-          errors << "Password must contain at least one number"
-        end
-      end
-
-      # Special character check
-      if Security.password_require_special
-        if password.matches?(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/)
-          strength += 15
-        else
-          errors << "Password must contain at least one special character (!@#$%^&*...)"
-        end
-      end
-
-      # Check against password history if user provided
-      if user && Security.password_history_count > 0
-        if in_password_history?(password, user)
-          errors << "Password cannot be one of your last #{Security.password_history_count} passwords"
-        end
-      end
-
-      # Common password check
-      if common_password?(password)
-        errors << "Password is too common, please choose a more unique password"
-        strength = [strength - 30, 0].max
-      end
-
-      # Username/email check
-      if user
-        if password.downcase.includes?(user.username.downcase) ||
-           password.downcase.includes?(user.email.split("@").first.downcase)
-          errors << "Password cannot contain your username or email"
-          strength = [strength - 20, 0].max
-        end
-      end
-
-      # Bonus for extra length
-      if password.size >= 16
-        strength += 10
-      end
+      strength += check_length(password, errors)
+      strength += check_uppercase(password, errors)
+      strength += check_lowercase(password, errors)
+      strength += check_number(password, errors)
+      strength += check_special_character(password, errors)
+      strength += check_password_history(password, user, errors)
+      strength += check_common_password(password, errors)
+      strength += check_username_email(password, user, errors)
+      strength += check_bonus_length(password)
 
       strength = [strength, 100].min
 
@@ -105,6 +44,105 @@ module Authority
       else
         ValidationResult.failure(errors, strength)
       end
+    end
+
+    # Check minimum password length
+    private def check_length(password : String, errors : Array(String)) : Int32
+      if password.size < Security.password_min_length
+        errors << "Password must be at least #{Security.password_min_length} characters"
+        0
+      else
+        [password.size * 2, 30].min
+      end
+    end
+
+    # Check for uppercase letter requirement
+    private def check_uppercase(password : String, errors : Array(String)) : Int32
+      return 0 unless Security.password_require_uppercase?
+
+      if password.matches?(/[A-Z]/)
+        15
+      else
+        errors << "Password must contain at least one uppercase letter"
+        0
+      end
+    end
+
+    # Check for lowercase letter requirement
+    private def check_lowercase(password : String, errors : Array(String)) : Int32
+      return 0 unless Security.password_require_lowercase?
+
+      if password.matches?(/[a-z]/)
+        15
+      else
+        errors << "Password must contain at least one lowercase letter"
+        0
+      end
+    end
+
+    # Check for number requirement
+    private def check_number(password : String, errors : Array(String)) : Int32
+      return 0 unless Security.password_require_number?
+
+      if password.matches?(/[0-9]/)
+        15
+      else
+        errors << "Password must contain at least one number"
+        0
+      end
+    end
+
+    # Check for special character requirement
+    private def check_special_character(password : String, errors : Array(String)) : Int32
+      return 0 unless Security.password_require_special?
+
+      if password.matches?(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/)
+        15
+      else
+        errors << "Password must contain at least one special character (!@#$%^&*...)"
+        0
+      end
+    end
+
+    # Check against password history
+    private def check_password_history(password : String, user : User?, errors : Array(String)) : Int32
+      return 0 unless user && Security.password_history_count > 0
+
+      if in_password_history?(password, user)
+        errors << "Password cannot be one of your last #{Security.password_history_count} passwords"
+      end
+      0
+    end
+
+    # Check if password is common and apply penalty
+    private def check_common_password(password : String, errors : Array(String)) : Int32
+      if common_password?(password)
+        errors << "Password is too common, please choose a more unique password"
+        -30
+      else
+        0
+      end
+    end
+
+    # Check if password contains username or email
+    private def check_username_email(password : String, user : User?, errors : Array(String)) : Int32
+      return 0 unless user
+
+      password_lower = password.downcase
+      username_lower = user.username.downcase
+      email_local = user.email.split("@").first.downcase
+
+      if password_lower.includes?(username_lower) || password_lower.includes?(email_local)
+        errors << "Password cannot contain your username or email"
+        -20
+      else
+        0
+      end
+    end
+
+    # Bonus points for extra length
+    private def check_bonus_length(password : String) : Int32
+      password.size >= 16 ? 10 : 0
     end
 
     # Check if password is in the user's history
@@ -150,20 +188,26 @@ module Authority
     # Check if password has expired
     def password_expired?(user : User) : Bool
       return false if Security.password_expiry_days <= 0
-      return true if user.password_changed_at.nil?
 
-      expiry_date = user.password_changed_at.not_nil! + Security.password_expiry_days.days
-      Time.utc > expiry_date
+      if changed_at = user.password_changed_at
+        expiry_date = changed_at + Security.password_expiry_days.days
+        Time.utc > expiry_date
+      else
+        true
+      end
     end
 
     # Get days until password expiry
     def days_until_expiry(user : User) : Int32?
       return nil if Security.password_expiry_days <= 0
-      return 0 if user.password_changed_at.nil?
 
-      expiry_date = user.password_changed_at.not_nil! + Security.password_expiry_days.days
-      remaining = (expiry_date - Time.utc).total_days.to_i
-      [remaining, 0].max
+      if changed_at = user.password_changed_at
+        expiry_date = changed_at + Security.password_expiry_days.days
+        remaining = (expiry_date - Time.utc).total_days.to_i
+        [remaining, 0].max
+      else
+        0
+      end
     end
 
     # Check if password is in the list of common passwords
@@ -205,10 +249,10 @@ module Authority
     def requirements : Array(String)
       reqs = [] of String
       reqs << "At least #{Security.password_min_length} characters"
-      reqs << "At least one uppercase letter (A-Z)" if Security.password_require_uppercase
-      reqs << "At least one lowercase letter (a-z)" if Security.password_require_lowercase
-      reqs << "At least one number (0-9)" if Security.password_require_number
-      reqs << "At least one special character (!@#$%^&*...)" if Security.password_require_special
+      reqs << "At least one uppercase letter (A-Z)" if Security.password_require_uppercase?
+      reqs << "At least one lowercase letter (a-z)" if Security.password_require_lowercase?
+      reqs << "At least one number (0-9)" if Security.password_require_number?
+      reqs << "At least one special character (!@#$%^&*...)" if Security.password_require_special?
       reqs << "Cannot be one of your last #{Security.password_history_count} passwords" if Security.password_history_count > 0
       reqs << "Cannot be a commonly used password"
       reqs

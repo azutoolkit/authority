@@ -24,7 +24,7 @@ module Authority::Dashboard::Users
       return forbidden_response("Admin access required") unless admin_user
 
       # Unlock the user
-      result = AdminUserService.unlock(
+      AdminUserService.unlock(
         id: unlock_request.id,
         actor: admin_user
       )

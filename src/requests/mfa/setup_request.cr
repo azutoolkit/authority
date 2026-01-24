@@ -8,7 +8,7 @@ module Authority::MFA
 
     getter code : String = ""
     getter secret : String = ""
-    getter backup_codes : String = ""  # JSON array
+    getter backup_codes : String = "" # JSON array
 
     validate code, message: "Verification code is required", presence: true
     validate secret, message: "Secret is required", presence: true

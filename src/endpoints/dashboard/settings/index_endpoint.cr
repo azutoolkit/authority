@@ -29,7 +29,7 @@ module Authority::Dashboard::Settings
       end
 
       # Get all settings grouped by category
-      settings = SettingsService.get_all_grouped
+      settings = SettingsService.all_grouped
 
       IndexResponse.new(
         settings: settings,

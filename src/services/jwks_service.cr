@@ -137,15 +137,15 @@ module Authority
   struct JWK
     include JSON::Serializable
 
-    property kty : String          # Key Type (RSA, EC)
-    property use : String?         # Public Key Use (sig, enc)
-    property alg : String?         # Algorithm
-    property kid : String?         # Key ID
-    property n : String?           # RSA modulus
-    property e : String?           # RSA exponent
-    property crv : String?         # EC curve
-    property x : String?           # EC x coordinate
-    property y : String?           # EC y coordinate
+    property kty : String  # Key Type (RSA, EC)
+    property use : String? # Public Key Use (sig, enc)
+    property alg : String? # Algorithm
+    property kid : String? # Key ID
+    property n : String?   # RSA modulus
+    property e : String?   # RSA exponent
+    property crv : String? # EC curve
+    property x : String?   # EC x coordinate
+    property y : String?   # EC y coordinate
 
     def initialize(
       @kty : String,

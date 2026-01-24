@@ -126,30 +126,59 @@ module Authority
       scope = get(id)
       return Result.new(success: false, error: "Scope not found", error_code: "not_found") unless scope
 
-      # Cannot modify system scopes
+      validation_error = validate_scope_update(scope, name)
+      return validation_error if validation_error
+
+      old_values = capture_scope_values(scope)
+
+      has_changes = apply_scope_updates(scope, name, display_name, description, is_default)
+      return Result.new(success: true, scope: scope) unless has_changes
+
+      scope.updated_at = Time.utc
+      scope.update!
+
+      log_scope_update_audit(scope, old_values, actor, ip_address)
+
+      Result.new(success: true, scope: scope)
+    rescue e
+      Result.new(success: false, error: e.message, error_code: "update_failed")
+    end
+
+    # Validate scope update constraints
+    private def self.validate_scope_update(scope : Scope, name : String?) : Result?
       if scope.is_system?
         return Result.new(success: false, error: "System scopes cannot be modified", error_code: "system_scope_protected")
       end
 
-      # Capture old values for audit diff
-      old_values = {
+      if name && !name.empty? && !name.matches?(/\A[a-z0-9_:]+\z/)
+        return Result.new(success: false, error: "Name must be lowercase alphanumeric with underscores or colons", error_code: "invalid_name")
+      end
+
+      if name && name != scope.name && exists_by_name?(name)
+        return Result.new(success: false, error: "Scope name already exists", error_code: "duplicate_name")
+      end
+
+      nil
+    end
+
+    # Capture current scope values for audit diff
+    private def self.capture_scope_values(scope : Scope) : Hash(String, String?)
+      {
         "name"         => scope.name,
         "display_name" => scope.display_name,
         "description"  => scope.description,
         "is_default"   => scope.is_default?.to_s,
       } of String => String?
+    end
 
-      # Validate name format if changing
-      if name && !name.empty? && !name.matches?(/\A[a-z0-9_:]+\z/)
-        return Result.new(success: false, error: "Name must be lowercase alphanumeric with underscores or colons", error_code: "invalid_name")
-      end
-
-      # Check for duplicate name if changing
-      if name && name != scope.name && exists_by_name?(name)
-        return Result.new(success: false, error: "Scope name already exists", error_code: "duplicate_name")
-      end
-
-      # Update fields if provided
+    # Apply updates to scope fields, returns true if any changes were made
+    private def self.apply_scope_updates(
+      scope : Scope,
+      name : String?,
+      display_name : String?,
+      description : String?,
+      is_default : Bool?
+    ) : Bool
       has_changes = false
 
       if name && !name.empty?
@@ -172,38 +201,25 @@ module Authority
         has_changes = true
       end
 
-      return Result.new(success: true, scope: scope) unless has_changes
+      has_changes
+    end
 
-      scope.updated_at = Time.utc
-      scope.update!
+    # Log audit trail for scope update
+    private def self.log_scope_update_audit(scope : Scope, old_values : Hash(String, String?), actor : User?, ip_address : String?) : Nil
+      return unless actor
 
-      updated_scope = scope
+      new_values = capture_scope_values(scope)
+      changes = AuditService.diff(old_values, new_values)
 
-      # Log audit trail with changes
-      if updated_scope && actor
-        new_values = {
-          "name"         => updated_scope.name,
-          "display_name" => updated_scope.display_name,
-          "description"  => updated_scope.description,
-          "is_default"   => updated_scope.is_default?.to_s,
-        } of String => String?
-
-        changes = AuditService.diff(old_values, new_values)
-
-        AuditService.log(
-          actor: actor,
-          action: AuditLog::Actions::UPDATE,
-          resource_type: AuditLog::ResourceTypes::SCOPE,
-          resource_id: updated_scope.id.to_s,
-          resource_name: updated_scope.name,
-          changes: changes,
-          ip_address: ip_address
-        )
-      end
-
-      Result.new(success: true, scope: updated_scope)
-    rescue e
-      Result.new(success: false, error: e.message, error_code: "update_failed")
+      AuditService.log(
+        actor: actor,
+        action: AuditLog::Actions::UPDATE,
+        resource_type: AuditLog::ResourceTypes::SCOPE,
+        resource_id: scope.id.to_s,
+        resource_name: scope.name,
+        changes: changes,
+        ip_address: ip_address
+      )
     end
 
     # Delete a scope

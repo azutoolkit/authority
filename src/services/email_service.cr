@@ -31,17 +31,17 @@ module Authority
     # Send a password reset email
     def send_password_reset(to_email : String, to_name : String, reset_token : String, expires_at : Time) : Result
       return Result.new(success: false, error: "Email not configured") unless Email.configured?
-      return Result.new(success: false, error: "Password reset emails disabled") unless Email.send_password_reset
+      return Result.new(success: false, error: "Password reset emails disabled") unless Email.send_password_reset?
 
       reset_url = "#{Email.app_url}/password/reset?token=#{reset_token}"
       expires_in = format_duration(expires_at - Time.utc)
 
       subject = "Reset Your #{Email.app_name} Password"
       html_body = render_template("password_reset", {
-        "name"       => to_name,
-        "reset_url"  => reset_url,
-        "expires_in" => expires_in,
-        "app_name"   => Email.app_name,
+        "name"          => to_name,
+        "reset_url"     => reset_url,
+        "expires_in"    => expires_in,
+        "app_name"      => Email.app_name,
         "support_email" => Email.support_email,
       })
 
@@ -66,17 +66,17 @@ module Authority
     # Send an email verification email
     def send_email_verification(to_email : String, to_name : String, verification_token : String, expires_at : Time) : Result
       return Result.new(success: false, error: "Email not configured") unless Email.configured?
-      return Result.new(success: false, error: "Email verification emails disabled") unless Email.send_email_verification
+      return Result.new(success: false, error: "Email verification emails disabled") unless Email.send_email_verification?
 
       verify_url = "#{Email.app_url}/verify-email?token=#{verification_token}"
       expires_in = format_duration(expires_at - Time.utc)
 
       subject = "Verify Your #{Email.app_name} Email Address"
       html_body = render_template("email_verification", {
-        "name"       => to_name,
-        "verify_url" => verify_url,
-        "expires_in" => expires_in,
-        "app_name"   => Email.app_name,
+        "name"          => to_name,
+        "verify_url"    => verify_url,
+        "expires_in"    => expires_in,
+        "app_name"      => Email.app_name,
         "support_email" => Email.support_email,
       })
 
@@ -99,7 +99,7 @@ module Authority
     # Send an account locked notification
     def send_account_locked(to_email : String, to_name : String, reason : String, unlock_at : Time?) : Result
       return Result.new(success: false, error: "Email not configured") unless Email.configured?
-      return Result.new(success: false, error: "Lockout notification emails disabled") unless Email.send_lockout_notification
+      return Result.new(success: false, error: "Lockout notification emails disabled") unless Email.send_lockout_notification?
 
       unlock_info = if unlock_at
                       "Your account will be automatically unlocked in #{format_duration(unlock_at - Time.utc)}."
@@ -109,10 +109,10 @@ module Authority
 
       subject = "#{Email.app_name} Account Locked"
       html_body = render_template("account_locked", {
-        "name"        => to_name,
-        "reason"      => reason,
-        "unlock_info" => unlock_info,
-        "app_name"    => Email.app_name,
+        "name"          => to_name,
+        "reason"        => reason,
+        "unlock_info"   => unlock_info,
+        "app_name"      => Email.app_name,
         "support_email" => Email.support_email,
       })
 
@@ -136,15 +136,15 @@ module Authority
     # Send an account unlocked notification
     def send_account_unlocked(to_email : String, to_name : String) : Result
       return Result.new(success: false, error: "Email not configured") unless Email.configured?
-      return Result.new(success: false, error: "Lockout notification emails disabled") unless Email.send_lockout_notification
+      return Result.new(success: false, error: "Lockout notification emails disabled") unless Email.send_lockout_notification?
 
       login_url = "#{Email.app_url}/signin"
 
       subject = "#{Email.app_name} Account Unlocked"
       html_body = render_template("account_unlocked", {
-        "name"      => to_name,
-        "login_url" => login_url,
-        "app_name"  => Email.app_name,
+        "name"          => to_name,
+        "login_url"     => login_url,
+        "app_name"      => Email.app_name,
         "support_email" => Email.support_email,
       })
 
@@ -166,15 +166,15 @@ module Authority
     # Send a welcome email
     def send_welcome(to_email : String, to_name : String) : Result
       return Result.new(success: false, error: "Email not configured") unless Email.configured?
-      return Result.new(success: false, error: "Welcome emails disabled") unless Email.send_welcome_email
+      return Result.new(success: false, error: "Welcome emails disabled") unless Email.send_welcome_email?
 
       login_url = "#{Email.app_url}/signin"
 
       subject = "Welcome to #{Email.app_name}"
       html_body = render_template("welcome", {
-        "name"      => to_name,
-        "login_url" => login_url,
-        "app_name"  => Email.app_name,
+        "name"          => to_name,
+        "login_url"     => login_url,
+        "app_name"      => Email.app_name,
         "support_email" => Email.support_email,
       })
 
@@ -200,8 +200,8 @@ module Authority
 
       subject = "#{Email.app_name} Password Changed"
       html_body = render_template("password_changed", {
-        "name"     => to_name,
-        "app_name" => Email.app_name,
+        "name"          => to_name,
+        "app_name"      => Email.app_name,
         "support_email" => Email.support_email,
       })
 
@@ -233,7 +233,7 @@ module Authority
       helo_domain = Email.from_address.split("@").last? || "localhost"
       config = EMail::Client::Config.new(Email.smtp_host, Email.smtp_port, helo_domain: helo_domain)
 
-      if Email.smtp_tls
+      if Email.smtp_tls?
         config.use_tls(EMail::Client::TLSMode::STARTTLS)
       end
 
@@ -308,54 +308,78 @@ module Authority
     private def generate_template_content(template_name : String, vars : Hash(String, String)) : String
       case template_name
       when "password_reset"
-        url = vars["reset_url"]? || "#"
-        expires = vars["expires_in"]? || "24 hours"
-        <<-HTML
-        <p>You requested a password reset for your account.</p>
-        <p><a href="#{url}" class="button">Reset Password</a></p>
-        <p>Or copy this link: #{url}</p>
-        <p>This link will expire in #{expires}.</p>
-        <p>If you didn't request this, you can safely ignore this email.</p>
-        HTML
+        password_reset_template(vars)
       when "email_verification"
-        url = vars["verify_url"]? || "#"
-        expires = vars["expires_in"]? || "24 hours"
-        <<-HTML
-        <p>Please verify your email address to complete your account setup.</p>
-        <p><a href="#{url}" class="button">Verify Email</a></p>
-        <p>Or copy this link: #{url}</p>
-        <p>This link will expire in #{expires}.</p>
-        HTML
+        email_verification_template(vars)
       when "account_locked"
-        reason = vars["reason"]? || "Too many failed login attempts"
-        unlock_info = vars["unlock_info"]? || "Please contact support."
-        <<-HTML
-        <p>Your account has been locked.</p>
-        <p><strong>Reason:</strong> #{reason}</p>
-        <p>#{unlock_info}</p>
-        <p>If you believe this is an error, please contact support.</p>
-        HTML
+        account_locked_template(vars)
       when "account_unlocked"
-        url = vars["login_url"]? || "#"
-        <<-HTML
-        <p>Your account has been unlocked.</p>
-        <p>You can now sign in to your account.</p>
-        <p><a href="#{url}" class="button">Sign In</a></p>
-        HTML
+        account_unlocked_template(vars)
       when "welcome"
-        url = vars["login_url"]? || "#"
-        <<-HTML
-        <p>Welcome! Your account has been created successfully.</p>
-        <p><a href="#{url}" class="button">Sign In</a></p>
-        HTML
+        welcome_template(vars)
       when "password_changed"
-        <<-HTML
-        <p>Your password has been changed.</p>
-        <p>If you did not make this change, please contact support immediately.</p>
-        HTML
+        password_changed_template
       else
         "<p>This is an automated message from your account.</p>"
       end
+    end
+
+    private def password_reset_template(vars : Hash(String, String)) : String
+      url = vars["reset_url"]? || "#"
+      expires = vars["expires_in"]? || "24 hours"
+      <<-HTML
+      <p>You requested a password reset for your account.</p>
+      <p><a href="#{url}" class="button">Reset Password</a></p>
+      <p>Or copy this link: #{url}</p>
+      <p>This link will expire in #{expires}.</p>
+      <p>If you didn't request this, you can safely ignore this email.</p>
+      HTML
+    end
+
+    private def email_verification_template(vars : Hash(String, String)) : String
+      url = vars["verify_url"]? || "#"
+      expires = vars["expires_in"]? || "24 hours"
+      <<-HTML
+      <p>Please verify your email address to complete your account setup.</p>
+      <p><a href="#{url}" class="button">Verify Email</a></p>
+      <p>Or copy this link: #{url}</p>
+      <p>This link will expire in #{expires}.</p>
+      HTML
+    end
+
+    private def account_locked_template(vars : Hash(String, String)) : String
+      reason = vars["reason"]? || "Too many failed login attempts"
+      unlock_info = vars["unlock_info"]? || "Please contact support."
+      <<-HTML
+      <p>Your account has been locked.</p>
+      <p><strong>Reason:</strong> #{reason}</p>
+      <p>#{unlock_info}</p>
+      <p>If you believe this is an error, please contact support.</p>
+      HTML
+    end
+
+    private def account_unlocked_template(vars : Hash(String, String)) : String
+      url = vars["login_url"]? || "#"
+      <<-HTML
+      <p>Your account has been unlocked.</p>
+      <p>You can now sign in to your account.</p>
+      <p><a href="#{url}" class="button">Sign In</a></p>
+      HTML
+    end
+
+    private def welcome_template(vars : Hash(String, String)) : String
+      url = vars["login_url"]? || "#"
+      <<-HTML
+      <p>Welcome! Your account has been created successfully.</p>
+      <p><a href="#{url}" class="button">Sign In</a></p>
+      HTML
+    end
+
+    private def password_changed_template : String
+      <<-HTML
+      <p>Your password has been changed.</p>
+      <p>If you did not make this change, please contact support immediately.</p>
+      HTML
     end
 
     private def format_duration(span : Time::Span) : String

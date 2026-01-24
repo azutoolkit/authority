@@ -44,19 +44,19 @@ describe Authority::AdminUserService do
 
       options = Authority::AdminUserService::ListOptions.new(role: "admin")
       result = Authority::AdminUserService.list(options)
-      result.all? { |u| u.role == "admin" }.should be_true
+      result.all? { |user| user.role == "admin" }.should be_true
     end
 
     it "filters by status (active)" do
       options = Authority::AdminUserService::ListOptions.new(status: "active")
       result = Authority::AdminUserService.list(options)
-      result.all? { |u| !u.locked? }.should be_true
+      result.all? { |user| !user.locked? }.should be_true
     end
 
     it "filters by status (locked)" do
       options = Authority::AdminUserService::ListOptions.new(status: "locked")
       result = Authority::AdminUserService.list(options)
-      result.all? { |u| u.locked? }.should be_true
+      result.all?(&.locked?).should be_true
     end
   end
 
@@ -85,12 +85,15 @@ describe Authority::AdminUserService do
         last_name: "Test"
       )
       create_result.success?.should be_true
-      created_user = create_result.user.not_nil!
+      created_user = create_result.user
+      created_user.should_not be_nil
 
       # Fetch it
-      user = Authority::AdminUserService.get(created_user.id.to_s)
-      user.should_not be_nil
-      user.not_nil!.username.should eq username
+      if user = created_user
+        fetched_user = Authority::AdminUserService.get(user.id.to_s)
+        fetched_user.should_not be_nil
+        fetched_user.try(&.username).should eq username
+      end
     end
 
     it "returns nil for non-existent ID" do
@@ -112,7 +115,7 @@ describe Authority::AdminUserService do
 
       result.success?.should be_true
       result.user.should_not be_nil
-      result.user.not_nil!.username.should eq username
+      result.user.try(&.username).should eq username
     end
 
     it "hashes the password" do
@@ -126,9 +129,11 @@ describe Authority::AdminUserService do
       )
 
       result.success?.should be_true
-      user = result.user.not_nil!
-      user.encrypted_password.should_not eq "password123"
-      user.verify?("password123").should be_true
+      result.user.should_not be_nil
+      if user = result.user
+        user.encrypted_password.should_not eq "password123"
+        user.verify?("password123").should be_true
+      end
     end
 
     it "sets default role to user" do
@@ -142,7 +147,7 @@ describe Authority::AdminUserService do
       )
 
       result.success?.should be_true
-      result.user.not_nil!.role.should eq "user"
+      result.user.try(&.role).should eq "user"
     end
 
     it "can create admin user" do
@@ -157,7 +162,7 @@ describe Authority::AdminUserService do
       )
 
       result.success?.should be_true
-      result.user.not_nil!.role.should eq "admin"
+      result.user.try(&.role).should eq "admin"
     end
 
     it "fails with empty username" do
@@ -228,17 +233,19 @@ describe Authority::AdminUserService do
         first_name: "Update",
         last_name: "Test"
       )
-      user = create_result.user.not_nil!
+      create_result.user.should_not be_nil
 
-      result = Authority::AdminUserService.update(
-        id: user.id.to_s,
-        first_name: "Updated",
-        last_name: "Name"
-      )
+      if user = create_result.user
+        result = Authority::AdminUserService.update(
+          id: user.id.to_s,
+          first_name: "Updated",
+          last_name: "Name"
+        )
 
-      result.success?.should be_true
-      result.user.not_nil!.first_name.should eq "Updated"
-      result.user.not_nil!.last_name.should eq "Name"
+        result.success?.should be_true
+        result.user.try(&.first_name).should eq "Updated"
+        result.user.try(&.last_name).should eq "Name"
+      end
     end
 
     it "can change user role" do
@@ -250,15 +257,17 @@ describe Authority::AdminUserService do
         first_name: "Role",
         last_name: "Change"
       )
-      user = create_result.user.not_nil!
+      create_result.user.should_not be_nil
 
-      result = Authority::AdminUserService.update(
-        id: user.id.to_s,
-        role: "admin"
-      )
+      if user = create_result.user
+        result = Authority::AdminUserService.update(
+          id: user.id.to_s,
+          role: "admin"
+        )
 
-      result.success?.should be_true
-      result.user.not_nil!.role.should eq "admin"
+        result.success?.should be_true
+        result.user.try(&.role).should eq "admin"
+      end
     end
 
     it "fails for non-existent user" do
@@ -290,15 +299,17 @@ describe Authority::AdminUserService do
         first_name: "User",
         last_name: "Two"
       )
-      user2 = create_result.user.not_nil!
+      create_result.user.should_not be_nil
 
-      result = Authority::AdminUserService.update(
-        id: user2.id.to_s,
-        username: username1
-      )
+      if user2 = create_result.user
+        result = Authority::AdminUserService.update(
+          id: user2.id.to_s,
+          username: username1
+        )
 
-      result.success?.should be_false
-      result.error_code.should eq "duplicate_username"
+        result.success?.should be_false
+        result.error_code.should eq "duplicate_username"
+      end
     end
   end
 
@@ -314,7 +325,7 @@ describe Authority::AdminUserService do
         last_name: "Admin",
         role: "admin"
       )
-      actor = actor_result.user.not_nil!
+      actor_result.user.should_not be_nil
 
       # Create target user
       target_username = "target_#{UUID.random.to_s[0..7]}"
@@ -325,17 +336,21 @@ describe Authority::AdminUserService do
         first_name: "Target",
         last_name: "User"
       )
-      target = target_result.user.not_nil!
+      target_result.user.should_not be_nil
 
-      result = Authority::AdminUserService.lock(
-        id: target.id.to_s,
-        reason: "Test lock",
-        actor: actor
-      )
+      if actor = actor_result.user
+        if target = target_result.user
+          result = Authority::AdminUserService.lock(
+            id: target.id.to_s,
+            reason: "Test lock",
+            actor: actor
+          )
 
-      result.success?.should be_true
-      result.user.not_nil!.locked?.should be_true
-      result.user.not_nil!.lock_reason.should eq "Test lock"
+          result.success?.should be_true
+          result.user.try(&.locked?).should be_true
+          result.user.try(&.lock_reason).should eq "Test lock"
+        end
+      end
     end
 
     it "prevents locking yourself" do
@@ -348,16 +363,18 @@ describe Authority::AdminUserService do
         last_name: "Lock",
         role: "admin"
       )
-      actor = actor_result.user.not_nil!
+      actor_result.user.should_not be_nil
 
-      result = Authority::AdminUserService.lock(
-        id: actor.id.to_s,
-        reason: "Self lock",
-        actor: actor
-      )
+      if actor = actor_result.user
+        result = Authority::AdminUserService.lock(
+          id: actor.id.to_s,
+          reason: "Self lock",
+          actor: actor
+        )
 
-      result.success?.should be_false
-      result.error_code.should eq "self_lock_forbidden"
+        result.success?.should be_false
+        result.error_code.should eq "self_lock_forbidden"
+      end
     end
 
     it "prevents non-super-admin from locking admin" do
@@ -371,7 +388,7 @@ describe Authority::AdminUserService do
         last_name: "Admin",
         role: "admin"
       )
-      actor = actor_result.user.not_nil!
+      actor_result.user.should_not be_nil
 
       # Create another admin
       target_username = "otheradmin_#{UUID.random.to_s[0..7]}"
@@ -383,16 +400,20 @@ describe Authority::AdminUserService do
         last_name: "Admin",
         role: "admin"
       )
-      target = target_result.user.not_nil!
+      target_result.user.should_not be_nil
 
-      result = Authority::AdminUserService.lock(
-        id: target.id.to_s,
-        reason: "Admin lock",
-        actor: actor
-      )
+      if actor = actor_result.user
+        if target = target_result.user
+          result = Authority::AdminUserService.lock(
+            id: target.id.to_s,
+            reason: "Admin lock",
+            actor: actor
+          )
 
-      result.success?.should be_false
-      result.error_code.should eq "admin_lock_forbidden"
+          result.success?.should be_false
+          result.error_code.should eq "admin_lock_forbidden"
+        end
+      end
     end
   end
 
@@ -408,7 +429,7 @@ describe Authority::AdminUserService do
         last_name: "Admin",
         role: "admin"
       )
-      actor = actor_result.user.not_nil!
+      actor_result.user.should_not be_nil
 
       # Create and lock target
       target_username = "locked_#{UUID.random.to_s[0..7]}"
@@ -419,22 +440,26 @@ describe Authority::AdminUserService do
         first_name: "Locked",
         last_name: "User"
       )
-      target = target_result.user.not_nil!
+      target_result.user.should_not be_nil
 
-      Authority::AdminUserService.lock(
-        id: target.id.to_s,
-        reason: "Test",
-        actor: actor
-      )
+      if actor = actor_result.user
+        if target = target_result.user
+          Authority::AdminUserService.lock(
+            id: target.id.to_s,
+            reason: "Test",
+            actor: actor
+          )
 
-      result = Authority::AdminUserService.unlock(
-        id: target.id.to_s,
-        actor: actor
-      )
+          result = Authority::AdminUserService.unlock(
+            id: target.id.to_s,
+            actor: actor
+          )
 
-      result.success?.should be_true
-      result.user.not_nil!.locked?.should be_false
-      result.user.not_nil!.lock_reason.should be_nil
+          result.success?.should be_true
+          result.user.try(&.locked?).should be_false
+          result.user.try(&.lock_reason).should be_nil
+        end
+      end
     end
 
     it "fails if user is not locked" do
@@ -447,7 +472,7 @@ describe Authority::AdminUserService do
         last_name: "Admin",
         role: "admin"
       )
-      actor = actor_result.user.not_nil!
+      actor_result.user.should_not be_nil
 
       target_username = "notlocked_#{UUID.random.to_s[0..7]}"
       target_result = Authority::AdminUserService.create(
@@ -457,15 +482,19 @@ describe Authority::AdminUserService do
         first_name: "Not",
         last_name: "Locked"
       )
-      target = target_result.user.not_nil!
+      target_result.user.should_not be_nil
 
-      result = Authority::AdminUserService.unlock(
-        id: target.id.to_s,
-        actor: actor
-      )
+      if actor = actor_result.user
+        if target = target_result.user
+          result = Authority::AdminUserService.unlock(
+            id: target.id.to_s,
+            actor: actor
+          )
 
-      result.success?.should be_false
-      result.error_code.should eq "not_locked"
+          result.success?.should be_false
+          result.error_code.should eq "not_locked"
+        end
+      end
     end
   end
 
@@ -480,7 +509,7 @@ describe Authority::AdminUserService do
         last_name: "Actor",
         role: "admin"
       )
-      actor = actor_result.user.not_nil!
+      actor_result.user.should_not be_nil
 
       target_username = "pwdtarget_#{UUID.random.to_s[0..7]}"
       target_result = Authority::AdminUserService.create(
@@ -490,18 +519,25 @@ describe Authority::AdminUserService do
         first_name: "Password",
         last_name: "Target"
       )
-      target = target_result.user.not_nil!
+      target_result.user.should_not be_nil
 
-      result = Authority::AdminUserService.set_temp_password(
-        id: target.id.to_s,
-        password: "newpassword",
-        actor: actor
-      )
+      if actor = actor_result.user
+        if target = target_result.user
+          result = Authority::AdminUserService.set_temp_password(
+            id: target.id.to_s,
+            password: "newpassword",
+            actor: actor
+          )
 
-      result.success?.should be_true
-      updated_user = Authority::AdminUserService.get(target.id.to_s).not_nil!
-      updated_user.verify?("newpassword").should be_true
-      updated_user.verify?("oldpassword").should be_false
+          result.success?.should be_true
+          updated_user = Authority::AdminUserService.get(target.id.to_s)
+          updated_user.should_not be_nil
+          if user = updated_user
+            user.verify?("newpassword").should be_true
+            user.verify?("oldpassword").should be_false
+          end
+        end
+      end
     end
 
     it "fails with empty password" do
@@ -514,7 +550,7 @@ describe Authority::AdminUserService do
         last_name: "Actor",
         role: "admin"
       )
-      actor = actor_result.user.not_nil!
+      actor_result.user.should_not be_nil
 
       target_username = "emptytarget_#{UUID.random.to_s[0..7]}"
       target_result = Authority::AdminUserService.create(
@@ -524,16 +560,20 @@ describe Authority::AdminUserService do
         first_name: "Empty",
         last_name: "Target"
       )
-      target = target_result.user.not_nil!
+      target_result.user.should_not be_nil
 
-      result = Authority::AdminUserService.set_temp_password(
-        id: target.id.to_s,
-        password: "",
-        actor: actor
-      )
+      if actor = actor_result.user
+        if target = target_result.user
+          result = Authority::AdminUserService.set_temp_password(
+            id: target.id.to_s,
+            password: "",
+            actor: actor
+          )
 
-      result.success?.should be_false
-      result.error_code.should eq "validation_error"
+          result.success?.should be_false
+          result.error_code.should eq "validation_error"
+        end
+      end
     end
   end
 
@@ -548,7 +588,7 @@ describe Authority::AdminUserService do
         last_name: "Actor",
         role: "admin"
       )
-      actor = actor_result.user.not_nil!
+      actor_result.user.should_not be_nil
 
       target_username = "deltarget_#{UUID.random.to_s[0..7]}"
       target_result = Authority::AdminUserService.create(
@@ -558,15 +598,19 @@ describe Authority::AdminUserService do
         first_name: "Delete",
         last_name: "Target"
       )
-      target = target_result.user.not_nil!
+      target_result.user.should_not be_nil
 
-      result = Authority::AdminUserService.delete(
-        id: target.id.to_s,
-        actor: actor
-      )
+      if actor = actor_result.user
+        if target = target_result.user
+          result = Authority::AdminUserService.delete(
+            id: target.id.to_s,
+            actor: actor
+          )
 
-      result.success?.should be_true
-      Authority::AdminUserService.get(target.id.to_s).should be_nil
+          result.success?.should be_true
+          Authority::AdminUserService.get(target.id.to_s).should be_nil
+        end
+      end
     end
 
     it "prevents self-deletion" do
@@ -579,15 +623,17 @@ describe Authority::AdminUserService do
         last_name: "Delete",
         role: "admin"
       )
-      actor = actor_result.user.not_nil!
+      actor_result.user.should_not be_nil
 
-      result = Authority::AdminUserService.delete(
-        id: actor.id.to_s,
-        actor: actor
-      )
+      if actor = actor_result.user
+        result = Authority::AdminUserService.delete(
+          id: actor.id.to_s,
+          actor: actor
+        )
 
-      result.success?.should be_false
-      result.error_code.should eq "self_delete_forbidden"
+        result.success?.should be_false
+        result.error_code.should eq "self_delete_forbidden"
+      end
     end
 
     it "prevents non-super-admin from deleting admin" do
@@ -600,7 +646,7 @@ describe Authority::AdminUserService do
         last_name: "Admin",
         role: "admin"
       )
-      actor = actor_result.user.not_nil!
+      actor_result.user.should_not be_nil
 
       target_username = "deladmin2_#{UUID.random.to_s[0..7]}"
       target_result = Authority::AdminUserService.create(
@@ -611,15 +657,19 @@ describe Authority::AdminUserService do
         last_name: "Admin",
         role: "admin"
       )
-      target = target_result.user.not_nil!
+      target_result.user.should_not be_nil
 
-      result = Authority::AdminUserService.delete(
-        id: target.id.to_s,
-        actor: actor
-      )
+      if actor = actor_result.user
+        if target = target_result.user
+          result = Authority::AdminUserService.delete(
+            id: target.id.to_s,
+            actor: actor
+          )
 
-      result.success?.should be_false
-      result.error_code.should eq "admin_delete_forbidden"
+          result.success?.should be_false
+          result.error_code.should eq "admin_delete_forbidden"
+        end
+      end
     end
   end
 
@@ -633,20 +683,22 @@ describe Authority::AdminUserService do
         first_name: "Login",
         last_name: "Test"
       )
-      user = create_result.user.not_nil!
+      create_result.user.should_not be_nil
 
-      result = Authority::AdminUserService.record_login(user.id.to_s, "192.168.1.100")
+      if user = create_result.user
+        result = Authority::AdminUserService.record_login(user.id.to_s, "192.168.1.100")
 
-      result.success?.should be_true
-      updated = result.user
-      updated.should_not be_nil
-      if user = updated
-        # INET type returns CIDR notation (e.g., "192.168.1.100/32")
-        ip = user.last_login_ip
-        ip.should_not be_nil
-        ip.should start_with("192.168.1.100") if ip
-        user.last_login_at.should_not be_nil
-        user.failed_login_attempts.should eq 0
+        result.success?.should be_true
+        updated = result.user
+        updated.should_not be_nil
+        if updated_user = updated
+          # INET type returns CIDR notation (e.g., "192.168.1.100/32")
+          ip = updated_user.last_login_ip
+          ip.should_not be_nil
+          ip.should start_with("192.168.1.100") if ip
+          updated_user.last_login_at.should_not be_nil
+          updated_user.failed_login_attempts.should eq 0
+        end
       end
     end
   end
@@ -661,13 +713,16 @@ describe Authority::AdminUserService do
         first_name: "Failed",
         last_name: "Login"
       )
-      user = create_result.user.not_nil!
-      initial_attempts = user.failed_login_attempts
+      create_result.user.should_not be_nil
 
-      result = Authority::AdminUserService.record_failed_login(user.id.to_s)
+      if user = create_result.user
+        initial_attempts = user.failed_login_attempts
 
-      result.success?.should be_true
-      result.user.not_nil!.failed_login_attempts.should eq initial_attempts + 1
+        result = Authority::AdminUserService.record_failed_login(user.id.to_s)
+
+        result.success?.should be_true
+        result.user.try(&.failed_login_attempts).should eq initial_attempts + 1
+      end
     end
   end
 end

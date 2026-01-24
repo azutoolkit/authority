@@ -55,7 +55,8 @@ describe "OpenID Connect Nonce Parameter" do
       token = OAuth2::AccessToken::Bearer.from_json(response.body)
 
       # Verify ID token contains nonce
-      id_token_jwt = token.extra.not_nil!["id_token"].to_s
+      token.extra.should_not be_nil
+      id_token_jwt = token.extra.try(&.["id_token"].to_s) || ""
       id_token_jwt.should_not be_empty
 
       payload, _ = Authly.jwt_decode(id_token_jwt)
@@ -75,7 +76,8 @@ describe "OpenID Connect Nonce Parameter" do
       token = OAuth2::AccessToken::Bearer.from_json(response.body)
 
       # Verify ID token exists
-      id_token_jwt = token.extra.not_nil!["id_token"].to_s
+      token.extra.should_not be_nil
+      id_token_jwt = token.extra.try(&.["id_token"].to_s) || ""
       id_token_jwt.should_not be_empty
 
       payload, _ = Authly.jwt_decode(id_token_jwt)
@@ -98,7 +100,8 @@ describe "OpenID Connect Nonce Parameter" do
       response = create_token_request(code, code_verifier, "openid")
       token = OAuth2::AccessToken::Bearer.from_json(response.body)
 
-      id_token_jwt = token.extra.not_nil!["id_token"].to_s
+      token.extra.should_not be_nil
+      id_token_jwt = token.extra.try(&.["id_token"].to_s) || ""
       payload, _ = Authly.jwt_decode(id_token_jwt)
 
       # Client-side verification: nonce in ID token must match original
@@ -116,7 +119,8 @@ describe "OpenID Connect Nonce Parameter" do
       )
       response1 = create_token_request(code1, verifier1, "openid")
       token1 = OAuth2::AccessToken::Bearer.from_json(response1.body)
-      id_token1 = token1.extra.not_nil!["id_token"].to_s
+      token1.extra.should_not be_nil
+      id_token1 = token1.extra.try(&.["id_token"].to_s) || ""
       payload1, _ = Authly.jwt_decode(id_token1)
 
       # Second request with nonce2
@@ -125,7 +129,8 @@ describe "OpenID Connect Nonce Parameter" do
       )
       response2 = create_token_request(code2, verifier2, "openid")
       token2 = OAuth2::AccessToken::Bearer.from_json(response2.body)
-      id_token2 = token2.extra.not_nil!["id_token"].to_s
+      token2.extra.should_not be_nil
+      id_token2 = token2.extra.try(&.["id_token"].to_s) || ""
       payload2, _ = Authly.jwt_decode(id_token2)
 
       # Nonces should be different

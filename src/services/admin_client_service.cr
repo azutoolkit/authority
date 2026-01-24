@@ -24,8 +24,8 @@ module Authority
       property page : Int32 = 1
       property per_page : Int32 = 20
       property search : String?
-      property confidentiality : String?  # "confidential", "public", nil for all
-      property scope : String?            # Filter by specific scope
+      property confidentiality : String? # "confidential", "public", nil for all
+      property scope : String?           # Filter by specific scope
       property sort_by : String = "created_at"
       property sort_dir : String = "DESC"
 
@@ -44,59 +44,49 @@ module Authority
     # List all clients with pagination and filtering
     def self.list(options : ListOptions = ListOptions.new) : Array(Client)
       offset = (options.page - 1) * options.per_page
+      results = build_sorted_query(options).all
+      results = apply_search_filter(results, options.search)
+      results = apply_confidentiality_filter(results, options.confidentiality)
+      results = apply_scope_filter(results, options.scope)
+      results.skip(offset).first(options.per_page)
+    end
 
+    private def self.build_sorted_query(options : ListOptions)
       query = Client.query
-
-      # Validate sort column to prevent SQL injection
       valid_sort_columns = ["created_at", "updated_at", "name"]
       sort_column = valid_sort_columns.includes?(options.sort_by) ? options.sort_by : "created_at"
       sort_direction = options.sort_dir.upcase == "ASC" ? :asc : :desc
 
-      # Apply ordering based on validated column
       case sort_column
-      when "created_at"
-        query = query.order(created_at: sort_direction)
-      when "updated_at"
-        query = query.order(updated_at: sort_direction)
-      when "name"
-        query = query.order(name: sort_direction)
+      when "created_at" then query.order(created_at: sort_direction)
+      when "updated_at" then query.order(updated_at: sort_direction)
+      when "name"       then query.order(name: sort_direction)
+      else                   query.order(created_at: sort_direction)
       end
+    end
 
-      # Fetch all matching clients, then apply in-memory filters
-      results = query.all
-
-      # Apply search filter in memory
-      if search = options.search
-        if !search.empty?
-          pattern = search.downcase
-          results = results.select do |client|
-            client.name.downcase.includes?(pattern) ||
-              client.client_id.downcase.includes?(pattern) ||
-              client.redirect_uri.downcase.includes?(pattern) ||
-              (client.description.try(&.downcase.includes?(pattern)) || false)
-          end
-        end
+    private def self.apply_search_filter(results : Array(Client), search : String?) : Array(Client)
+      return results if search.nil? || search.empty?
+      pattern = search.downcase
+      results.select do |client|
+        client.name.downcase.includes?(pattern) ||
+          client.client_id.downcase.includes?(pattern) ||
+          client.redirect_uri.downcase.includes?(pattern) ||
+          (client.description.try(&.downcase.includes?(pattern)) || false)
       end
+    end
 
-      # Apply confidentiality filter
-      case options.confidentiality
-      when "confidential"
-        results = results.select(&.is_confidential)
-      when "public"
-        results = results.select { |c| !c.is_confidential }
+    private def self.apply_confidentiality_filter(results : Array(Client), confidentiality : String?) : Array(Client)
+      case confidentiality
+      when "confidential" then results.select(&.is_confidential?)
+      when "public"       then results.select { |client| !client.is_confidential? }
+      else                     results
       end
+    end
 
-      # Apply scope filter
-      if scope = options.scope
-        if !scope.empty?
-          results = results.select do |client|
-            client.scopes_list.includes?(scope)
-          end
-        end
-      end
-
-      # Apply pagination in memory
-      results.skip(offset).first(options.per_page)
+    private def self.apply_scope_filter(results : Array(Client), scope : String?) : Array(Client)
+      return results if scope.nil? || scope.empty?
+      results.select(&.scopes_list.includes?(scope))
     end
 
     # Backwards-compatible list method
@@ -136,44 +126,20 @@ module Authority
       actor : User? = nil,
       ip_address : String? = nil
     ) : Result
-      # Generate client credentials
-      plain_secret = ClientSecretService.generate
-      hashed_secret = ClientSecretService.hash(plain_secret)
-      now = Time.utc
-
-      client = Client.new
-      client.client_id = UUID.random.to_s
-      client.client_secret = hashed_secret
-      client.name = name
-      client.description = description
-      client.logo = logo
-      client.redirect_uri = redirect_uri
-      client.scopes = scopes
-      client.policy_url = policy_url
-      client.tos_url = tos_url
-      client.owner_id = owner_id.try { |id| UUID.new(id) }
-      client.is_confidential = is_confidential
-      client.created_at = now
-      client.updated_at = now
-      client.save!
-
-      created_client = client
-
-      # Log audit trail
-      if created_client && actor
-        AuditService.log(
-          actor: actor,
-          action: AuditLog::Actions::CREATE,
-          resource_type: AuditLog::ResourceTypes::CLIENT,
-          resource_id: created_client.id.to_s,
-          resource_name: created_client.name,
-          ip_address: ip_address
-        )
-      end
-
-      Result.new(success: true, client: created_client)
-    rescue e
-      Result.new(success: false, error: e.message, error_code: "create_failed")
+      result, _ = create_with_secret(
+        name: name,
+        redirect_uri: redirect_uri,
+        description: description,
+        logo: logo,
+        scopes: scopes,
+        policy_url: policy_url,
+        tos_url: tos_url,
+        owner_id: owner_id,
+        is_confidential: is_confidential,
+        actor: actor,
+        ip_address: ip_address
+      )
+      result
     end
 
     # Create a new client and return both result and plain secret
@@ -190,8 +156,41 @@ module Authority
       actor : User? = nil,
       ip_address : String? = nil
     ) : Tuple(Result, String?)
-      # Generate client credentials
       plain_secret = ClientSecretService.generate
+      client = build_client(
+        plain_secret: plain_secret,
+        name: name,
+        redirect_uri: redirect_uri,
+        description: description,
+        logo: logo,
+        scopes: scopes,
+        policy_url: policy_url,
+        tos_url: tos_url,
+        owner_id: owner_id,
+        is_confidential: is_confidential
+      )
+      client.save!
+
+      log_client_create_audit(client, actor, ip_address)
+
+      {Result.new(success: true, client: client), plain_secret}
+    rescue e
+      {Result.new(success: false, error: e.message, error_code: "create_failed"), nil}
+    end
+
+    # Build a new client with credentials
+    private def self.build_client(
+      plain_secret : String,
+      name : String,
+      redirect_uri : String,
+      description : String?,
+      logo : String,
+      scopes : String,
+      policy_url : String?,
+      tos_url : String?,
+      owner_id : String?,
+      is_confidential : Bool
+    ) : Client
       hashed_secret = ClientSecretService.hash(plain_secret)
       now = Time.utc
 
@@ -209,25 +208,21 @@ module Authority
       client.is_confidential = is_confidential
       client.created_at = now
       client.updated_at = now
-      client.save!
+      client
+    end
 
-      created_client = client
+    # Log audit trail for client creation
+    private def self.log_client_create_audit(client : Client, actor : User?, ip_address : String?) : Nil
+      return unless actor
 
-      # Log audit trail
-      if created_client && actor
-        AuditService.log(
-          actor: actor,
-          action: AuditLog::Actions::CREATE,
-          resource_type: AuditLog::ResourceTypes::CLIENT,
-          resource_id: created_client.id.to_s,
-          resource_name: created_client.name,
-          ip_address: ip_address
-        )
-      end
-
-      {Result.new(success: true, client: created_client), plain_secret}
-    rescue e
-      {Result.new(success: false, error: e.message, error_code: "create_failed"), nil}
+      AuditService.log(
+        actor: actor,
+        action: AuditLog::Actions::CREATE,
+        resource_type: AuditLog::ResourceTypes::CLIENT,
+        resource_id: client.id.to_s,
+        resource_name: client.name,
+        ip_address: ip_address
+      )
     end
 
     # Update client metadata
@@ -247,8 +242,25 @@ module Authority
       client = get(id)
       return Result.new(success: false, error: "Client not found", error_code: "not_found") unless client
 
-      # Capture old values for audit diff
-      old_values = {
+      old_values = capture_client_values(client)
+
+      has_changes = apply_client_updates(client, name, description, logo, redirect_uri, scopes, policy_url, tos_url, is_confidential)
+      return Result.new(success: true, client: client) unless has_changes
+
+      client.updated_at = Time.utc
+      client.update!
+
+      ClientCacheService.invalidate(client.client_id)
+      log_client_update_audit(client, old_values, actor, ip_address)
+
+      Result.new(success: true, client: client)
+    rescue e
+      Result.new(success: false, error: e.message, error_code: "update_failed")
+    end
+
+    # Capture current client values for audit diff
+    private def self.capture_client_values(client : Client) : Hash(String, String?)
+      {
         "name"            => client.name,
         "description"     => client.description,
         "redirect_uri"    => client.redirect_uri,
@@ -257,8 +269,20 @@ module Authority
         "tos_url"         => client.tos_url,
         "is_confidential" => client.is_confidential?.to_s,
       } of String => String?
+    end
 
-      # Update fields if provided
+    # Apply updates to client fields, returns true if any changes were made
+    private def self.apply_client_updates(
+      client : Client,
+      name : String?,
+      description : String?,
+      logo : String?,
+      redirect_uri : String?,
+      scopes : String?,
+      policy_url : String?,
+      tos_url : String?,
+      is_confidential : Bool?
+    ) : Bool
       has_changes = false
 
       if name
@@ -301,46 +325,25 @@ module Authority
         has_changes = true
       end
 
-      return Result.new(success: true, client: client) unless has_changes
+      has_changes
+    end
 
-      client.updated_at = Time.utc
-      client.update!
+    # Log audit trail for client update
+    private def self.log_client_update_audit(client : Client, old_values : Hash(String, String?), actor : User?, ip_address : String?) : Nil
+      return unless actor
 
-      updated_client = client
+      new_values = capture_client_values(client)
+      changes = AuditService.diff(old_values, new_values)
 
-      # Invalidate cache for this client
-      if updated_client
-        ClientCacheService.invalidate(updated_client.client_id)
-      end
-
-      # Log audit trail with changes
-      if updated_client && actor
-        new_values = {
-          "name"            => updated_client.name,
-          "description"     => updated_client.description,
-          "redirect_uri"    => updated_client.redirect_uri,
-          "scopes"          => updated_client.scopes,
-          "policy_url"      => updated_client.policy_url,
-          "tos_url"         => updated_client.tos_url,
-          "is_confidential" => updated_client.is_confidential?.to_s,
-        } of String => String?
-
-        changes = AuditService.diff(old_values, new_values)
-
-        AuditService.log(
-          actor: actor,
-          action: AuditLog::Actions::UPDATE,
-          resource_type: AuditLog::ResourceTypes::CLIENT,
-          resource_id: updated_client.id.to_s,
-          resource_name: updated_client.name,
-          changes: changes,
-          ip_address: ip_address
-        )
-      end
-
-      Result.new(success: true, client: updated_client)
-    rescue e
-      Result.new(success: false, error: e.message, error_code: "update_failed")
+      AuditService.log(
+        actor: actor,
+        action: AuditLog::Actions::UPDATE,
+        resource_type: AuditLog::ResourceTypes::CLIENT,
+        resource_id: client.id.to_s,
+        resource_name: client.name,
+        changes: changes,
+        ip_address: ip_address
+      )
     end
 
     # Delete a client

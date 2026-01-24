@@ -71,14 +71,17 @@ module Authority
       when Providers::APPLE    then "Apple"
       when Providers::LINKEDIN then "LinkedIn"
       when Providers::GITHUB   then "GitHub"
-      else provider.capitalize
+      else                          provider.capitalize
       end
     end
 
     # Check if token is expired
     def token_expired? : Bool
-      return true unless token_expires_at
-      Time.utc > token_expires_at.not_nil!
+      if expires_at = token_expires_at
+        Time.utc > expires_at
+      else
+        true
+      end
     end
   end
 end
