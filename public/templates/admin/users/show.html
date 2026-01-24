@@ -30,6 +30,27 @@
 
     {% include "errors.html" %}
 
+    <!-- Success/Error Messages from Query Params -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const params = new URLSearchParams(window.location.search);
+        const success = params.get('success');
+        const error = params.get('error');
+        if (success) {
+          const alert = document.createElement('div');
+          alert.className = 'alert alert-success mb-4';
+          alert.innerHTML = '<span>' + decodeURIComponent(success.replace(/\+/g, ' ')) + '</span>';
+          document.querySelector('main .max-w-4xl').insertBefore(alert, document.querySelector('main .max-w-4xl').children[1]);
+        }
+        if (error) {
+          const alert = document.createElement('div');
+          alert.className = 'alert alert-error mb-4';
+          alert.innerHTML = '<span>' + decodeURIComponent(error.replace(/\+/g, ' ')) + '</span>';
+          document.querySelector('main .max-w-4xl').insertBefore(alert, document.querySelector('main .max-w-4xl').children[1]);
+        }
+      });
+    </script>
+
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Profile Card -->
       <div class="card bg-base-100 shadow-xl">
@@ -163,6 +184,72 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Active Sessions Card -->
+    <div class="card bg-base-100 shadow-xl mt-6">
+      <div class="card-body">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="card-title text-lg">Active Sessions</h2>
+          {% if sessions|length > 0 %}
+          <form action="/dashboard/users/{{user.id_str}}/sessions/revoke-all" method="POST"
+                onsubmit="return confirm('Are you sure you want to sign out all sessions for this user?')">
+            <button type="submit" class="btn btn-sm btn-outline btn-error gap-1">
+              <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+              </svg>
+              Sign Out All
+            </button>
+          </form>
+          {% endif %}
+        </div>
+
+        {% if sessions|length > 0 %}
+        <div class="overflow-x-auto">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>Device</th>
+                <th>IP Address</th>
+                <th>Last Activity</th>
+                <th class="text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for session in sessions %}
+              <tr class="hover">
+                <td>
+                  <div class="flex items-center gap-2">
+                    <svg class="h-5 w-5 text-base-content/60" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" />
+                    </svg>
+                    <span class="text-sm">{{session.device_info}}</span>
+                  </div>
+                </td>
+                <td>
+                  <code class="text-xs">{{session.ip_address}}</code>
+                </td>
+                <td>
+                  <span class="text-sm text-base-content/60">{{session.last_activity_relative}}</span>
+                </td>
+                <td class="text-right">
+                  <form action="/dashboard/users/{{user.id_str}}/sessions/{{session.id_str}}/revoke" method="POST" class="inline">
+                    <button type="submit" class="btn btn-ghost btn-xs text-error" title="Revoke Session">
+                      <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="text-base-content/40 italic">No active sessions</p>
+        {% endif %}
       </div>
     </div>
 
