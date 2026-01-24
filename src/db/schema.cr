@@ -20,6 +20,11 @@ AuthorityDB = CQL::Schema.define(
     integer :failed_login_attempts, null: false, default: 0
     timestamp :last_login_at, null: true
     text :last_login_ip, null: true
+    timestamp :password_changed_at, null: true
+    text :password_history, null: true
+    boolean :mfa_enabled, null: false, default: false
+    text :totp_secret, null: true
+    text :backup_codes, null: true
     timestamps
   end
 
