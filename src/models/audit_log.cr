@@ -34,13 +34,16 @@ module Authority
 
     # Action constants for consistency
     module Actions
-      CREATE       = "create"
-      UPDATE       = "update"
-      DELETE       = "delete"
-      LOCK         = "lock"
-      UNLOCK       = "unlock"
-      RESET_PASS   = "reset_password"
-      REGEN_SECRET = "regenerate_secret"
+      CREATE              = "create"
+      UPDATE              = "update"
+      DELETE              = "delete"
+      LOCK                = "lock"
+      UNLOCK              = "unlock"
+      AUTO_LOCK           = "auto_lock"
+      AUTO_UNLOCK         = "auto_unlock"
+      RESET_PASS          = "reset_password"
+      RESET_FAILED_ATTEMPTS = "reset_failed_attempts"
+      REGEN_SECRET        = "regenerate_secret"
     end
 
     # Resource type constants
@@ -59,11 +62,11 @@ module Authority
         "badge-info"
       when Actions::DELETE
         "badge-error"
-      when Actions::LOCK
+      when Actions::LOCK, Actions::AUTO_LOCK
         "badge-warning"
-      when Actions::UNLOCK
+      when Actions::UNLOCK, Actions::AUTO_UNLOCK
         "badge-success"
-      when Actions::RESET_PASS
+      when Actions::RESET_PASS, Actions::RESET_FAILED_ATTEMPTS
         "badge-warning"
       when Actions::REGEN_SECRET
         "badge-warning"
@@ -83,10 +86,16 @@ module Authority
         "Deleted"
       when Actions::LOCK
         "Locked"
+      when Actions::AUTO_LOCK
+        "Auto-Locked"
       when Actions::UNLOCK
         "Unlocked"
+      when Actions::AUTO_UNLOCK
+        "Auto-Unlocked"
       when Actions::RESET_PASS
         "Password Reset"
+      when Actions::RESET_FAILED_ATTEMPTS
+        "Failed Attempts Reset"
       when Actions::REGEN_SECRET
         "Secret Regenerated"
       else

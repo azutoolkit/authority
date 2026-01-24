@@ -130,12 +130,21 @@ module Authority
       scope : String = "",
       email_verified : Bool = false,
       actor : User? = nil,
-      ip_address : String? = nil
+      ip_address : String? = nil,
+      skip_password_validation : Bool = false
     ) : Result
       # Validate required fields
       return Result.new(success: false, error: "Username is required", error_code: "validation_error") if username.empty?
       return Result.new(success: false, error: "Email is required", error_code: "validation_error") if email.empty?
       return Result.new(success: false, error: "Password is required", error_code: "validation_error") if password.empty?
+
+      # Validate password policy
+      unless skip_password_validation
+        validation = PasswordPolicyService.validate(password)
+        unless validation.valid?
+          return Result.new(success: false, error: validation.errors.first, error_code: "password_policy_error")
+        end
+      end
 
       # Check for duplicate username
       if exists_by_username?(username)
@@ -159,6 +168,7 @@ module Authority
       user.password = password
       user.role = role
       user.failed_login_attempts = 0
+      user.password_changed_at = now
       user.created_at = now
       user.updated_at = now
       user.save!
@@ -500,6 +510,117 @@ module Authority
       Result.new(success: true, user: user)
     rescue e
       Result.new(success: false, error: e.message, error_code: "record_failed_login_failed")
+    end
+
+    # Automatically lock an account (system-initiated, no actor required)
+    def self.auto_lock(id : String, reason : String) : Result
+      user = get(id)
+      return Result.new(success: false, error: "User not found", error_code: "not_found") unless user
+
+      # Don't lock if already locked
+      return Result.new(success: true, user: user) if user.locked?
+
+      now = Time.utc
+
+      user.locked_at = now
+      user.lock_reason = reason
+      user.updated_at = now
+      user.update!
+
+      Log.info { "Account auto-locked: #{user.username} - Reason: #{reason}" }
+
+      # Log audit trail as system action
+      AuditService.log_system(
+        action: AuditLog::Actions::LOCK,
+        resource_type: AuditLog::ResourceTypes::USER,
+        resource_id: user.id.to_s,
+        resource_name: user.username,
+        changes: {
+          "reason"     => [nil.as(String?), reason.as(String?)],
+          "auto_lock"  => [nil.as(String?), "true".as(String?)],
+          "threshold"  => [nil.as(String?), Security.lockout_threshold.to_s.as(String?)],
+          "failed_attempts" => [nil.as(String?), user.failed_login_attempts.to_s.as(String?)]
+        }
+      )
+
+      # Send lockout notification email
+      unlock_at = Security.auto_unlock_enabled ? now + Security.lockout_duration : nil
+      spawn do
+        EmailService.send_account_locked(
+          user.email,
+          user.first_name.empty? ? user.username : user.first_name,
+          reason,
+          unlock_at
+        )
+      end
+
+      Result.new(success: true, user: user)
+    rescue e
+      Result.new(success: false, error: e.message, error_code: "auto_lock_failed")
+    end
+
+    # Automatically unlock an account after lockout duration expires
+    def self.auto_unlock(id : String) : Result
+      user = get(id)
+      return Result.new(success: false, error: "User not found", error_code: "not_found") unless user
+
+      # Don't unlock if not locked
+      return Result.new(success: true, user: user) unless user.locked?
+
+      now = Time.utc
+
+      user.locked_at = nil
+      user.lock_reason = nil
+      user.failed_login_attempts = 0
+      user.updated_at = now
+      user.update!
+
+      Log.info { "Account auto-unlocked after lockout period: #{user.username}" }
+
+      # Log audit trail as system action
+      AuditService.log_system(
+        action: AuditLog::Actions::UNLOCK,
+        resource_type: AuditLog::ResourceTypes::USER,
+        resource_id: user.id.to_s,
+        resource_name: user.username,
+        changes: {
+          "auto_unlock" => [nil.as(String?), "true".as(String?)],
+          "lockout_duration_minutes" => [nil.as(String?), Security.lockout_duration.total_minutes.to_i.to_s.as(String?)]
+        }
+      )
+
+      Result.new(success: true, user: user)
+    rescue e
+      Result.new(success: false, error: e.message, error_code: "auto_unlock_failed")
+    end
+
+    # Reset failed login attempts (e.g., after manual intervention)
+    def self.reset_failed_attempts(id : String, actor : User? = nil, ip_address : String? = nil) : Result
+      user = get(id)
+      return Result.new(success: false, error: "User not found", error_code: "not_found") unless user
+
+      old_attempts = user.failed_login_attempts
+
+      user.failed_login_attempts = 0
+      user.updated_at = Time.utc
+      user.update!
+
+      # Log audit trail if actor provided
+      if actor
+        AuditService.log(
+          actor: actor,
+          action: "reset_failed_attempts",
+          resource_type: AuditLog::ResourceTypes::USER,
+          resource_id: user.id.to_s,
+          resource_name: user.username,
+          changes: {"failed_login_attempts" => [old_attempts.to_s.as(String?), "0".as(String?)]},
+          ip_address: ip_address
+        )
+      end
+
+      Result.new(success: true, user: user)
+    rescue e
+      Result.new(success: false, error: e.message, error_code: "reset_failed_attempts_failed")
     end
 
     # Check if username exists

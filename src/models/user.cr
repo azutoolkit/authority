@@ -1,5 +1,5 @@
 module Authority
-  @[Crinja::Attributes(expose: [id_str, username, email, first_name, last_name, role, scope, scopes_list, email_verified, locked_at, lock_reason, failed_login_attempts, last_login_at, last_login_ip, created_at, updated_at, locked])]
+  @[Crinja::Attributes(expose: [id_str, username, email, first_name, last_name, role, scope, scopes_list, email_verified, locked_at, lock_reason, failed_login_attempts, last_login_at, last_login_ip, created_at, updated_at, locked, password_changed_at, mfa_enabled])]
   class User
     include CQL::ActiveRecord::Model(UUID)
     include Crinja::Object::Auto
@@ -18,6 +18,11 @@ module Authority
     property failed_login_attempts : Int32 = 0
     property last_login_at : Time?
     property last_login_ip : String?
+    property password_changed_at : Time?
+    property password_history : String?  # JSON array of previous bcrypt hashes
+    property mfa_enabled : Bool = false
+    property totp_secret : String?
+    property backup_codes : String?      # JSON array of backup codes
     property created_at : Time?
     property updated_at : Time?
 

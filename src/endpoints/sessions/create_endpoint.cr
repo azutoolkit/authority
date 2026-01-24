@@ -11,14 +11,16 @@ module Authority::Sessions
       return request_error unless create_request.valid?
 
       ip_address = get_client_ip
-      if AuthenticationService.auth?(create_request, ip_address)
+      result = AuthenticationService.authenticate(create_request, ip_address)
+
+      if result.success?
         header "Content-Type", "application/json; charset=UTF-8"
         header "Cache-Control", "no-store"
         header "Pragma", "no-cache"
 
         redirect to: Base64.decode_string(create_request.forward_url), status: 302
       else
-        unauthorized_error
+        auth_error(result)
       end
     end
 
@@ -33,8 +35,22 @@ module Authority::Sessions
       end
     end
 
+    private def auth_error(result : AuthenticationService::AuthResult)
+      # Set Retry-After header if account is locked
+      if retry_after = result.retry_after
+        header "Retry-After", retry_after.total_seconds.to_i.to_s
+      end
+
+      error_message = result.error || "Invalid credentials"
+
+      # Use 423 Locked status for account locked errors
+      status_code = result.error_code == "account_locked" ? 423 : 401
+
+      error "Authentication failed", status_code, [error_message]
+    end
+
     private def unauthorized_error
-      error "Invalid client", 400, ["Invalid credentials"]
+      error "Invalid client", 401, ["Invalid credentials"]
     end
 
     # Get client IP from request

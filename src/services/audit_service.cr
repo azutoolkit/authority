@@ -201,6 +201,33 @@ module Authority
       [] of NamedTuple(id: String, email: String)
     end
 
+    # Logs a system-initiated action (no human actor)
+    def log_system(
+      action : String,
+      resource_type : String,
+      resource_id : String? = nil,
+      resource_name : String? = nil,
+      changes : Hash(String, Array(String?))? = nil,
+      ip_address : String? = nil
+    ) : AuditLog?
+      audit = AuditLog.new
+      audit.actor_id = nil
+      audit.actor_email = "system"
+      audit.action = action
+      audit.resource_type = resource_type
+      audit.resource_id = resource_id.try { |id| UUID.new(id) }
+      audit.resource_name = resource_name
+      audit.changes = changes.try(&.to_json)
+      audit.ip_address = ip_address
+      audit.user_agent = "Authority System"
+      audit.created_at = Time.utc
+      audit.save!
+      audit
+    rescue ex
+      Log.error { "Failed to create system audit log: #{ex.message}" }
+      nil
+    end
+
     # Calculates the changes between old and new values
     def diff(old_values : Hash(String, String?), new_values : Hash(String, String?)) : Hash(String, Array(String?))
       changes = {} of String => Array(String?)
