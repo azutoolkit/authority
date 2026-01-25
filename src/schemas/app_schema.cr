@@ -219,5 +219,4 @@ AppSchema = CQL::Schema.define(
     timestamps
     foreign_key [:user_id], references: :oauth_owners, references_columns: [:id], on_delete: :cascade
   end
-
 end

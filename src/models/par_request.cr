@@ -45,7 +45,7 @@ module Authority
     # Cleanup expired and used requests, returns count of deleted rows
     def self.cleanup_expired! : Int64
       # Fetch and delete in memory to avoid complex DSL issues
-      requests = ParRequest.query.all.select { |r| r.expired? || r.used? }
+      requests = ParRequest.query.all.select { |request| request.expired? || request.used? }
       count = requests.size.to_i64
       requests.each(&.delete!)
       count
